@@ -13,6 +13,14 @@ export default {
         extend: {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                plusJakartaSans: ['Plus Jakarta Sans'],
+                spaceGrotesk: ['Space Grotesk'],
+            },
+            colors: {
+                'affair': '#77547C',
+                'pale-pink': '#F6D7E4',
+                'zambezi': '#665551',
+                'spanish-white': '#BDAC9C',
             },
         },
     },
