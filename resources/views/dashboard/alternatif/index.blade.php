@@ -19,6 +19,7 @@
             $("input[name='id']").val("");
             $("input[name='alternatif']").val("");
             $("textarea[name='keterangan']").val("");
+            $("input[name='kode']").val("{{ $kode }}");
         }
 
         function show_button(alternatif_id) {
@@ -26,6 +27,7 @@
             let loading = `<span class="loading loading-dots loading-md text-purple-600"></span>`;
             $("#loading_edit1").html(loading);
             $("#loading_edit2").html(loading);
+            $("#loading_edit3").html(loading);
 
             $.ajax({
                 type: "get",
@@ -37,14 +39,16 @@
                 success: function(data) {
                     // console.log(data);
 
-                    $("input[name='id']").val(data.id);
-                    $("input[name='alternatif']").val(data.alternatif);
-                    $("textarea[name='keterangan']").val(data.keterangan);
+                    $("input[name='id']").val(data.data.id);
+                    $("input[name='kode']").val(data.data.kode);
+                    $("input[name='alternatif']").val(data.data.alternatif);
+                    $("textarea[name='keterangan']").val(data.data.keterangan);
 
                     // Loading effect end
                     loading = "";
                     $("#loading_edit1").html(loading);
                     $("#loading_edit2").html(loading);
+                    $("#loading_edit3").html(loading);
                 }
             });
         }
@@ -54,6 +58,7 @@
             let loading = `<span class="loading loading-dots loading-md text-purple-600"></span>`;
             $("#loading_edit1").html(loading);
             $("#loading_edit2").html(loading);
+            $("#loading_edit3").html(loading);
 
             $.ajax({
                 type: "get",
@@ -65,14 +70,16 @@
                 success: function(data) {
                     // console.log(data);
 
-                    $("input[name='id']").val(data.id);
-                    $("input[name='alternatif']").val(data.alternatif);
-                    $("textarea[name='keterangan']").val(data.keterangan);
+                    $("input[name='id']").val(data.data.id);
+                    $("input[name='kode']").val(data.data.kode);
+                    $("input[name='alternatif']").val(data.data.alternatif);
+                    $("textarea[name='keterangan']").val(data.data.keterangan);
 
                     // Loading effect end
                     loading = "";
                     $("#loading_edit1").html(loading);
                     $("#loading_edit2").html(loading);
+                    $("#loading_edit3").html(loading);
                 }
             });
         }
@@ -143,11 +150,24 @@
                             <label class="form-control w-full">
                                 <div class="label">
                                     <span class="label-text font-semibold">
+                                        <x-label-input-required>Kode</x-label-input-required>
+                                    </span>
+                                </div>
+                                <input type="text" name="kode" class="input input-bordered w-full cursor-default bg-slate-100 text-affair" value="{{ old("kode") }}" required readonly />
+                                @error("kode")
+                                    <div class="label">
+                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
+                                    </div>
+                                @enderror
+                            </label>
+                            <label class="form-control w-full">
+                                <div class="label">
+                                    <span class="label-text font-semibold">
                                         <x-label-input-required>Alternatif</x-label-input-required>
                                     </span>
                                     <span class="label-text-alt" id="loading_edit1"></span>
                                 </div>
-                                <input type="text" name="alternatif" class="input input-bordered w-full bg-spring-wood text-regal-blue" value="{{ old("alternatif") }}" required />
+                                <input type="text" name="alternatif" class="input input-bordered w-full text-affair" value="{{ old("alternatif") }}" required />
                                 @error("alternatif")
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
@@ -161,14 +181,14 @@
                                     </span>
                                     <span class="label-text-alt" id="loading_edit2"></span>
                                 </div>
-                                <textarea class="textarea textarea-bordered w-full bg-spring-wood text-regal-blue" name="keterangan">{{ old("keterangan") }}</textarea>
+                                <textarea class="textarea textarea-bordered w-full text-affair" name="keterangan">{{ old("keterangan") }}</textarea>
                                 @error("keterangan")
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
                                 @enderror
                             </label>
-                            <button type="submit" class="btn btn-success mt-3 w-full text-regal-blue">Simpan</button>
+                            <button type="submit" class="btn btn-success mt-3 w-full text-white">Simpan</button>
                         </form>
                     </div>
                 </div>
@@ -189,11 +209,24 @@
                         <label class="form-control w-full">
                             <div class="label">
                                 <span class="label-text font-semibold">
+                                    <x-label-input-required>Kode</x-label-input-required>
+                                </span>
+                            </div>
+                            <input type="text" name="kode" class="input input-bordered w-full text-affair" required readonly />
+                            @error("kode")
+                                <div class="label">
+                                    <span class="label-text-alt text-sm text-error">{{ $message }}</span>
+                                </div>
+                            @enderror
+                        </label>
+                        <label class="form-control w-full">
+                            <div class="label">
+                                <span class="label-text font-semibold">
                                     <span>Alternatif</span>
                                 </span>
                                 <span class="label-text-alt" id="loading_edit1"></span>
                             </div>
-                            <input type="text" name="alternatif" class="input input-bordered w-full bg-spring-wood text-regal-blue" required readonly />
+                            <input type="text" name="alternatif" class="input input-bordered w-full text-affair" required readonly />
                             @error("alternatif")
                                 <div class="label">
                                     <span class="label-text-alt text-sm text-error">{{ $message }}</span>
@@ -207,7 +240,7 @@
                                 </span>
                                 <span class="label-text-alt" id="loading_edit2"></span>
                             </div>
-                            <textarea class="textarea textarea-bordered w-full bg-spring-wood text-regal-blue" name="keterangan" readonly></textarea>
+                            <textarea class="textarea textarea-bordered w-full text-affair" name="keterangan" readonly></textarea>
                             @error("keterangan")
                                 <div class="label">
                                     <span class="label-text-alt text-sm text-error">{{ $message }}</span>
@@ -236,11 +269,25 @@
                             <label class="form-control w-full">
                                 <div class="label">
                                     <span class="label-text font-semibold">
+                                        <x-label-input-required>Kode</x-label-input-required>
+                                    </span>
+                                    <span class="label-text-alt" id="loading_edit3"></span>
+                                </div>
+                                <input type="text" name="kode" class="input input-bordered w-full cursor-default bg-slate-100 text-affair" required readonly />
+                                @error("kode")
+                                    <div class="label">
+                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
+                                    </div>
+                                @enderror
+                            </label>
+                            <label class="form-control w-full">
+                                <div class="label">
+                                    <span class="label-text font-semibold">
                                         <x-label-input-required>Alternatif</x-label-input-required>
                                     </span>
                                     <span class="label-text-alt" id="loading_edit1"></span>
                                 </div>
-                                <input type="text" name="alternatif" class="input input-bordered w-full bg-spring-wood text-regal-blue" required />
+                                <input type="text" name="alternatif" class="input input-bordered w-full text-affair" required />
                                 @error("alternatif")
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
@@ -254,14 +301,14 @@
                                     </span>
                                     <span class="label-text-alt" id="loading_edit2"></span>
                                 </div>
-                                <textarea class="textarea textarea-bordered w-full bg-spring-wood text-regal-blue" name="keterangan"></textarea>
+                                <textarea class="textarea textarea-bordered w-full text-affair" name="keterangan"></textarea>
                                 @error("keterangan")
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
                                 @enderror
                             </label>
-                            <button type="submit" class="btn btn-warning mt-3 w-full text-regal-blue">Perbarui</button>
+                            <button type="submit" class="btn btn-warning mt-3 w-full text-white">Perbarui</button>
                         </form>
                     </div>
                 </div>
@@ -287,14 +334,14 @@
                                         <x-label-input-required>File Excel</x-label-input-required>
                                     </span>
                                 </div>
-                                <input type="file" name="import_data" class="file-input file-input-bordered w-full bg-spring-wood text-regal-blue" required />
+                                <input type="file" name="import_data" class="file-input file-input-bordered w-full text-affair" required />
                                 @error("import_data")
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
                                 @enderror
                             </label>
-                            <button type="submit" class="btn btn-success mt-3 w-full text-regal-blue">Simpan</button>
+                            <button type="submit" class="btn btn-success mt-3 w-full text-white">Simpan</button>
                         </form>
                     </div>
                 </div>
@@ -302,9 +349,9 @@
             {{-- Akhir Modal Import --}}
 
             {{-- Awal Tabel Sub Kriteria --}}
-            <div class="relative mb-6 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-transparent bg-spring-wood bg-clip-border shadow-xl dark:bg-white dark:shadow-akaroa/20">
+            <div class="relative mb-6 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-border shadow-xl dark:bg-white dark:shadow-spanish-white/20">
                 <div class="border-b-solid mb-0 flex items-center justify-between rounded-t-2xl border-b-0 border-b-transparent p-6 pb-3">
-                    <h6 class="font-bold text-regal-blue">Tabel {{ $title }}</h6>
+                    <h6 class="font-bold text-affair dark:text-zambezi">Tabel {{ $title }}</h6>
                     <div class="w-1/2 max-w-full flex-none px-3 text-right">
                         <label for="create_button" class="mb-0 inline-block cursor-pointer rounded-lg border border-solid border-success bg-transparent px-4 py-1 text-center align-middle text-sm font-bold leading-normal tracking-tight text-success shadow-none transition-all ease-in hover:-translate-y-px hover:opacity-75 active:opacity-90 md:px-8 md:py-2" onclick="return create_button()">
                             <i class="ri-add-fill"></i>
@@ -320,8 +367,11 @@
                     <div class="overflow-x-auto p-0 px-6 pb-6">
                         <table id="myTable" class="nowrap stripe mb-3 w-full max-w-full border-collapse items-center align-top" style="width: 100%;">
                             <thead class="align-bottom">
-                                <tr class="bg-avocado text-xs font-bold uppercase text-white dark:bg-regal-blue dark:text-akaroa">
+                                <tr class="bg-affair text-xs font-bold uppercase text-white dark:bg-zambezi dark:text-white">
                                     <th class="rounded-tl">
+                                        Kode
+                                    </th>
+                                    <th>
                                         Nama Alternatif
                                     </th>
                                     <th class="rounded-tr">
@@ -331,9 +381,14 @@
                             </thead>
                             <tbody>
                                 @foreach ($alternatif as $item)
-                                    <tr class="border-b border-slate-600 bg-transparent">
+                                    <tr class="border-b border-affair bg-transparent dark:border-zambezi">
                                         <td>
-                                            <p class="text-left align-middle text-base font-semibold leading-tight text-regal-blue dark:text-regal-blue">
+                                            <p class="text-center align-middle text-base font-semibold leading-tight text-affair dark:text-zambezi">
+                                                {{ $item->kode }}
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p class="text-left align-middle text-base font-semibold leading-tight text-affair dark:text-zambezi">
                                                 {{ $item->alternatif }}
                                             </p>
                                         </td>

@@ -1,5 +1,4 @@
 import axios from 'axios';
-import 'remixicon/fonts/remixicon.css';
 
 window.axios = axios;
 

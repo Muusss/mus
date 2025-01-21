@@ -1,7 +1,7 @@
-<aside class="ease-nav-brand z-990 fixed inset-y-0 my-4 block w-full max-w-64 -translate-x-full flex-wrap items-center justify-between overflow-y-hidden rounded-2xl border-0 bg-spring-wood p-0 antialiased shadow-xl transition-transform duration-200 dark:bg-spring-wood dark:shadow-none xl:left-0 xl:ml-6 xl:translate-x-0" aria-expanded="false">
+<aside class="ease-nav-brand z-990 fixed inset-y-0 my-4 block w-full max-w-64 -translate-x-full flex-wrap items-center justify-between overflow-y-hidden rounded-2xl border-0 bg-pale-pink p-0 antialiased shadow-xl transition-transform duration-200 dark:bg-spanish-white dark:shadow-none xl:left-0 xl:ml-6 xl:translate-x-0" aria-expanded="false">
     <div class="h-19">
         <i class="ri-close-large-fill absolute right-0 top-0 cursor-pointer p-4 text-rose opacity-50 xl:hidden" sidenav-close></i>
-        <a class="m-0 block whitespace-nowrap px-8 py-6 text-sm text-regal-blue" href="{{ route("dashboard") }}">
+        <a class="m-0 block whitespace-nowrap px-8 py-6 text-sm text-affair" href="{{ route("dashboard") }}">
             <img src="{{ asset("img/logo.jpg") }}" class="ease-nav-brand inline w-16 rounded-lg transition-all duration-200 dark:hidden" alt="main_logo" />
             <img src="{{ asset("img/logo.jpg") }}" class="ease-nav-brand hidden w-16 rounded-lg transition-all duration-200 dark:inline" alt="main_logo" />
             <span class="ease-nav-brand ml-2 font-bold transition-all duration-200 font-spaceGrotesk">Laravel SMART</span>
@@ -13,9 +13,9 @@
     <div class="h-sidenav block max-h-screen w-auto grow basis-full items-center overflow-auto">
         <ul class="mb-0 flex flex-col pl-0">
             <li class="mt-0.5 w-full">
-                <a class="py-2.7 ease-nav-brand {{ Request::routeIs("dashboard") ? "rounded-lg font text-rose bg-regal-blue/10" : "dark:text-avocado" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-regal-blue/10" href="{{ route("dashboard") }}">
+                <a class="py-2.7 ease-nav-brand {{ Request::routeIs("dashboard") ? "rounded-lg font text-affair dark:text-white bg-zambezi/10 dark:bg-zambezi/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-zambezi/10 dark:hover:bg-zambezi/30" href="{{ route("dashboard") }}">
                     <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                        <i class="ri-tv-2-line relative top-0 text-lg leading-normal text-rose"></i>
+                        <i class="ri-tv-2-line relative top-0 text-lg leading-normal text-affair dark:text-white"></i>
                     </div>
                     <span class="ease pointer-events-none ml-1 opacity-100 duration-300">Dashboard</span>
                 </a>
@@ -27,74 +27,56 @@
             </li>
 
             <li class="mt-0.5 w-full">
-                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["kriteria"]) ? "rounded-lg font text-rose bg-regal-blue/10" : "dark:text-avocado" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-regal-blue/10" href="{{ route("kriteria") }}">
+                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["kriteria"]) ? "rounded-lg font text-affair dark:text-white bg-zambezi/10 dark:bg-zambezi/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-zambezi/10 dark:hover:bg-zambezi/30" href="{{ route("kriteria") }}">
                     <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                        <i class="ri-puzzle-line relative top-0 text-lg leading-normal text-rose"></i>
+                        <i class="ri-puzzle-line relative top-0 text-lg leading-normal text-affair dark:text-white"></i>
                     </div>
                     <span class="ease pointer-events-none ml-1 opacity-100 duration-300">Kriteria</span>
                 </a>
             </li>
 
             <li class="mt-0.5 w-full">
-                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["sub-kriteria"]) ? "rounded-lg font text-rose bg-regal-blue/10" : "dark:text-avocado" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-regal-blue/10" href="{{ route("sub-kriteria") }}">
+                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["sub-kriteria"]) ? "rounded-lg font text-affair dark:text-white bg-zambezi/10 dark:bg-zambezi/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-zambezi/10 dark:hover:bg-zambezi/30" href="{{ route("sub-kriteria") }}">
                     <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                        <i class="ri-puzzle-2-fill relative top-0 text-lg leading-normal text-rose"></i>
+                        <i class="ri-puzzle-2-fill relative top-0 text-lg leading-normal text-affair dark:text-white"></i>
                     </div>
                     <span class="ease pointer-events-none ml-1 opacity-100 duration-300">Sub Kriteria</span>
                 </a>
             </li>
 
             <li class="mt-0.5 w-full">
-                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["alternatif"]) ? "rounded-lg font text-rose bg-regal-blue/10" : "dark:text-avocado" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-regal-blue/10" href="{{ route("alternatif") }}">
+                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["alternatif"]) ? "rounded-lg font text-affair dark:text-white bg-zambezi/10 dark:bg-zambezi/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-zambezi/10 dark:hover:bg-zambezi/30" href="{{ route("alternatif") }}">
                     <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                        <i class="ri-survey-line relative top-0 text-lg leading-normal text-rose"></i>
+                        <i class="ri-survey-line relative top-0 text-lg leading-normal text-affair dark:text-white"></i>
                     </div>
                     <span class="ease pointer-events-none ml-1 opacity-100 duration-300">Alternatif</span>
                 </a>
             </li>
             {{-- Akhir Data Master --}}
 
-            {{-- Awal SAW --}}
+            {{-- Awal SMART --}}
             <li class="mt-4 w-full">
-                <h6 class="ml-2 pl-6 text-xs font-bold uppercase leading-tight text-regal-blue opacity-60">SAW</h6>
+                <h6 class="ml-2 pl-6 text-xs font-bold uppercase leading-tight text-regal-blue opacity-60">SMART</h6>
             </li>
 
             <li class="mt-0.5 w-full">
-                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["penilaian"]) ? "rounded-lg font text-rose bg-regal-blue/10" : "dark:text-avocado" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-regal-blue/10" href="{{ route("penilaian") }}">
+                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["penilaian"]) ? "rounded-lg font text-affair dark:text-white bg-zambezi/10 dark:bg-zambezi/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-zambezi/10 dark:hover:bg-zambezi/30" href="{{ route("penilaian") }}">
                     <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                        <i class="ri-arrow-right-down-long-line relative top-0 text-lg leading-normal text-rose"></i>
+                        <i class="ri-arrow-right-down-long-line relative top-0 text-lg leading-normal text-affair dark:text-white"></i>
                     </div>
                     <span class="ease pointer-events-none ml-1 opacity-100 duration-300">Penilaian</span>
                 </a>
             </li>
 
             <li class="mt-0.5 w-full">
-                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["matriks-keputusan"]) ? "rounded-lg font text-rose bg-regal-blue/10" : "dark:text-avocado" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-regal-blue/10" href="{{ route("matriks-keputusan") }}">
+                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["hasil-akhir"]) ? "rounded-lg font text-affair dark:text-white bg-zambezi/10 dark:bg-zambezi/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-zambezi/10 dark:hover:bg-zambezi/30" href="{{ route("hasil-akhir") }}">
                     <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                        <i class="ri-seo-fill relative top-0 text-lg leading-normal text-rose"></i>
-                    </div>
-                    <span class="ease pointer-events-none ml-1 opacity-100 duration-300">Matriks Keputusan</span>
-                </a>
-            </li>
-
-            <li class="mt-0.5 w-full">
-                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["ranking"]) ? "rounded-lg font text-rose bg-regal-blue/10" : "dark:text-avocado" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-regal-blue/10" href="{{ route("ranking") }}">
-                    <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                        <i class="ri-stack-fill relative top-0 text-lg leading-normal text-rose"></i>
-                    </div>
-                    <span class="ease pointer-events-none ml-1 opacity-100 duration-300">Perankingan</span>
-                </a>
-            </li>
-
-            <li class="mt-0.5 w-full">
-                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["hasil-akhir"]) ? "rounded-lg font text-rose bg-regal-blue/10" : "dark:text-avocado" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-regal-blue/10" href="{{ route("hasil-akhir") }}">
-                    <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
-                        <i class="ri-service-bell-line relative top-0 text-lg leading-normal text-rose"></i>
+                        <i class="ri-service-bell-line relative top-0 text-lg leading-normal text-affair dark:text-white"></i>
                     </div>
                     <span class="ease pointer-events-none ml-1 opacity-100 duration-300">Hasil Akhir</span>
                 </a>
             </li>
-            {{-- Akhir SAW --}}
+            {{-- Akhir SMART --}}
 
             <li class="mt-4 w-full">
                 <h6 class="ml-2 pl-6 text-xs font-bold uppercase leading-tight text-regal-blue opacity-60">Pengaturan</h6>
@@ -103,7 +85,7 @@
             <li class="mt-0.5 w-full">
                 <form method="POST" action="{{ route("logout") }}" enctype="multipart/form-data">
                     @csrf
-                    <div class="py-2.7 ease-nav-brand mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-regal-blue/10 dark:text-avocado">
+                    <div class="py-2.7 ease-nav-brand mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-zambezi/10 dark:hover:bg-zambezi/30 dark:text-white">
                         <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                             <i class="ri-login-box-line relative top-0 text-lg leading-normal text-cyan-500"></i>
                         </div>

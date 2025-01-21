@@ -9,62 +9,62 @@ table.dataTable th.dt-type-numeric {
 
 /* text entries per page */
 .dt-length label {
-    color: #1D2955;
+    color: #665551;
 }
 html.dark .dt-length label {
-    color: #7F8A56;
+    color: #77547C;
 }
 
 /* select page number */
 .dt-length select {
-    color: #1D2955;
+    color: #665551;
     width: 64px;
     margin-right: 8px;
 }
 html.dark .dt-length select {
-    color: #7F8A56;
+    color: #77547C;
 }
 
 /* select container */
 html.dark .dt-container .dt-length select {
     background-color: transparent;
-    border: 1px solid #7F8A56;
+    border: 1px solid #77547C;
 }
 
 /* select option */
 html.dark .dt-container .dt-length option {
-    color: #1D2955;
+    color: #665551;
     background-color: white;
 }
 
 /* text search */
 .dt-search label {
-    color: #1D2955;
+    color: #665551;
 }
 html.dark .dt-search label {
-    color: #7F8A56;
+    color: #77547C;
 }
 
 /* search input container */
 html.dark .dt-container .dt-search input {
     background-color: white;
-    border: 1px solid #7F8A56;
+    border: 1px solid #77547C;
     margin-left: 8px;
-    color: #1D2955;
+    color: #665551;
 }
 
 /* text pagination showing number */
 div.dt-container .dt-info {
-    color: #1D2955;
+    color: #665551;
 }
 html.dark div.dt-container .dt-info {
-    color: #7F8A56;
+    color: #77547C;
 }
 
 /* button next previous number */
 div.dt-container .dt-paging .dt-paging-button.disabled,
 div.dt-container .dt-paging .dt-paging-button {
-    color: #1D2955 !important;
+    color: #665551 !important;
 }
 div.dt-container .dt-paging .dt-paging-button.disabled:hover,
 div.dt-container .dt-paging .dt-paging-button.disabled:active,
@@ -73,7 +73,7 @@ html.dark .dt-container .dt-paging .dt-paging-button.disabled,
 html.dark .dt-container .dt-paging .dt-paging-button.disabled:hover,
 html.dark .dt-container .dt-paging .dt-paging-button.disabled:active,
 html.dark div.dt-container .dt-paging .dt-paging-button {
-    color: #7F8A56 !important;
+    color: #77547C !important;
 }
 
 /* button background */
