@@ -3,8 +3,10 @@
 use App\Http\Controllers\AlternatifController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KriteriaController;
+use App\Http\Controllers\PDFController;
 use App\Http\Controllers\PenilaianController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SMARTController;
 use App\Http\Controllers\SubKriteriaController;
 use Illuminate\Support\Facades\Route;
 
@@ -65,6 +67,21 @@ Route::middleware('auth')->group(function () {
         Route::get('/ubah', [PenilaianController::class, 'edit'])->name('penilaian.edit');
         Route::post('/ubah', [PenilaianController::class, 'update'])->name('penilaian.update');
         Route::post('/impor', [PenilaianController::class, 'import'])->name('penilaian.import');
+    });
+
+    Route::group([
+        'prefix' => 'smart',
+    ], function() {
+        Route::get('/normalisasi-bobot', [SMARTController::class, 'indexNormalisasiBobot'])->name('normalisasi-bobot');
+        Route::post('/normalisasi-bobot', [SMARTController::class, 'perhitunganNormalisasiBobot'])->name('normalisasi-bobot.perhitungan');
+
+        Route::get('/nilai-utility', [SMARTController::class, 'indexNilaiUtility'])->name('nilai-utility');
+        Route::post('/nilai-utility', [SMARTController::class, 'perhitunganNilaiUtility'])->name('nilai-utility.perhitungan');
+
+        Route::get('/nilai-akhir', [SMARTController::class, 'indexNilaiAkhir'])->name('nilai-akhir');
+        Route::post('/nilai-akhir', [SMARTController::class, 'perhitunganNilaiAkhir'])->name('nilai-akhir.perhitungan');
+
+        Route::get('/pdf-hasil-akhir', [PDFController::class, 'pdf_hasil'])->name('pdf.hasilAkhir');
     });
 });
 

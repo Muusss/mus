@@ -20,19 +20,19 @@ class PenilaianSeeder extends Seeder
         $subKriteria = [
             [
                 'alternatif_id' => 1,
-                'sub_kriteria_id' => [2, 8, 12, 17, 24],
+                'sub_kriteria_id' => [1, 6, 11, 17, 23],
             ],
             [
                 'alternatif_id' => 2,
-                'sub_kriteria_id' => [2, 6, 12, 17, 23],
+                'sub_kriteria_id' => [3, 7, 12, 18, 24],
             ],
             [
                 'alternatif_id' => 3,
-                'sub_kriteria_id' => [2, 7, 12, 17, 23],
+                'sub_kriteria_id' => [1, 8, 12, 18, 21],
             ],
             [
                 'alternatif_id' => 4,
-                'sub_kriteria_id' => [3, 7, 12, 17, 23],
+                'sub_kriteria_id' => [1, 7, 11, 18, 25],
             ],
         ];
         foreach ($alternatif as $alt => $item) {

@@ -50,30 +50,31 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $subKriteria = ['Sangat Baik', 'Baik', 'Cukup', 'Buruk', 'Sangat Buruk'];
+        $subKriteriaPrice = ['Sangat Murah', 'Murah', 'Cukup', 'Mahal', 'Sangat Mahal'];
         foreach ($kriteria as $item) {
             if ($item->jenis_kriteria == 'cost') {
                 SubKriteria::factory()->create([
-                    'sub_kriteria' => $subKriteria[0],
+                    'sub_kriteria' => $subKriteriaPrice[0],
                     'bobot' => 2,
                     'kriteria_id' => $item->id,
                 ]);
                 SubKriteria::factory()->create([
-                    'sub_kriteria' => $subKriteria[1],
+                    'sub_kriteria' => $subKriteriaPrice[1],
                     'bobot' => 4,
                     'kriteria_id' => $item->id,
                 ]);
                 SubKriteria::factory()->create([
-                    'sub_kriteria' => $subKriteria[2],
+                    'sub_kriteria' => $subKriteriaPrice[2],
                     'bobot' => 6,
                     'kriteria_id' => $item->id,
                 ]);
                 SubKriteria::factory()->create([
-                    'sub_kriteria' => $subKriteria[3],
+                    'sub_kriteria' => $subKriteriaPrice[3],
                     'bobot' => 8,
                     'kriteria_id' => $item->id,
                 ]);
                 SubKriteria::factory()->create([
-                    'sub_kriteria' => $subKriteria[4],
+                    'sub_kriteria' => $subKriteriaPrice[4],
                     'bobot' => 10,
                     'kriteria_id' => $item->id,
                 ]);
@@ -118,19 +119,19 @@ class DatabaseSeeder extends Seeder
         $alternatif[] = Alternatif::factory()->create([
             'kode' => 'A00004',
         ]);
-        foreach ($alternatif as $item) {
-            foreach ($kriteria as $value) {
-                Penilaian::create([
-                    'alternatif_id' => $item->id,
-                    'kriteria_id' => $value->id,
-                    'sub_kriteria_id' => null,
-                ]);
-            }
-        }
+        // foreach ($alternatif as $item) {
+        //     foreach ($kriteria as $value) {
+        //         Penilaian::create([
+        //             'alternatif_id' => $item->id,
+        //             'kriteria_id' => $value->id,
+        //             'sub_kriteria_id' => null,
+        //         ]);
+        //     }
+        // }
 
         $this->call([
             UserSeeder::class,
-            // PenilaianSeeder::class,
+            PenilaianSeeder::class,
         ]);
     }
 }

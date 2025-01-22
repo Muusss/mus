@@ -21,7 +21,7 @@ class SubKriteriaController extends Controller
     {
         $title = "Sub Kriteria";
         $kriteria = KriteriaResource::collection(Kriteria::orderBy('created_at', 'asc')->get());
-        $subKriteria = SubKriteriaResource::collection(SubKriteria::orderBy('bobot', 'desc')->get());
+        $subKriteria = SubKriteriaResource::collection(SubKriteria::with('kriteria')->orderBy('bobot', 'desc')->get());
         return view('dashboard.sub-kriteria.index', compact('title', 'kriteria', 'subKriteria'));
     }
 

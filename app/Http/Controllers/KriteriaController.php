@@ -7,6 +7,9 @@ use App\Http\Resources\KriteriaResource;
 use App\Imports\KriteriaImport;
 use App\Models\Alternatif;
 use App\Models\Kriteria;
+use App\Models\NilaiAkhir;
+use App\Models\NilaiUtility;
+use App\Models\NormalisasiBobot;
 use App\Models\Penilaian;
 use App\Models\SubKriteria;
 use Illuminate\Http\Request;
@@ -88,6 +91,9 @@ class KriteriaController extends Controller
     {
         Penilaian::where('kriteria_id', $request->kriteria_id)->delete();
         SubKriteria::where('kriteria_id', $request->kriteria_id)->delete();
+        NormalisasiBobot::where('kriteria_id', $request->kriteria_id)->delete();
+        NilaiUtility::where('kriteria_id', $request->kriteria_id)->delete();
+        NilaiAkhir::where('kriteria_id', $request->kriteria_id)->delete();
         $hapus = Kriteria::where('id', $request->kriteria_id)->delete();
         if ($hapus) {
             return to_route('kriteria')->with('success', 'Kriteria Berhasil Dihapus');

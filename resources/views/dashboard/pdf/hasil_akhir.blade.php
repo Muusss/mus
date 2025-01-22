@@ -46,12 +46,49 @@
                 </div>
             </div>
 
-            {{-- Tabel Matriks Keputusan --}}
+            {{-- Tabel Normalisasi Bobot --}}
             <div class="relative mb-7 overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg">
                 <div class="d mb-5 flex items-center justify-between p-4">
                     <div class="flex space-x-3">
                         <div class="flex items-center space-x-3">
-                            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Hasil Matriks Keputusan</h2>
+                            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Hasil Normalisasi Bobot Kriteria</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="overflow-x-auto p-3">
+                    <table id="tabel_data_hasil" class="nowrap stripe hover w-full text-left text-sm text-gray-500 dark:text-gray-400" style="width:100%; padding-top: 1em; padding-bottom: 1em;">
+                        <thead class="bg-gray-50 text-xs uppercase text-gray-700">
+                            <tr>
+                                <th scope="col" class="px-4 py-3">Kode</th>
+                                <th scope="col" class="px-4 py-3">Kriteria</th>
+                                <th scope="col" class="px-4 py-3">Normalisasi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($tabelNormalisasi as $item)
+                                <tr class="border-b dark:border-gray-700">
+                                    <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
+                                        {{ $item->kriteria->kode }}
+                                    </td>
+                                    <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
+                                        {{ $item->kriteria->kriteria }}
+                                    </td>
+                                    <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
+                                        {{ round($item->normalisasi, 3) }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {{-- Tabel Nilai Utility --}}
+            <div class="relative mb-7 overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg">
+                <div class="d mb-5 flex items-center justify-between p-4">
+                    <div class="flex space-x-3">
+                        <div class="flex items-center space-x-3">
+                            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Hasil Nilai Utility</h2>
                         </div>
                     </div>
                 </div>
@@ -71,9 +108,9 @@
                                     <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
                                         {{ $item->alternatif }}
                                     </td>
-                                    @foreach ($tabelMatriks->where("alternatif_id", $item->id) as $value)
+                                    @foreach ($tabelUtility->where("alternatif_id", $item->id) as $value)
                                         <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
-                                            {{ round($value->nilai_rating, 3) }}
+                                            {{ round($value->nilai, 3) }}
                                         </td>
                                     @endforeach
                                 </tr>
@@ -83,12 +120,12 @@
                 </div>
             </div>
 
-            {{-- Tabel Nilai Preferensi --}}
+            {{-- Tabel Nilai Akhir --}}
             <div class="relative mb-7 overflow-hidden bg-white shadow-md dark:bg-gray-800 sm:rounded-lg">
                 <div class="d mb-5 flex items-center justify-between p-4">
                     <div class="flex space-x-3">
                         <div class="flex items-center space-x-3">
-                            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Hasil Nilai Preferensi</h2>
+                            <h2 class="text-xl font-bold text-gray-800 dark:text-gray-200">Hasil Nilai Akhir</h2>
                         </div>
                     </div>
                 </div>
@@ -100,6 +137,7 @@
                                 @foreach ($kriteria as $item)
                                     <th scope="col" class="px-4 py-3">{{ $item->kriteria }}</th>
                                 @endforeach
+                                <th scope="col" class="px-4 py-3">Total</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -108,11 +146,14 @@
                                     <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
                                         {{ $item->alternatif }}
                                     </td>
-                                    @foreach ($tabelPreferensi->where("alternatif_id", $item->id) as $value)
+                                    @foreach ($tabelNilaiAkhir->where("alternatif_id", $item->id) as $value)
                                         <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
                                             {{ round($value->nilai, 3) }}
                                         </td>
                                     @endforeach
+                                    <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
+                                        {{ $tabelNilaiAkhir->where("alternatif_id", $item->id)->sum("nilai") }}
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -133,62 +174,34 @@
                     <table id="tabel_data_hasil" class="nowrap stripe hover w-full text-left text-sm text-gray-500 dark:text-gray-400" style="width:100%; padding-top: 1em; padding-bottom: 1em;">
                         <thead class="bg-gray-50 text-xs uppercase text-gray-700">
                             <tr>
+                                <th scope="col" class="px-4 py-3">Kode</th>
                                 <th scope="col" class="px-4 py-3">Alternatif</th>
-                                <th scope="col" class="px-4 py-3">Hasil</th>
-                                <th scope="col" class="px-4 py-3">Hasil Akhir</th>
-                                <th scope="col" class="px-4 py-3">Persentase</th>
+                                <th scope="col" class="px-4 py-3">Nilai</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @php
-                                $totalNilaiPreferensi = $tabelPerankingan->sum("nilai_preferensi");
-                                $hasilAkhirNilaiPreferensi = 0;
-                                $presentasiNilaiPreferensi = 0;
-                            @endphp
                             @foreach ($tabelPerankingan as $item)
-                                @php
-                                    $hasilAkhirNilaiPreferensi += round($item->nilai_preferensi / $totalNilaiPreferensi, 3);
-                                    $presentasiNilaiPreferensi += round(($item->nilai_preferensi / $totalNilaiPreferensi) * 100, 0);
-                                @endphp
                                 <tr class="border-b dark:border-gray-700">
                                     <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
-                                        {{ $item->alternatif->alternatif }}
+                                        {{ $item->kode }}
                                     </td>
                                     <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
-                                        {{ round($item->nilai_preferensi, 3) }}
+                                        {{ $item->alternatif }}
                                     </td>
                                     <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
-                                        {{ round($item->nilai_preferensi / $totalNilaiPreferensi, 3) }}
-                                    </td>
-                                    <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400">
-                                        {{ round(($item->nilai_preferensi / $totalNilaiPreferensi) * 100, 0) }}%
+                                        {{ $item->nilai }}
                                     </td>
                                 </tr>
                             @endforeach
-                            <tr class="border-b dark:border-gray-700">
-                                <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400" style="font-weight: 800;">
-                                    Jumlah:
-                                </td>
-                                <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400" style="font-weight: 800;">
-                                    {{ round($totalNilaiPreferensi, 3) }}
-                                </td>
-                                <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400" style="font-weight: 800;">
-                                    {{ $hasilAkhirNilaiPreferensi }}
-                                </td>
-                                <td class="px-4 py-3 font-semibold uppercase text-gray-700 dark:text-gray-400" style="font-weight: 800;">
-                                    {{ $presentasiNilaiPreferensi }}%
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                 </div>
                 <div>
                     @php
                         $topRanking = $tabelPerankingan->first();
-                        $totalNilaiPreferensi = $tabelPerankingan->sum("nilai_preferensi");
                     @endphp
                     <h2>Simpulan</h2>
-                    <p>Berdasarkan tabel dari perhitungan SAW yang dapat dijadikan rekomendasi alternatif, maka didapatkan alternatif dengan nilai tertinggi yaitu: <span style="font-weight: bold;">{{ $topRanking->alternatif->alternatif }}</span> dengan nilai <span style="font-weight: bold;">{{ round($topRanking->nilai_preferensi / $totalNilaiPreferensi, 3) }}</span></p>
+                    <p>Berdasarkan tabel dari perhitungan SMART yang dapat dijadikan rekomendasi alternatif, maka didapatkan alternatif dengan nilai tertinggi yaitu: <span style="font-weight: bold;">{{ $topRanking->alternatif }}</span> dengan nilai <span style="font-weight: bold;">{{ round($topRanking->nilai, 3) }}</span></p>
                 </div>
             </div>
         </div>

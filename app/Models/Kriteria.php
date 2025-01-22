@@ -26,4 +26,19 @@ class Kriteria extends Model
     {
         return $this->hasMany(Penilaian::class, "kriteria_id");
     }
+
+    public function normalisasiBobot()
+    {
+        return $this->hasMany(NormalisasiBobot::class, "kriteria_id");
+    }
+
+    public function nilaiUtility()
+    {
+        return $this->hasMany(NilaiUtility::class, "kriteria_id");
+    }
+
+    public function nilaiAkhir()
+    {
+        return $this->hasMany(NilaiAkhir::class, "kriteria_id");
+    }
 }

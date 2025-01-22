@@ -7,6 +7,8 @@ use App\Http\Resources\AlternatifResource;
 use App\Imports\AlternatifImport;
 use App\Models\Alternatif;
 use App\Models\Kriteria;
+use App\Models\NilaiAkhir;
+use App\Models\NilaiUtility;
 use App\Models\Penilaian;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -94,10 +96,10 @@ class AlternatifController extends Controller
     {
         $penilaian = Penilaian::where('alternatif_id', $request->alternatif_id)->first();
         if ($penilaian) {
-            // MatriksKeputusan::where('penilaian_id', $penilaian->penilaian_id)->delete();
             Penilaian::where('alternatif_id', $request->alternatif_id)->delete();
         }
-        // Perhitungan::where('alternatif_id', $request->alternatif_id)->delete();
+        NilaiUtility::where('alternatif_id', $request->alternatif_id)->delete();
+        NilaiAkhir::where('alternatif_id', $request->alternatif_id)->delete();
         $hapus = Alternatif::where('id', $request->alternatif_id)->delete();
         if ($hapus) {
             return to_route('alternatif')->with('success', 'Alternatif Berhasil Dihapus');

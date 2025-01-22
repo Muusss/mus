@@ -3,7 +3,11 @@
 @section("js")
     <script>
         let alternatif = [];
-        let nilaiPreferensi = [];
+        let nilaiAkhir = [];
+        @foreach ($nilaiAkhir as $item)
+            alternatif.push(' {{ $item->alternatif->alternatif }} ');
+            nilaiAkhir.push(' {{ round($item->nilai, 3) }} ');
+        @endforeach
 
         let chart_perankingan = {
             chart: {
@@ -15,7 +19,7 @@
                 enabled: false
             },
             series: [{
-                data: nilaiPreferensi
+                data: nilaiAkhir
             }, ],
             stroke: {
                 curve: 'smooth',

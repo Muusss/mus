@@ -20,4 +20,14 @@ class Alternatif extends Model
     {
         return $this->hasMany(Penilaian::class, "alternatif_id");
     }
+
+    public function nilaiUtility()
+    {
+        return $this->hasMany(NilaiUtility::class, "alternatif_id");
+    }
+
+    public function nilaiAkhir()
+    {
+        return $this->hasMany(NilaiAkhir::class, "alternatif_id");
+    }
 }
