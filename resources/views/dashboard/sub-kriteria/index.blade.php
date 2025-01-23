@@ -282,7 +282,7 @@
                     </label>
                 </div>
             </div>
-            <div class="bg-spring-wood relative mb-6 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-transparent bg-clip-border shadow-xl dark:bg-white dark:shadow-spanish-white/20">
+            <div class="relative mb-6 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-border shadow-xl dark:bg-white dark:shadow-spanish-white/20">
                 @foreach ($kriteria as $kri)
                     <div class="mb-5">
                         <div class="border-b-solid mb-0 flex items-center justify-between rounded-t-2xl border-b-0 border-b-transparent p-6 pb-3">

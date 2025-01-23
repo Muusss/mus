@@ -7,7 +7,6 @@ use App\Http\Resources\KriteriaResource;
 use App\Http\Resources\NilaiAkhirResource;
 use App\Http\Resources\NilaiUtilityResource;
 use App\Http\Resources\NormalisasiBobotResource;
-use App\Http\Resources\PenilaianResource;
 use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\NilaiAkhir;
@@ -124,6 +123,34 @@ class SMARTController extends Controller
             return to_route('nilai-akhir')->with('success', 'Perhitungan Nilai Akhir Berhasil Dilakukan');
         } else {
             return to_route('nilai-akhir')->with('error', 'Perhitungan Nilai Akhir Gagal Dilakukan');
+        }
+    }
+
+    public function indexPerhitungan()
+    {
+        $title = "Perhitungan Metode";
+
+        $normalisasiBobot = NormalisasiBobotResource::collection(NormalisasiBobot::with('kriteria')->orderBy('kriteria_id', 'asc')->get());
+        $nilaiUtility = NilaiUtilityResource::collection(NilaiUtility::orderBy('alternatif_id', 'asc')->orderBy('kriteria_id', 'asc')->get());
+        $nilaiAkhir = NilaiAkhirResource::collection(NilaiAkhir::orderBy('alternatif_id', 'asc')->orderBy('kriteria_id', 'asc')->get());
+
+        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode', 'asc')->get());
+        $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
+        $sumBobotKriteria = $kriteria->sum('bobot');
+
+        return view('dashboard.perhitungan.index', compact('title', 'normalisasiBobot', 'nilaiUtility', 'nilaiAkhir', 'alternatif', 'kriteria', 'sumBobotKriteria'));
+    }
+
+    public function perhitunganMetode()
+    {
+        $this->perhitunganNormalisasiBobot();
+        $this->perhitunganNilaiUtility();
+        $perhitungan = $this->perhitunganNilaiAkhir();
+
+        if ($perhitungan) {
+            return to_route('perhitungan')->with('success', 'Perhitungan Metode SMART Berhasil Dilakukan');
+        } else {
+            return to_route('perhitungan')->with('error', 'Perhitungan Metode SMART Gagal Dilakukan');
         }
     }
 }

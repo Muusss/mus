@@ -23,7 +23,7 @@
 
             {{-- Awal Data Master --}}
             <li class="mt-4 w-full">
-                <h6 class="ml-2 pl-6 text-xs font-bold uppercase leading-tight text-regal-blue opacity-60">Data Master</h6>
+                <h6 class="ml-2 pl-6 text-xs font-bold uppercase leading-tight text-zambezi dark:text-affair opacity-60">Data Master</h6>
             </li>
 
             <li class="mt-0.5 w-full">
@@ -56,7 +56,7 @@
 
             {{-- Awal SMART --}}
             <li class="mt-4 w-full">
-                <h6 class="ml-2 pl-6 text-xs font-bold uppercase leading-tight text-regal-blue opacity-60">SMART</h6>
+                <h6 class="ml-2 pl-6 text-xs font-bold uppercase leading-tight text-zambezi dark:text-affair opacity-60">SMART</h6>
             </li>
 
             <li class="mt-0.5 w-full">
@@ -69,6 +69,15 @@
             </li>
 
             <li class="mt-0.5 w-full">
+                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["perhitungan"]) ? "rounded-lg font text-affair dark:text-white bg-zambezi/10 dark:bg-zambezi/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-zambezi/10 dark:hover:bg-zambezi/30" href="{{ route("perhitungan") }}">
+                    <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
+                        <i class="ri-gradienter-fill relative top-0 text-lg leading-normal text-affair dark:text-white"></i>
+                    </div>
+                    <span class="ease pointer-events-none ml-1 opacity-100 duration-300">Perhitungan Metode</span>
+                </a>
+            </li>
+
+            {{-- <li class="mt-0.5 w-full">
                 <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["normalisasi-bobot"]) ? "rounded-lg font text-affair dark:text-white bg-zambezi/10 dark:bg-zambezi/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-zambezi/10 dark:hover:bg-zambezi/30" href="{{ route("normalisasi-bobot") }}">
                     <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                         <i class="ri-gradienter-line relative top-0 text-lg leading-normal text-affair dark:text-white"></i>
@@ -93,7 +102,7 @@
                     </div>
                     <span class="ease pointer-events-none ml-1 opacity-100 duration-300">Nilai Akhir</span>
                 </a>
-            </li>
+            </li> --}}
 
             <li class="mt-0.5 w-full">
                 <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["hasil-akhir"]) ? "rounded-lg font text-affair dark:text-white bg-zambezi/10 dark:bg-zambezi/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-zambezi/10 dark:hover:bg-zambezi/30" href="{{ route("hasil-akhir") }}">
@@ -106,7 +115,7 @@
             {{-- Akhir SMART --}}
 
             <li class="mt-4 w-full">
-                <h6 class="ml-2 pl-6 text-xs font-bold uppercase leading-tight text-regal-blue opacity-60">Pengaturan</h6>
+                <h6 class="ml-2 pl-6 text-xs font-bold uppercase leading-tight text-zambezi dark:text-affair opacity-60">Pengaturan</h6>
             </li>
 
             <li class="mt-0.5 w-full">

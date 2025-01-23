@@ -20,6 +20,7 @@ class KriteriaFactory extends Factory
             'kode' => fake()->bothify('K#####'),
             'kriteria' => fake()->unique()->name(),
             'bobot' => fake()->randomFloat(2, 0, 1),
+            'jenis_kriteria' => fake()->randomElement(['benefit', 'cost']),
         ];
     }
 }
