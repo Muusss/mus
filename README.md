@@ -78,6 +78,12 @@ Follow the steps below to clone and run the project in your local environment:
 
 ## Screenshot
 
+![4  Halaman Hasil Akhir]()
+![3  Halaman Penilaian Alternatif]()
+![2  Halaman Kriteria]()
+![1  Halaman Dashboard]()
+
+
 - ### **Dashboard**
 
 <img src="https://github.com/user-attachments/assets/09930340-980c-4c15-954a-62f84c9b1491" alt="Halaman Dashboard" width="" />
