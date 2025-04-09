@@ -19,10 +19,21 @@ export default {
                 spaceGrotesk: ['Space Grotesk'],
             },
             colors: {
-                'affair': '#77547C',
-                'pale-pink': '#F6D7E4',
-                'zambezi': '#665551',
-                'spanish-white': '#BDAC9C',
+                'background-cover': '#77547C',
+                'background-cover-dark': '#665551',
+
+                'background': '#FFFFFF',
+                'background-dark': '#665551',
+
+                'sidebar-background': '#F6D7E4',
+                'sidebar-primary': '#77547C',
+                'sidebar-background-dark': '#BDAC9C',
+                'sidebar-primary-dark': '#665551',
+
+                'primary-color': '#77547C',
+                'secondary-color': '#F6D7E4',
+                'primary-color-dark': '#665551',
+                'secondary-color-dark': '#BDAC9C',
             },
         },
     },
