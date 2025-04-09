@@ -4,7 +4,7 @@ Laravel SPK SMART is a website designed to provide a decision support system usi
 
 ## Tech Stack
 
-- **Laravel 11**
+- **Laravel 11** --> **Laravel 12**
 - **Laravel Breeze**
 - **MySQL Database**
 - **TailwindCSS**
@@ -16,6 +16,7 @@ Laravel SPK SMART is a website designed to provide a decision support system usi
 
 - Main features available in this application:
   - Implementation SMART method
+  - Import data --> example [Kriteria](https://github.com/user-attachments/files/19659733/Import.Kriteria.xlsx), [Sub kriteria](https://github.com/user-attachments/files/19659735/Import.Sub.Kriteria.xlsx), [Alternatif](https://github.com/user-attachments/files/19659732/Import.Alternatif.xlsx), [Penilaian](https://github.com/user-attachments/files/19659734/Import.Penilaian.xlsx)
 
 ## Installation
 
