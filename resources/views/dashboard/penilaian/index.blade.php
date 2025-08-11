@@ -15,6 +15,49 @@
             });
         });
 
+        function normalisasi_button() {
+            Swal.fire({
+                title: 'Normalisasi Bobot',
+                text: "Menghitung normalisasi bobot kriteria",
+                icon: 'info',
+                showCancelButton: true,
+                confirmButtonColor: '#6419E6',
+                cancelButtonColor: '#F87272',
+                confirmButtonText: 'Hitung',
+                cancelButtonText: 'Batal',
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        type: "post",
+                        url: "{{ route('normalisasi-bobot.perhitungan') }}",
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                        },
+                        success: function(response) {
+                            Swal.fire({
+                                title: 'Perhitungan berhasil dilakukan!',
+                                icon: 'success',
+                                confirmButtonColor: '#6419E6',
+                                confirmButtonText: 'OK'
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    location.reload(); // Reload page to show updated normalisasi values
+                                }
+                            });
+                        },
+                        error: function(response) {
+                            Swal.fire({
+                                title: 'Perhitungan gagal dilakukan!',
+                                icon: 'error',
+                                confirmButtonColor: '#6419E6',
+                                confirmButtonText: 'OK'
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
         function edit_button(alternatif_id) {
             // Loading effect start
             let loading = `<span class="loading loading-dots loading-md text-purple-600"></span>`;
@@ -24,14 +67,12 @@
 
             $.ajax({
                 type: "get",
-                url: "{{ route("penilaian.edit") }}",
+                url: "{{ route('penilaian.edit') }}",
                 data: {
                     "_token": "{{ csrf_token() }}",
                     "alternatif_id": alternatif_id
                 },
                 success: function(data) {
-                    // console.log(data);
-
                     $("input[name='alternatif_id']").val(data[0].alternatif_id);
                     @foreach ($kriteria as $value => $item)
                         $("input[id='kriteria_id_{{ $item->id }}']").val(data[{{ $value }}].kriteria_id);
@@ -52,91 +93,16 @@
 @section("container")
     <div class="-mx-3 flex flex-wrap">
         <div class="w-full max-w-full flex-none px-3">
-            {{-- Awal Modal Edit --}}
-            <input type="checkbox" id="edit_button" class="modal-toggle" />
-            <div class="modal" role="dialog">
-                <div class="modal-box">
-                    <div class="mb-3 flex justify-between">
-                        <h3 class="text-lg font-bold">Ubah {{ $title }}</h3>
-                        <label for="edit_button" class="cursor-pointer">
-                            <i class="ri-close-large-fill"></i>
-                        </label>
-                    </div>
-                    <div>
-                        <form action="{{ route("penilaian.update") }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <input type="text" name="alternatif_id" hidden>
-                            @foreach ($kriteria as $item)
-                                <label class="form-control w-full">
-                                    <div class="label">
-                                        <span class="label-text font-semibold">
-                                            <x-label-input-required>{{ $item->kriteria }}</x-label-input-required>
-                                        </span>
-                                        <span class="label-text-alt" id="{{ "loading_edit_" . $item->id }}"></span>
-                                    </div>
-                                    <input type="text" name="kriteria_id[]" id="{{ "kriteria_id_" . $item->id }}" class="input input-bordered w-full text-primary-color" hidden />
-                                    <select name="sub_kriteria_id[]" id="{{ "sub_kriteria_id_" . $item->id }}" class="select select-bordered w-full text-primary-color" required>
-                                        <option disabled selected>Pilih Kriteria!</option>
-                                        @foreach ($subKriteria->where("kriteria_id", $item->id) as $value)
-                                            <option value="{{ $value->id }}">{{ $value->sub_kriteria }}</option>
-                                        @endforeach
-                                    </select>
-                                    @error("sub_kriteria_id")
-                                        <div class="label">
-                                            <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                        </div>
-                                    @enderror
-                                </label>
-                            @endforeach
-                            <button type="submit" class="btn btn-warning mt-3 w-full text-white">Perbarui</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {{-- Akhir Modal Edit --}}
-
-            {{-- Awal Modal Import --}}
-            <input type="checkbox" id="import_button" class="modal-toggle" />
-            <div class="modal" role="dialog">
-                <div class="modal-box">
-                    <div class="mb-3 flex justify-between">
-                        <h3 class="text-lg font-bold">Impor {{ $title }}</h3>
-                        <label for="import_button" class="cursor-pointer">
-                            <i class="ri-close-large-fill"></i>
-                        </label>
-                    </div>
-                    <div>
-                        <form action="{{ route("penilaian.import") }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <label class="form-control w-full">
-                                <div class="label">
-                                    <span class="label-text font-semibold">
-                                        <x-label-input-required>File Excel</x-label-input-required>
-                                    </span>
-                                </div>
-                                <input type="file" name="import_data" class="file-input file-input-bordered w-full text-primary-color" required />
-                                @error("import_data")
-                                    <div class="label">
-                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                    </div>
-                                @enderror
-                            </label>
-                            <button type="submit" class="btn btn-success mt-3 w-full text-white">Simpan</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {{-- Akhir Modal Import --}}
-
             {{-- Awal Tabel Penilaian --}}
             <div class="relative mb-6 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-border shadow-xl dark:bg-white dark:shadow-secondary-color-dark/20">
                 <div class="border-b-solid mb-0 flex items-center justify-between rounded-t-2xl border-b-0 border-b-transparent p-6 pb-3">
                     <h6 class="font-bold text-primary-color dark:text-primary-color-dark">Tabel {{ $title }}</h6>
                     <div class="w-1/2 max-w-full flex-none px-3 text-right">
-                        <label for="import_button" class="mb-0 inline-block cursor-pointer rounded-lg border border-solid border-success bg-transparent px-4 py-1 text-center align-middle text-sm font-bold leading-normal tracking-tight text-success shadow-none transition-all ease-in hover:-translate-y-px hover:opacity-75 active:opacity-90 md:px-8 md:py-2" onclick="return import_button()">
-                            <i class="ri-file-excel-2-line"></i>
-                            Impor
-                        </label>
+                        <!-- Tombol Normalisasi Bobot -->
+                        <button class="mb-0 inline-block cursor-pointer rounded-lg border border-solid border-success bg-transparent px-4 py-1 text-center align-middle text-sm font-bold leading-normal tracking-tight text-success shadow-none transition-all ease-in hover:-translate-y-px hover:opacity-75 active:opacity-90 md:px-8 md:py-2" onclick="return normalisasi_button()">
+                            <i class="ri-add-fill"></i>
+                            Normalisasi Bobot
+                        </button>
                     </div>
                 </div>
                 <div class="flex-auto px-0 pb-2 pt-0">
@@ -167,7 +133,7 @@
                                             <td>
                                                 <p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">
                                                     @if ($value->sub_kriteria_id == null)
-                                                        -
+                                                        - 
                                                     @else
                                                         {{ $value->subKriteria->sub_kriteria }}
                                                     @endif

@@ -26,21 +26,18 @@ class SMARTController extends Controller
 
     public function perhitunganNormalisasiBobot()
     {
-        $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
+        $kriteria = Kriteria::orderBy('kode', 'asc')->get();
         $sumBobot = $kriteria->sum('bobot');
-        NormalisasiBobot::truncate();
+        NormalisasiBobot::truncate(); // This will remove all data in the table
+
         foreach ($kriteria as $item) {
-            $createNormalisasi = NormalisasiBobot::create([
+            NormalisasiBobot::create([
                 'kriteria_id' => $item->id,
                 'normalisasi' => $item->bobot / $sumBobot,
             ]);
         }
 
-        if ($createNormalisasi) {
-            return to_route('normalisasi-bobot')->with('success', 'Normalisasi Bobot Kriteria Berhasil Dilakukan');
-        } else {
-            return to_route('normalisasi-bobot')->with('error', 'Normalisasi Bobot Kriteria Gagal Dilakukan');
-        }
+        return to_route('normalisasi-bobot')->with('success', 'Normalisasi Bobot Kriteria Berhasil Dilakukan');
     }
 
     public function indexNilaiUtility()
@@ -54,8 +51,8 @@ class SMARTController extends Controller
 
     public function perhitunganNilaiUtility()
     {
-        $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
-        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode', 'asc')->get());
+        $kriteria = Kriteria::orderBy('kode', 'asc')->get();
+        $alternatif = Alternatif::orderBy('kode', 'asc')->get();
         NilaiUtility::truncate();
 
         $nilaiMaxMin = Penilaian::query()
@@ -71,12 +68,11 @@ class SMARTController extends Controller
                 $nilaiMin = $nilaiMaxMin->where('kriteria_id', $value->id)->first()->nilaiMin;
                 $subKriteria = Penilaian::where('kriteria_id', $value->id)->where('alternatif_id', $item->id)->first()->subKriteria->bobot;
 
-                if ($value->jenis_kriteria == 'benefit') {
-                    $nilai = ($subKriteria - $nilaiMin) / ($nilaiMax - $nilaiMin);
-                } else if ($value->jenis_kriteria == 'cost') {
-                    $nilai = ($nilaiMax - $subKriteria) / ($nilaiMax - $nilaiMin);
-                }
-                $createUtility = NilaiUtility::create([
+                $nilai = ($value->jenis_kriteria == 'benefit')
+                    ? ($subKriteria - $nilaiMin) / ($nilaiMax - $nilaiMin)
+                    : ($nilaiMax - $subKriteria) / ($nilaiMax - $nilaiMin);
+
+                NilaiUtility::create([
                     'alternatif_id' => $item->id,
                     'kriteria_id' => $value->id,
                     'nilai' => $nilai,
@@ -84,11 +80,7 @@ class SMARTController extends Controller
             }
         }
 
-        if ($createUtility) {
-            return to_route('nilai-utility')->with('success', 'Perhitungan Nilai Utility Berhasil Dilakukan');
-        } else {
-            return to_route('nilai-utility')->with('error', 'Perhitungan Nilai Utility Gagal Dilakukan');
-        }
+        return to_route('nilai-utility')->with('success', 'Perhitungan Nilai Utility Berhasil Dilakukan');
     }
 
     public function indexNilaiAkhir()
@@ -102,8 +94,8 @@ class SMARTController extends Controller
 
     public function perhitunganNilaiAkhir()
     {
-        $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
-        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode', 'asc')->get());
+        $kriteria = Kriteria::orderBy('kode', 'asc')->get();
+        $alternatif = Alternatif::orderBy('kode', 'asc')->get();
         NilaiAkhir::truncate();
 
         foreach ($alternatif as $item) {
@@ -111,7 +103,8 @@ class SMARTController extends Controller
                 $normalisasiBobot = NormalisasiBobot::where('kriteria_id', $value->id)->first()->normalisasi;
                 $nilaiUtility = NilaiUtility::where('kriteria_id', $value->id)->where('alternatif_id', $item->id)->first()->nilai;
                 $nilai = $normalisasiBobot * $nilaiUtility;
-                $createNilaiAkhir = NilaiAkhir::create([
+
+                NilaiAkhir::create([
                     'alternatif_id' => $item->id,
                     'kriteria_id' => $value->id,
                     'nilai' => $nilai,
@@ -119,11 +112,7 @@ class SMARTController extends Controller
             }
         }
 
-        if ($createNilaiAkhir) {
-            return to_route('nilai-akhir')->with('success', 'Perhitungan Nilai Akhir Berhasil Dilakukan');
-        } else {
-            return to_route('nilai-akhir')->with('error', 'Perhitungan Nilai Akhir Gagal Dilakukan');
-        }
+        return to_route('nilai-akhir')->with('success', 'Perhitungan Nilai Akhir Berhasil Dilakukan');
     }
 
     public function indexPerhitungan()

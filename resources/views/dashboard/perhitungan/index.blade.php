@@ -51,7 +51,7 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "post",
-                        url: "{{ route("perhitungan.smart") }}",
+                        url: "{{ route('perhitungan.smart') }}",
                         data: {
                             "_token": "{{ csrf_token() }}",
                         },
@@ -63,7 +63,7 @@
                                 confirmButtonText: 'OK'
                             }).then((result) => {
                                 if (result.isConfirmed) {
-                                    location.reload();
+                                    location.reload(); // Reload page to show updated results
                                 }
                             });
                         },
@@ -88,13 +88,15 @@
             <div role="alert" class="alert mb-5 flex items-center justify-between border-0 bg-secondary-color shadow-xl dark:bg-secondary-color-dark dark:shadow-secondary-color-dark/20">
                 <h6 class="font-bold text-primary-color dark:text-white">Tabel-Tabel {{ $title }}</h6>
                 <div>
+                    <!-- Tombol Perhitungan Metode SMART -->
                     <button class="mb-0 inline-block cursor-pointer rounded-lg border border-solid border-success bg-transparent bg-white px-4 py-1 text-center align-middle text-sm font-bold leading-normal tracking-tight text-success shadow-none transition-all ease-in hover:-translate-y-px hover:opacity-75 active:opacity-90 md:px-8 md:py-2" onclick="return perhitungan_button()">
                         <i class="ri-add-fill"></i>
                         Perhitungan Metode SMART
                     </button>
                 </div>
             </div>
-            {{-- Awal Tabel Normalisasi Bobot Kriteria --}}
+
+            {{-- Tabel Normalisasi Bobot Kriteria --}}
             <div class="relative mb-6 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-border shadow-xl dark:bg-white dark:shadow-secondary-color-dark/20">
                 <div class="border-b-solid mb-0 flex items-center justify-between rounded-t-2xl border-b-0 border-b-transparent p-6 pb-3">
                     <h6 class="font-bold text-primary-color dark:text-primary-color-dark">Tabel Normalisasi Bobot Kriteria</h6>
@@ -104,18 +106,10 @@
                         <table id="myTable1" class="nowrap stripe mb-3 w-full max-w-full border-collapse items-center align-top" style="width: 100%;">
                             <thead class="align-bottom">
                                 <tr class="bg-primary-color text-xs font-bold uppercase text-white dark:bg-primary-color-dark dark:text-white">
-                                    <th class="rounded-tl">
-                                        Kode
-                                    </th>
-                                    <th>
-                                        Nama Kriteria
-                                    </th>
-                                    <th>
-                                        Bobot
-                                    </th>
-                                    <th class="rounded-tr">
-                                        Normalisasi
-                                    </th>
+                                    <th class="rounded-tl">Kode</th>
+                                    <th>Nama Kriteria</th>
+                                    <th>Bobot</th>
+                                    <th class="rounded-tr">Normalisasi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -164,7 +158,7 @@
             </div>
             {{-- Akhir Tabel Normalisasi Bobot Kriteria --}}
 
-            {{-- Awal Tabel Nilai Utility --}}
+            {{-- Tabel Nilai Utility --}}
             <div class="relative mb-6 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-border shadow-xl dark:bg-white dark:shadow-secondary-color-dark/20">
                 <div class="border-b-solid mb-0 flex items-center justify-between rounded-t-2xl border-b-0 border-b-transparent p-6 pb-3">
                     <h6 class="font-bold text-primary-color dark:text-primary-color-dark">Tabel Nilai Utility</h6>
@@ -197,7 +191,7 @@
                                                         @if ($value->nilai == 0)
                                                             {{ round($value->nilai, 3) }}
                                                         @elseif ($value->nilai == null)
-                                                            -
+                                                            - 
                                                         @else
                                                             {{ round($value->nilai, 3) }}
                                                         @endif
@@ -217,25 +211,12 @@
                                 @endforeach
                             </tbody>
                         </table>
-
-                        <div class="w-fit overflow-x-auto">
-                            <table class="table table-xs">
-                                <tr>
-                                    <td class="text-base font-semibold text-primary-color dark:text-primary-color-dark">Keterangan:</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-base text-primary-color dark:text-primary-color-dark">* Pastikan setiap alternatif terisi semua pada menu penilaian</td>
-                                    <td class="text-base text-primary-color dark:text-primary-color-dark"></td>
-                                </tr>
-                            </table>
-                        </div>
                     </div>
                 </div>
             </div>
             {{-- Akhir Tabel Nilai Utility --}}
 
-            {{-- Awal Tabel Nilai Akhir --}}
+            {{-- Tabel Nilai Akhir --}}
             <div class="relative mb-6 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-border shadow-xl dark:bg-white dark:shadow-secondary-color-dark/20">
                 <div class="border-b-solid mb-0 flex items-center justify-between rounded-t-2xl border-b-0 border-b-transparent p-6 pb-3">
                     <h6 class="font-bold text-primary-color dark:text-primary-color-dark">Tabel Nilai Akhir</h6>
@@ -251,9 +232,7 @@
                                             {{ $item->kriteria }}
                                         </th>
                                     @endforeach
-                                    <th class="rounded-tr">
-                                        Total
-                                    </th>
+                                    <th class="rounded-tr">Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -271,7 +250,7 @@
                                                         @if ($value->nilai == 0)
                                                             {{ round($value->nilai, 3) }}
                                                         @elseif ($value->nilai == null)
-                                                            -
+                                                            - 
                                                         @else
                                                             {{ round($value->nilai, 3) }}
                                                         @endif
@@ -301,19 +280,6 @@
                                 @endforeach
                             </tbody>
                         </table>
-
-                        <div class="w-fit overflow-x-auto">
-                            <table class="table table-xs">
-                                <tr>
-                                    <td class="text-base font-semibold text-primary-color dark:text-primary-color-dark">Keterangan:</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="text-base text-primary-color dark:text-primary-color-dark">* Pastikan setiap alternatif terisi semua pada menu penilaian</td>
-                                    <td class="text-base text-primary-color dark:text-primary-color-dark"></td>
-                                </tr>
-                            </table>
-                        </div>
                     </div>
                 </div>
             </div>

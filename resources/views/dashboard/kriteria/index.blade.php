@@ -10,7 +10,7 @@
                         target: 'tr',
                     },
                 },
-                order: [],
+                ordering: false,
                 pagingType: 'full_numbers',
             });
         });
@@ -32,14 +32,12 @@
 
             $.ajax({
                 type: "get",
-                url: "{{ route("kriteria.edit") }}",
+                url: "{{ route('kriteria.edit') }}",
                 data: {
                     "_token": "{{ csrf_token() }}",
                     "kriteria_id": kriteria_id
                 },
                 success: function(data) {
-                    // console.log(data.data);
-
                     $("input[name='id']").val(data.data.id);
                     $("input[name='kode']").val(data.data.kode);
                     $("input[name='kriteria']").val(data.data.kriteria);
@@ -75,7 +73,7 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "post",
-                        url: "{{ route("kriteria.delete") }}",
+                        url: "{{ route('kriteria.delete') }}",
                         data: {
                             "_token": "{{ csrf_token() }}",
                             "kriteria_id": kriteria_id
@@ -121,7 +119,7 @@
                         </label>
                     </div>
                     <div>
-                        <form action="{{ route("kriteria.store") }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('kriteria.store') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <input type="text" name="id" hidden>
                             <label class="form-control w-full">
@@ -130,8 +128,8 @@
                                         <x-label-input-required>Kode</x-label-input-required>
                                     </span>
                                 </div>
-                                <input type="text" name="kode" class="input input-bordered w-full cursor-default bg-slate-100 text-primary-color" value="{{ old("kode") }}" required readonly />
-                                @error("kode")
+                                <input type="text" name="kode" class="input input-bordered w-full cursor-default bg-slate-100 text-primary-color" value="{{ old('kode') }}" required readonly />
+                                @error('kode')
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
@@ -143,8 +141,8 @@
                                         <x-label-input-required>Kriteria</x-label-input-required>
                                     </span>
                                 </div>
-                                <input type="text" name="kriteria" class="input input-bordered w-full text-primary-color" value="{{ old("kriteria") }}" required />
-                                @error("kriteria")
+                                <input type="text" name="kriteria" class="input input-bordered w-full text-primary-color" value="{{ old('kriteria') }}" required />
+                                @error('kriteria')
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
@@ -156,8 +154,8 @@
                                         <x-label-input-required>Bobot</x-label-input-required>
                                     </span>
                                 </div>
-                                <input type="number" min="0" max="100" step="1" name="bobot" class="input input-bordered w-full text-primary-color" value="{{ old("bobot") }}" required />
-                                @error("bobot")
+                                <input type="number" min="0" max="100" step="1" name="bobot" class="input input-bordered w-full text-primary-color" value="{{ old('bobot') }}" required />
+                                @error('bobot')
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
@@ -181,7 +179,7 @@
                                         <input type="radio" value="benefit" name="jenis_kriteria" class="radio-primary radio" checked />
                                     </label>
                                 </div>
-                                @error("jenis_kriteria")
+                                @error('jenis_kriteria')
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
@@ -205,7 +203,7 @@
                         </label>
                     </div>
                     <div>
-                        <form action="{{ route("kriteria.update") }}" method="POST" enctype="multipart/form-data">
+                        <form action="{{ route('kriteria.update') }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <input type="text" name="id" hidden>
                             <label class="form-control w-full">
@@ -213,10 +211,9 @@
                                     <span class="label-text font-semibold">
                                         <x-label-input-required>Kode</x-label-input-required>
                                     </span>
-                                    <span class="label-text-alt" id="loading_edit1"></span>
                                 </div>
                                 <input type="text" name="kode" class="input input-bordered w-full cursor-default bg-slate-100 text-primary-color" required />
-                                @error("kode")
+                                @error('kode')
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
@@ -227,10 +224,9 @@
                                     <span class="label-text font-semibold">
                                         <x-label-input-required>Kriteria</x-label-input-required>
                                     </span>
-                                    <span class="label-text-alt" id="loading_edit2"></span>
                                 </div>
                                 <input type="text" name="kriteria" class="input input-bordered w-full text-primary-color" required />
-                                @error("kriteria")
+                                @error('kriteria')
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
@@ -241,10 +237,9 @@
                                     <span class="label-text font-semibold">
                                         <x-label-input-required>Bobot</x-label-input-required>
                                     </span>
-                                    <span class="label-text-alt" id="loading_edit3"></span>
                                 </div>
                                 <input type="number" min="0" max="100" step="1" name="bobot" class="input input-bordered w-full text-primary-color" required />
-                                @error("bobot")
+                                @error('bobot')
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
@@ -255,7 +250,6 @@
                                     <span class="label-text font-semibold">
                                         <x-label-input-required>Jenis Kriteria</x-label-input-required>
                                     </span>
-                                    <span class="label-text-alt" id="loading_edit4"></span>
                                 </div>
                                 <div class="form-control">
                                     <label class="label cursor-pointer">
@@ -269,7 +263,7 @@
                                         <input type="radio" value="benefit" name="jenis_kriteria" id="benefit" class="radio-primary radio" />
                                     </label>
                                 </div>
-                                @error("jenis_kriteria")
+                                @error('jenis_kriteria')
                                     <div class="label">
                                         <span class="label-text-alt text-sm text-error">{{ $message }}</span>
                                     </div>
@@ -282,39 +276,6 @@
             </div>
             {{-- Akhir Modal Edit --}}
 
-            {{-- Awal Modal Import --}}
-            <input type="checkbox" id="import_button" class="modal-toggle" />
-            <div class="modal" role="dialog">
-                <div class="modal-box">
-                    <div class="mb-3 flex justify-between">
-                        <h3 class="text-lg font-bold">Impor {{ $title }}</h3>
-                        <label for="import_button" class="cursor-pointer">
-                            <i class="ri-close-large-fill"></i>
-                        </label>
-                    </div>
-                    <div>
-                        <form action="{{ route("kriteria.import") }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <label class="form-control w-full">
-                                <div class="label">
-                                    <span class="label-text font-semibold">
-                                        <x-label-input-required>File Excel</x-label-input-required>
-                                    </span>
-                                </div>
-                                <input type="file" name="import_data" class="file-input file-input-bordered w-full text-primary-color" required />
-                                @error("import_data")
-                                    <div class="label">
-                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                    </div>
-                                @enderror
-                            </label>
-                            <button type="submit" class="btn btn-success mt-3 w-full text-white">Simpan</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {{-- Akhir Modal Import --}}
-
             {{-- Awal Tabel Kriteria --}}
             <div class="relative mb-6 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-border shadow-xl dark:bg-white dark:shadow-secondary-color-dark/20">
                 <div class="border-b-solid mb-0 flex items-center justify-between rounded-t-2xl border-b-0 border-b-transparent p-6 pb-3">
@@ -324,10 +285,6 @@
                             <i class="ri-add-fill"></i>
                             Tambah
                         </label>
-                        <label for="import_button" class="mb-0 inline-block cursor-pointer rounded-lg border border-solid border-success bg-transparent px-4 py-1 text-center align-middle text-sm font-bold leading-normal tracking-tight text-success shadow-none transition-all ease-in hover:-translate-y-px hover:opacity-75 active:opacity-90 md:px-8 md:py-2" onclick="return import_button()">
-                            <i class="ri-file-excel-2-line"></i>
-                            Impor
-                        </label>
                     </div>
                 </div>
                 <div class="flex-auto px-0 pb-2 pt-0">
@@ -335,62 +292,26 @@
                         <table id="myTable" class="nowrap stripe mb-3 w-full max-w-full border-collapse items-center align-top" style="width: 100%;">
                             <thead class="align-bottom">
                                 <tr class="bg-primary-color text-xs font-bold uppercase text-white dark:bg-primary-color-dark dark:text-white">
-                                    <th class="rounded-tl">
-                                        No.
-                                    </th>
-                                    <th>
-                                        Kode
-                                    </th>
-                                    <th>
-                                        Nama Kriteria
-                                    </th>
-                                    <th>
-                                        Bobot
-                                    </th>
-                                    <th>
-                                        Jenis Kriteria
-                                    </th>
-                                    <th class="rounded-tr">
-                                        Aksi
-                                    </th>
+                                    <th class="rounded-tl">No.</th>
+                                    <th>Kode</th>
+                                    <th>Nama Kriteria</th>
+                                    <th>Bobot</th>
+                                    <th>Jenis Kriteria</th>
+                                    <th class="rounded-tr">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($kriteria as $value => $item)
                                     <tr class="border-b border-primary-color bg-transparent dark:border-primary-color-dark">
-                                        <td>
-                                            <p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">
-                                                {{ $value + 1 }}.
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">
-                                                {{ $item->kode }}
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p class="text-left align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">
-                                                {{ $item->kriteria }}
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">
-                                                {{ $item->bobot }}
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">
-                                                {{ $item->jenis_kriteria }}
-                                            </p>
-                                        </td>
+                                        <td><p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">{{ $value + 1 }}.</p></td>
+                                        <td><p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">{{ $item->kode }}</p></td>
+                                        <td><p class="text-left align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">{{ $item->kriteria }}</p></td>
+                                        <td><p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">{{ $item->bobot }}</p></td>
+                                        <td><p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">{{ $item->jenis_kriteria }}</p></td>
                                         <td>
                                             <div class="text-center align-middle">
-                                                <label for="edit_button" class="btn btn-outline btn-warning btn-sm" onclick="return edit_button('{{ $item->id }}')">
-                                                    <i class="ri-pencil-line text-base"></i>
-                                                </label>
-                                                <label for="delete_button" class="btn btn-outline btn-error btn-sm" onclick="return delete_button('{{ $item->id }}')">
-                                                    <i class="ri-delete-bin-line text-base"></i>
-                                                </label>
+                                                <label for="edit_button" class="btn btn-outline btn-warning btn-sm" onclick="return edit_button('{{ $item->id }}')"><i class="ri-pencil-line text-base"></i></label>
+                                                <label for="delete_button" class="btn btn-outline btn-error btn-sm" onclick="return delete_button('{{ $item->id }}')"><i class="ri-delete-bin-line text-base"></i></label>
                                             </div>
                                         </td>
                                     </tr>
@@ -400,9 +321,7 @@
                                 <td></td>
                                 <td></td>
                                 <td class="text-right align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">Total Bobot:</td>
-                                <td class="text-center align-middle text-base font-bold leading-tight text-primary-color dark:text-primary-color-dark">
-                                    {{ $sumBobot }}
-                                </td>
+                                <td class="text-center align-middle text-base font-bold leading-tight text-primary-color dark:text-primary-color-dark">{{ $sumBobot }}</td>
                                 <td></td>
                                 <td></td>
                             </tr>

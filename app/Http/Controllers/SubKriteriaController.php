@@ -32,11 +32,21 @@ class SubKriteriaController extends Controller
     {
         $validated = $request->validated();
 
+        // Check if the sub-kriteria already exists for this kriteria
+        $subKriteriaExists = SubKriteria::where('sub_kriteria', $request->sub_kriteria)
+                                         ->where('kriteria_id', $request->kriteria_id)
+                                         ->exists();
+
+        if ($subKriteriaExists) {
+            return to_route('sub-kriteria')->with('error', 'Sub Kriteria sudah ada.');
+        }
+
+        // Create sub-kriteria
         $simpan = SubKriteria::create($validated);
         if ($simpan) {
-            return to_route('sub-kriteria')->with('success', 'Sub Kriteria '.$request->kriteria_nama.' Berhasil Disimpan');
+            return to_route('sub-kriteria')->with('success', 'Sub Kriteria '.$request->sub_kriteria.' Berhasil Disimpan');
         } else {
-            return to_route('sub-kriteria')->with('error', 'Sub Kriteria '.$request->kriteria_nama.' Gagal Disimpan');
+            return to_route('sub-kriteria')->with('error', 'Sub Kriteria '.$request->sub_kriteria.' Gagal Disimpan');
         }
     }
 
@@ -56,11 +66,22 @@ class SubKriteriaController extends Controller
     {
         $validated = $request->validated();
 
+        // Check if the sub-kriteria already exists for this kriteria
+        $subKriteriaExists = SubKriteria::where('sub_kriteria', $request->sub_kriteria)
+                                         ->where('kriteria_id', $request->kriteria_id)
+                                         ->where('id', '!=', $request->id) // Ensure it's not the same one being updated
+                                         ->exists();
+
+        if ($subKriteriaExists) {
+            return to_route('sub-kriteria')->with('error', 'Sub Kriteria ini sudah ada.');
+        }
+
+        // Update sub-kriteria
         $perbarui = SubKriteria::where('id', $request->id)->update($validated);
         if ($perbarui) {
-            return to_route('sub-kriteria')->with('success', 'Sub Kriteria '.$request->kriteria_nama.' Berhasil Diperbarui');
+            return to_route('sub-kriteria')->with('success', 'Sub Kriteria '.$request->sub_kriteria.' Berhasil Diperbarui');
         } else {
-            return to_route('sub-kriteria')->with('error', 'Sub Kriteria '.$request->kriteria_nama.' Gagal Diperbarui');
+            return to_route('sub-kriteria')->with('error', 'Sub Kriteria '.$request->sub_kriteria.' Gagal Diperbarui');
         }
     }
 
@@ -69,15 +90,21 @@ class SubKriteriaController extends Controller
      */
     public function delete(Request $request)
     {
+        // Update penilaian yang menggunakan sub_kriteria_id yang akan dihapus
         Penilaian::where('sub_kriteria_id', $request->sub_kriteria_id)->update(['sub_kriteria_id' => null]);
+        
+        // Delete the sub-kriteria
         $hapus = SubKriteria::where('id', $request->sub_kriteria_id)->delete();
         if ($hapus) {
-            return to_route('sub-kriteria')->with('success', 'Sub Kriteria '.$request->kriteria_nama.' Berhasil Dihapus');
+            return to_route('sub-kriteria')->with('success', 'Sub Kriteria berhasil Dihapus');
         } else {
-            return to_route('sub-kriteria')->with('error', 'Sub Kriteria '.$request->kriteria_nama.' Gagal Dihapus');
+            return to_route('sub-kriteria')->with('error', 'Sub Kriteria gagal Dihapus');
         }
     }
 
+    /**
+     * Import data kriteria
+     */
     public function import(Request $request)
     {
         $request->validate([
@@ -88,6 +115,7 @@ class SubKriteriaController extends Controller
         $import = Excel::import(new SubKriteriaImport, $file);
 
         if ($import) {
+            // Setelah import selesai, hitung bobot jika diperlukan
             return to_route('sub-kriteria')->with('success', 'Sub Kriteria Berhasil Disimpan');
         } else {
             return to_route('sub-kriteria')->with('error', 'Sub Kriteria Gagal Disimpan');

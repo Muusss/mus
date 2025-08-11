@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('normalisasi_bobot', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kriteria_id')->constrained('kriteria');
-            $table->double('normalisasi');
-            $table->timestamps();
+            $table->foreignId('kriteria_id')->constrained('kriteria');  // Relasi ke tabel kriteria
+            $table->double('normalisasi', 15, 8);  // Menambahkan presisi untuk normalisasi bobot (15 digit, 8 angka di belakang koma)
+            $table->timestamps();  // Menambahkan kolom timestamps (created_at, updated_at)
         });
     }
 

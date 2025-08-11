@@ -29,7 +29,7 @@
                 if (result.isConfirmed) {
                     $.ajax({
                         type: "post",
-                        url: "{{ route("nilai-utility.perhitungan") }}",
+                        url: "{{ route('nilai-utility.perhitungan') }}",
                         data: {
                             "_token": "{{ csrf_token() }}",
                         },
@@ -55,7 +55,7 @@
                         }
                     });
                 }
-            })
+            });
         }
     </script>
 @endsection
@@ -68,6 +68,7 @@
                 <div class="border-b-solid mb-0 flex items-center justify-between rounded-t-2xl border-b-0 border-b-transparent p-6 pb-3">
                     <h6 class="font-bold text-primary-color dark:text-primary-color-dark">Tabel {{ $title }}</h6>
                     <div class="w-1/2 max-w-full flex-none px-3 text-right">
+                        <!-- Tombol Hitung Nilai Utility -->
                         <button class="mb-0 inline-block cursor-pointer rounded-lg border border-solid border-success bg-transparent px-4 py-1 text-center align-middle text-sm font-bold leading-normal tracking-tight text-success shadow-none transition-all ease-in hover:-translate-y-px hover:opacity-75 active:opacity-90 md:px-8 md:py-2" onclick="return utility_button()">
                             <i class="ri-add-line"></i>
                             Hitung Nilai Utility

@@ -41,24 +41,24 @@ class KriteriaController extends Controller
     {
         $validated = $request->validated();
 
+        // Simpan kriteria baru
         $kriteria = Kriteria::create($validated);
-        $createPenilaian = true;
-        $alternatif = Alternatif::get('id');
-        if ($alternatif->first()) {
-            foreach ($alternatif as $item) {
-                $createPenilaian = Penilaian::create([
-                    'alternatif_id' => $item->id,
-                    'kriteria_id' => $kriteria->id,
-                    'sub_kriteria_id' => null,
-                ]);
-            }
+        
+        // Setelah kriteria baru disimpan, hitung bobot dengan metode ROC
+        $this->hitungBobotROC();
+
+        // Buat penilaian untuk alternatif
+        $alternatif = Alternatif::all();
+        foreach ($alternatif as $item) {
+            Penilaian::updateOrCreate([
+                'alternatif_id' => $item->id,
+                'kriteria_id' => $kriteria->id,
+            ], [
+                'sub_kriteria_id' => null, // Default, jika sub-kriteria belum ada
+            ]);
         }
 
-        if ($createPenilaian) {
-            return to_route('kriteria')->with('success', 'Kriteria Berhasil Disimpan');
-        } else {
-            return to_route('kriteria')->with('error', 'Kriteria Gagal Disimpan');
-        }
+        return to_route('kriteria')->with('success', 'Kriteria Berhasil Disimpan');
     }
 
     /**
@@ -76,12 +76,15 @@ class KriteriaController extends Controller
     {
         $validated = $request->validated();
 
+        // Update data kriteria
         $perbarui = Kriteria::where('id', $request->id)->update($validated);
-        if ($perbarui) {
-            return to_route('kriteria')->with('success', 'Kriteria Berhasil Diperbarui');
-        } else {
-            return to_route('kriteria')->with('error', 'Kriteria Gagal Diperbarui');
-        }
+        
+        // Hitung ulang bobot ROC
+        $this->hitungBobotROC();
+
+        return $perbarui
+            ? to_route('kriteria')->with('success', 'Kriteria Berhasil Diperbarui')
+            : to_route('kriteria')->with('error', 'Kriteria Gagal Diperbarui');
     }
 
     /**
@@ -95,13 +98,14 @@ class KriteriaController extends Controller
         NilaiUtility::where('kriteria_id', $request->kriteria_id)->delete();
         NilaiAkhir::where('kriteria_id', $request->kriteria_id)->delete();
         $hapus = Kriteria::where('id', $request->kriteria_id)->delete();
-        if ($hapus) {
-            return to_route('kriteria')->with('success', 'Kriteria Berhasil Dihapus');
-        } else {
-            return to_route('kriteria')->with('error', 'Kriteria Gagal Dihapus');
-        }
+        return $hapus
+            ? to_route('kriteria')->with('success', 'Kriteria Berhasil Dihapus')
+            : to_route('kriteria')->with('error', 'Kriteria Gagal Dihapus');
     }
 
+    /**
+     * Import data kriteria
+     */
     public function import(Request $request)
     {
         $request->validate([
@@ -111,26 +115,43 @@ class KriteriaController extends Controller
         $file = $request->file('import_data');
         Excel::import(new KriteriaImport, $file);
 
+        // Setelah import data, hitung bobot ROC dan nilai akhir
+        $this->hitungBobotROC();
+
         $kriteria = Kriteria::get('id');
         $alternatif = Alternatif::get('id');
-        $createPenilaian = true;
-        if ($alternatif->first()) {
-            Penilaian::truncate();
-            foreach ($kriteria as $value) {
-                foreach ($alternatif as $item) {
-                    $createPenilaian = Penilaian::create([
-                        'alternatif_id' => $item->id,
-                        'kriteria_id' => $value->id,
-                        'sub_kriteria_id' => null,
-                    ]);
-                }
+        foreach ($kriteria as $value) {
+            foreach ($alternatif as $item) {
+                Penilaian::updateOrCreate([
+                    'alternatif_id' => $item->id,
+                    'kriteria_id' => $value->id,
+                ], [
+                    'sub_kriteria_id' => null,
+                ]);
             }
         }
 
-        if ($createPenilaian) {
-            return to_route('kriteria')->with('success', 'Kriteria Berhasil Disimpan');
-        } else {
-            return to_route('kriteria')->with('error', 'Kriteria Gagal Disimpan');
+        return to_route('kriteria')->with('success', 'Kriteria Berhasil Disimpan');
+    }
+
+    /**
+     * Hitung bobot menggunakan metode ROC
+     */
+    protected function hitungBobotROC()
+    {
+        $kriteria = Kriteria::all();
+        $totalKriteria = $kriteria->count();
+
+        foreach ($kriteria as $index => $k) {
+            // Hitung bobot berdasarkan urutan prioritas dengan ROC
+            $bobot = (1 / ($index + 1)) / (1 + $totalKriteria);
+            
+            // Simpan bobot ke dalam tabel normalisasi bobot
+            NormalisasiBobot::updateOrCreate([
+                'kriteria_id' => $k->id,
+            ], [
+                'bobot' => $bobot
+            ]);
         }
     }
 }

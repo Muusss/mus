@@ -18,14 +18,17 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Profile Routes
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // Dashboard Routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/hasil-akhir', [DashboardController::class, 'hasilAkhir'])->name('hasil-akhir');
 
+    // Kriteria Routes
     Route::group([
         'prefix' => 'kriteria',
     ], function() {
@@ -37,6 +40,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/impor', [KriteriaController::class, 'import'])->name('kriteria.import');
     });
 
+    // Sub-Kriteria Routes
     Route::group([
         'prefix' => 'sub-kriteria',
     ], function() {
@@ -48,6 +52,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/impor', [SubKriteriaController::class, 'import'])->name('sub-kriteria.import');
     });
 
+    // Alternatif Routes
     Route::group([
         'prefix' => 'alternatif',
     ], function() {
@@ -60,6 +65,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/impor', [AlternatifController::class, 'import'])->name('alternatif.import');
     });
 
+    // Penilaian Routes
     Route::group([
         'prefix' => 'penilaian',
     ], function() {
@@ -69,21 +75,27 @@ Route::middleware('auth')->group(function () {
         Route::post('/impor', [PenilaianController::class, 'import'])->name('penilaian.import');
     });
 
+    // SMART (Metode Perhitungan) Routes
     Route::group([
         'prefix' => 'smart',
     ], function() {
+        // Normalisasi Bobot Routes
         Route::get('/normalisasi-bobot', [SMARTController::class, 'indexNormalisasiBobot'])->name('normalisasi-bobot');
         Route::post('/normalisasi-bobot', [SMARTController::class, 'perhitunganNormalisasiBobot'])->name('normalisasi-bobot.perhitungan');
 
+        // Nilai Utility Routes
         Route::get('/nilai-utility', [SMARTController::class, 'indexNilaiUtility'])->name('nilai-utility');
         Route::post('/nilai-utility', [SMARTController::class, 'perhitunganNilaiUtility'])->name('nilai-utility.perhitungan');
 
+        // Nilai Akhir Routes
         Route::get('/nilai-akhir', [SMARTController::class, 'indexNilaiAkhir'])->name('nilai-akhir');
         Route::post('/nilai-akhir', [SMARTController::class, 'perhitunganNilaiAkhir'])->name('nilai-akhir.perhitungan');
 
+        // Perhitungan Metode SMART Routes
         Route::get('/perhitungan', [SMARTController::class, 'indexPerhitungan'])->name('perhitungan');
         Route::post('/perhitungan', [SMARTController::class, 'perhitunganMetode'])->name('perhitungan.smart');
 
+        // PDF Hasil Akhir
         Route::get('/pdf-hasil-akhir', [PDFController::class, 'pdf_hasil'])->name('pdf.hasilAkhir');
     });
 });
