@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\PenilaianRequest;
+use App\Http\Requests\PenilaianStoreRequest;
 use App\Http\Resources\PenilaianResource;
+use App\Services\SubKriteriaMatcher;
 use App\Imports\PenilaianImport;
 use App\Models\Alternatif;
 use App\Models\Kriteria;
@@ -37,37 +39,86 @@ class PenilaianController extends Controller
         return $penilaian;
     }
 
+    public function store(PenilaianStoreRequest $request)
+    {
+        [$subId, $skor] = $this->resolveSubAndSkor(
+            $request->input('kriteria_id'),
+            $request->input('nilai_angka'),
+            $request->input('sub_kriteria_id'),
+            $request->input('label')
+        );
+
+        if (!$subId || !$skor) {
+            return back()->with('error','Tidak menemukan sub kriteria yang cocok. Periksa input.');
+        }
+
+        $row = Penilaian::updateOrCreate(
+            [
+                'alternatif_id' => $request->input('alternatif_id'),
+                'kriteria_id'   => $request->input('kriteria_id'),
+            ],
+            [
+                'sub_kriteria_id' => $subId,
+                'nilai_asli'      => $skor,     // 1..4
+                'nilai_normal'    => null,      // akan dihitung saat proses SMART
+            ]
+        );
+
+        return back()->with($row ? 'success' : 'error', $row ? 'Nilai tersimpan.' : 'Gagal menyimpan nilai.');
+    }
     /**
      * Update the specified resource in storage.
      */
-    public function update(PenilaianRequest $request)
+    public function update(PenilaianStoreRequest $request, Penilaian $penilaian)
     {
-        $validated = $request->validated();
+        [$subId, $skor] = $this->resolveSubAndSkor(
+            $request->input('kriteria_id'),
+            $request->input('nilai_angka'),
+            $request->input('sub_kriteria_id'),
+            $request->input('label')
+        );
 
-        // Menyimpan penilaian dan melakukan perhitungan SMART dan ROC
-        foreach ($validated['kriteria_id'] as $value => $item) {
-            // Update penilaian untuk alternatif
-            $perbarui = Penilaian::query()
-                ->where('alternatif_id', $validated['alternatif_id'])
-                ->where('kriteria_id', $validated['kriteria_id'][$value])
-                ->update([
-                    'sub_kriteria_id' => $validated['sub_kriteria_id'][$value],
-                ]);
+        if (!$subId || !$skor) {
+            return back()->with('error','Tidak menemukan sub kriteria yang cocok. Periksa input.');
         }
 
-        // Hitung bobot ROC
-        $this->hitungBobotROC();
+        $ok = $penilaian->update([
+            'alternatif_id'   => $request->input('alternatif_id'),
+            'kriteria_id'     => $request->input('kriteria_id'),
+            'sub_kriteria_id' => $subId,
+            'nilai_asli'      => $skor,
+            'nilai_normal'    => null,
+        ]);
 
-        // Hitung skor akhir menggunakan metode SMART
-        $this->hitungNilaiSMART();
-
-        if ($perbarui) {
-            return to_route('penilaian')->with('success', 'Penilaian Alternatif Berhasil Diperbarui');
-        } else {
-            return to_route('penilaian')->with('error', 'Penilaian Alternatif Gagal Diperbarui');
-        }
+        return back()->with($ok ? 'success' : 'error', $ok ? 'Nilai diperbarui.' : 'Gagal memperbarui nilai.');
     }
 
+    /**
+     * Mapping input (angka / id / label) -> (sub_kriteria_id, skor)
+     */
+    private function resolveSubAndSkor(int $kriteriaId, ?float $nilaiAngka, ?int $subId, ?string $label): array
+    {
+        // Jika user pilih langsung sub_kriteria_id → pakai itu
+        if ($subId) {
+            $sub = SubKriteria::where('kriteria_id',$kriteriaId)->where('id',$subId)->first();
+            return $sub ? [$sub->id, (int)$sub->skor] : [null, null];
+        }
+
+        // Kalau pakai label (C3, C4, C5)
+        if ($label) {
+            $sub = SubKriteriaMatcher::matchByLabel($kriteriaId, $label);
+            return $sub ? [$sub->id, (int)$sub->skor] : [null, null];
+        }
+
+        // Kalau pakai nilai angka (C1, C2, C6)
+        if ($nilaiAngka !== null) {
+            $sub = SubKriteriaMatcher::matchNumeric($kriteriaId, (float)$nilaiAngka);
+            return $sub ? [$sub->id, (int)$sub->skor] : [null, null];
+        }
+
+        return [null, null];
+    }
+    
     /**
      * Import data penilaian
      */

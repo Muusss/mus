@@ -4,27 +4,21 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration {
     public function up(): void
     {
-        Schema::create('alternatif', function (Blueprint $table) {
-            $table->id();
-            $table->string('kode', 6)->unique();
-            $table->string('alternatif');
-            $table->text('keterangan')->nullable();
-            $table->timestamps();
+        Schema::create('alternatifs', function (Blueprint $t) {
+            $t->id();
+            $t->string('nis',30)->unique();
+            $t->string('nama_siswa',100);
+            $t->enum('jk',['Lk','Pr']);
+            $t->enum('kelas',['6A','6B','6C','6D']);
+            $t->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('alternatif');
+        Schema::dropIfExists('alternatifs');
     }
 };

@@ -6,25 +6,13 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class AlternatifRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
-     */
-    public function rules(): array
-    {
+    public function rules(): array {
+        $id = $this->route('alternatif')?->id; // untuk unique ignore saat update
         return [
-            'kode' => 'required|string|max:6|unique:alternatif,kode,' . $this->id,
-            'alternatif' => 'required|string|max:255',
-            'keterangan' => 'nullable|string',
+            'nis'        => 'required|string|max:30|unique:alternatif,nis'.($id?','.$id:''),
+            'nama_siswa' => 'required|string|max:100',
+            'jk'         => 'required|in:Lk,Pr',
+            'kelas'      => 'required|in:6A,6B,6C,6D',
         ];
     }
 }

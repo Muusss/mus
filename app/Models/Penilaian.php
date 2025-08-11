@@ -3,60 +3,102 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Schema;
 
 class Penilaian extends Model
 {
-    protected $table = 'penilaian';
+    protected $table = 'penilaians';
+
     protected $fillable = [
         'alternatif_id',
         'kriteria_id',
-        'sub_kriteria_id',
-        'nilai_akhir',  // Menambahkan kolom untuk menyimpan nilai akhir
+        'sub_kriteria_id', // opsional
+        'nilai_asli',      // 1..4
+        'nilai_normal',    // 0..1
+        // 'periode_id',    // aktifkan kalau kamu pakai periode
     ];
 
-    /**
-     * Relasi ke model Alternatif
-     */
-    public function alternatif()
+    protected $casts = [
+        'nilai_asli'   => 'float',
+        'nilai_normal' => 'float',
+    ];
+
+    /* ===== Relasi ===== */
+    public function alternatif(): BelongsTo
     {
-        return $this->belongsTo(Alternatif::class, "alternatif_id");
+        return $this->belongsTo(Alternatif::class, 'alternatif_id');
     }
 
-    /**
-     * Relasi ke model Kriteria
-     */
-    public function kriteria()
+    public function kriteria(): BelongsTo
     {
-        return $this->belongsTo(Kriteria::class, "kriteria_id");
+        return $this->belongsTo(Kriteria::class, 'kriteria_id');
     }
 
-    /**
-     * Relasi ke model SubKriteria
-     */
-    public function subKriteria()
+    public function subKriteria(): BelongsTo
     {
-        return $this->belongsTo(SubKriteria::class, "sub_kriteria_id");
+        return $this->belongsTo(SubKriteria::class, 'sub_kriteria_id');
     }
 
-    /**
-     * Hitung nilai akhir berdasarkan nilai utilitas dan normalisasi bobot
-     * @return void
-     */
-    public function hitungNilaiAkhir()
+    /* ===== Scopes ===== */
+    public function scopePeriode(Builder $q, ?int $periodeId): Builder
     {
-        // Ambil nilai utilitas berdasarkan perhitungan SMART
-        $nilaiUtility = NilaiUtility::where('kriteria_id', $this->kriteria_id)
-                                    ->where('alternatif_id', $this->alternatif_id)
-                                    ->first()->nilai;
+        // hindari named args, dan import Schema di atas
+        if ($periodeId !== null && Schema::hasColumn($this->getTable(), 'periode_id')) {
+            $q->where('periode_id', $periodeId);
+        }
+        return $q;
+    }
 
-        // Ambil normalisasi bobot kriteria yang telah dihitung dengan metode ROC
-        $normalisasiBobot = NormalisasiBobot::where('kriteria_id', $this->kriteria_id)
-                                           ->first()->normalisasi;
+    public function scopeForUser(Builder $q, ?User $user): Builder
+    {
+        if ($user && ($user->role ?? null) === 'wali_kelas') {
+            $q->whereHas('alternatif', function (Builder $s) use ($user) {
+                $s->where('kelas', $user->kelas);
+            });
+        }
+        return $q;
+    }
 
-        // Hitung nilai akhir dengan mengalikan nilai utilitas dan normalisasi bobot
-        $nilaiAkhir = $nilaiUtility * $normalisasiBobot;
+    public function scopeForKriteria(Builder $q, int $kriteriaId): Builder
+    {
+        return $q->where('kriteria_id', $kriteriaId);
+    }
 
-        // Simpan nilai akhir ke dalam kolom nilai_akhir
-        $this->update(['nilai_akhir' => $nilaiAkhir]);
+    /* ===== Mutator kecil untuk jaga range 1..4 ===== */
+    public function setNilaiAsliAttribute($value): void
+    {
+        $v = (int) $value;
+        $this->attributes['nilai_asli'] = max(1, min(4, $v));
+    }
+
+    /* ===== Normalisasi SMART (min-max) ===== */
+    public static function normalisasiSMART(?int $periodeId = null, ?User $user = null): void
+    {
+        $kriterias = Kriteria::all();
+        foreach ($kriterias as $kr) {
+            $q = static::query()
+                ->where('kriteria_id', $kr->id)
+                ->periode($periodeId)
+                ->forUser($user);
+
+            $min = (clone $q)->min('nilai_asli');
+            $max = (clone $q)->max('nilai_asli');
+
+            $rows = $q->get(['id','nilai_asli']);
+            if ($rows->isEmpty()) continue;
+
+            foreach ($rows as $row) {
+                if ($max == $min) {
+                    $u = 1.0;
+                } else {
+                    $u = ($kr->atribut === 'cost')
+                        ? ($max - $row->nilai_asli) / ($max - $min)
+                        : ($row->nilai_asli - $min) / ($max - $min);
+                }
+                static::where('id', $row->id)->update(['nilai_normal' => round($u, 6)]);
+            }
+        }
     }
 }

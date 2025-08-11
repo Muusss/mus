@@ -2,46 +2,29 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
 use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
-use App\Models\SubKriteria;
-use Illuminate\Database\Seeder;
 
 class PenilaianSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $alternatif = Alternatif::orderBy('id', 'asc')->get();
-        $kriteria = Kriteria::orderBy('id', 'asc')->get();
-        $subKriteria = [
-            [
-                'alternatif_id' => 1,
-                'sub_kriteria_id' => [1, 6, 11, 17, 23],
-            ],
-            [
-                'alternatif_id' => 2,
-                'sub_kriteria_id' => [3, 7, 12, 18, 24],
-            ],
-            [
-                'alternatif_id' => 3,
-                'sub_kriteria_id' => [1, 8, 12, 18, 21],
-            ],
-            [
-                'alternatif_id' => 4,
-                'sub_kriteria_id' => [1, 7, 11, 18, 25],
-            ],
-        ];
-        foreach ($alternatif as $alt => $item) {
-            foreach ($kriteria as $kri => $value) {
-                Penilaian::create([
-                    'alternatif_id' => $item->id,
-                    'kriteria_id' => $value->id,
-                    'sub_kriteria_id' => $subKriteria[$alt]['sub_kriteria_id'][$kri],
-                ]);
+        $alternatifs = Alternatif::all();
+        $kriterias   = Kriteria::all();
+
+        if ($alternatifs->isEmpty() || $kriterias->isEmpty()) return;
+
+        foreach ($alternatifs as $alt) {
+            foreach ($kriterias as $kr) {
+                // Contoh nilai 1..4 (boleh diganti real)
+                $nilai = random_int(2, 4);
+
+                Penilaian::updateOrCreate(
+                    ['alternatif_id' => $alt->id, 'kriteria_id' => $kr->id],
+                    ['nilai_asli' => $nilai] // nilai_normal dihitung setelahnya
+                );
             }
         }
     }

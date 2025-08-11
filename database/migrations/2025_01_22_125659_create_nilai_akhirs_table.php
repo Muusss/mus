@@ -4,27 +4,22 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
-    /**
-     * Run the migrations.
-     */
+return new class extends Migration {
     public function up(): void
     {
-        Schema::create('nilai_akhir', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('alternatif_id')->constrained('alternatif');
-            $table->foreignId('kriteria_id')->constrained('kriteria');
-            $table->double('nilai');
-            $table->timestamps();
+        Schema::create('nilai_akhirs', function (Blueprint $t) {
+            $t->id();
+            $t->foreignId('alternatif_id')->constrained('alternatifs')->cascadeOnDelete();
+            $t->decimal('total', 10, 6)->default(0);
+            $t->unsignedInteger('peringkat')->nullable();
+            $t->unsignedBigInteger('periode_id')->nullable()->index();
+            $t->unique(['alternatif_id','periode_id']);
+            $t->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
-        Schema::dropIfExists('nilai_akhir');
+        Schema::dropIfExists('nilai_akhirs');
     }
 };
