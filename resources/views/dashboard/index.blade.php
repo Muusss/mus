@@ -1,211 +1,126 @@
-@extends("dashboard.layouts.main")
+@extends('dashboard.layouts.main')
 
-@section("js")
-    <script>
-        let alternatif = [];
-        let nilaiAkhir = [];
-        @foreach ($nilaiAkhir as $item)
-            alternatif.push(' {{ $item->alternatif->alternatif }} ');
-            nilaiAkhir.push(' {{ round($item->nilai, 3) }} ');
-        @endforeach
+@section('content')
+<div class="row g-3 mb-3">
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Jumlah Siswa</div>
+            <div class="fs-3 fw-semibold">{{ $jumlahSiswa ?? 0 }}</div>
+          </div>
+          <i class="bi bi-people fs-2 text-primary"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Jumlah Kriteria</div>
+            <div class="fs-3 fw-semibold">{{ $jumlahKriteria ?? 0 }}</div>
+          </div>
+          <i class="bi bi-list-check fs-2 text-success"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <div class="text-muted small">Entri Penilaian</div>
+            <div class="fs-3 fw-semibold">{{ $jumlahPenilaian ?? 0 }}</div>
+          </div>
+          <i class="bi bi-clipboard-data fs-2 text-warning"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-        let chart_perankingan = {
-            chart: {
-                height: 300,
-                type: "line",
-                stacked: true
-            },
-            dataLabels: {
-                enabled: false
-            },
-            series: [{
-                data: nilaiAkhir
-            }, ],
-            stroke: {
-                curve: 'smooth',
-                width: 4,
-            },
-            marker: {
-                size: 10,
-            },
-            colors: ["#665551"],
-            xaxis: {
-                categories: alternatif,
-                axisTicks: {
-                    show: true
-                },
-                axisBorder: {
-                    show: true,
-                    color: "#77547C"
-                },
-                labels: {
-                    style: {
-                        colors: "#77547C"
-                    }
-                },
-                title: {
-                    text: "Alternatif",
-                    style: {
-                        color: "#665551"
-                    }
-                }
-            },
-            yaxis: [{
-                axisTicks: {
-                    show: true
-                },
-                axisBorder: {
-                    show: true,
-                    color: "#77547C"
-                },
-                labels: {
-                    style: {
-                        colors: "#77547C"
-                    }
-                },
-                title: {
-                    text: "Nilai",
-                    style: {
-                        color: "#665551"
-                    }
-                }
-            }, ],
-            tooltip: {
-                enabled: true,
-                shared: false,
-                followCursor: false,
-                x: {
-                    show: false,
-                },
-                y: {
-                    formatter: undefined,
-                    title: {
-                        formatter: (seriesName) => "",
-                    },
-                },
-            },
-        };
+{{-- Chart peringkat --}}
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <h5 class="mb-0">Grafik Total Nilai (ROC + SMART)</h5>
+    </div>
+    <div id="chart_peringkat" style="min-height: 320px;"></div>
+  </div>
+</div>
 
-        var chart1 = new ApexCharts(document.querySelector("#chart-perankingan"), chart_perankingan);
-        chart1.render();
-    </script>
+{{-- Tabel ranking --}}
+<div class="card">
+  <div class="card-body">
+    <h5 class="mb-3">Peringkat Siswa</h5>
+    <div class="table-responsive">
+      <table id="tblRanking" class="table table-striped table-bordered w-100">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>NIS</th>
+            <th>Nama Siswa</th>
+            <th>Kelas</th>
+            <th>Total</th>
+            <th>Peringkat</th>
+          </tr>
+        </thead>
+        <tbody>
+          @forelse ($nilaiAkhir as $row)
+            <tr>
+              <td>{{ $loop->iteration }}</td>
+              <td>{{ $row->alternatif->nis ?? '-' }}</td>
+              <td>{{ $row->alternatif->nama_siswa ?? 'Siswa '.$row->alternatif_id }}</td>
+              <td>{{ $row->alternatif->kelas ?? '-' }}</td>
+              <td>{{ number_format((float)$row->total, 6) }}</td>
+              <td>{{ $row->peringkat ?? '-' }}</td>
+            </tr>
+          @empty
+            <tr>
+              <td colspan="6" class="text-center text-muted">Belum ada hasil perhitungan.</td>
+            </tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
 @endsection
 
-@section("container")
-    <div>
-        <!-- row 1 -->
-        <div class="-mx-3 mb-5 flex flex-wrap">
-            <!-- Kriteria -->
-            <div class="mb-6 w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/3">
-                <div class="relative flex min-w-0 flex-col break-words rounded-2xl bg-secondary-color bg-clip-border shadow-md dark:bg-secondary-color-dark dark:shadow-secondary-color-dark/20">
-                    <div class="flex-auto p-4">
-                        <div class="-mx-3 flex flex-row">
-                            <div class="w-2/3 max-w-full flex-none px-3">
-                                <div>
-                                    <p class="mb-0 font-sans text-sm font-semibold uppercase leading-normal dark:text-primary-color-dark">Kriteria</p>
-                                    <h5 class="mb-2 font-bold text-primary-color-dark dark:text-white">{{ $jmlKriteria }}</h5>
-                                </div>
-                            </div>
-                            <div class="basis-1/3 px-3 text-right">
-                                <div class="rounded-circle inline-block h-12 w-12 bg-gradient-to-tl from-primary-color to-secondary-color text-center dark:bg-gradient-to-tl dark:from-primary-color-dark dark:to-secondary-color-dark">
-                                    <i class="ri-puzzle-line relative top-3 text-2xl leading-none text-white"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+@section('js')
+<script>
+  // ==== Data untuk chart dari controller ====
+  const labels = @json($chartLabels ?? []);
+  const seriesData = @json($chartSeries ?? []);
 
-            <!-- Sub Kriteria -->
-            <div class="mb-6 w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/3">
-                <div class="relative flex min-w-0 flex-col break-words rounded-2xl bg-secondary-color bg-clip-border shadow-md dark:bg-secondary-color-dark dark:shadow-secondary-color-dark/20">
-                    <div class="flex-auto p-4">
-                        <div class="-mx-3 flex flex-row">
-                            <div class="w-2/3 max-w-full flex-none px-3">
-                                <div>
-                                    <p class="mb-0 font-sans text-sm font-semibold uppercase leading-normal dark:text-primary-color-dark">Sub Kriteria</p>
-                                    <h5 class="mb-2 font-bold text-primary-color-dark dark:text-white">{{ $jmlSubKriteria }}</h5>
-                                </div>
-                            </div>
-                            <div class="basis-1/3 px-3 text-right">
-                                <div class="rounded-circle inline-block h-12 w-12 bg-gradient-to-tl from-primary-color to-secondary-color text-center dark:bg-gradient-to-tl dark:from-primary-color-dark dark:to-secondary-color-dark">
-                                    <i class="ri-puzzle-2-fill relative top-3 text-2xl leading-none text-white"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  // ==== ApexCharts (bar) ====
+  if (window.ApexCharts) {
+    const options = {
+      chart: { type: 'bar', height: 320, toolbar: { show: false } },
+      series: [{ name: 'Total', data: seriesData }],
+      xaxis: { categories: labels, labels: { rotate: -45 } },
+      dataLabels: { enabled: false },
+      stroke: { show: true, width: 1 },
+      plotOptions: { bar: { borderRadius: 4 } },
+      tooltip: {
+        y: { formatter: function (val) { return (Number(val) || 0).toFixed(3); } }
+      }
+    };
+    const chart = new ApexCharts(document.querySelector("#chart_peringkat"), options);
+    chart.render();
+  }
 
-            <!-- Alternatif -->
-            <div class="mb-6 w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:mb-0 xl:w-1/3">
-                <div class="relative flex min-w-0 flex-col break-words rounded-2xl bg-secondary-color bg-clip-border shadow-md dark:bg-secondary-color-dark dark:shadow-secondary-color-dark/20">
-                    <div class="flex-auto p-4">
-                        <div class="-mx-3 flex flex-row">
-                            <div class="w-2/3 max-w-full flex-none px-3">
-                                <div>
-                                    <p class="mb-0 font-sans text-sm font-semibold uppercase leading-normal dark:text-primary-color-dark">Alternatif</p>
-                                    <h5 class="mb-2 font-bold text-primary-color-dark dark:text-white">{{ $jmlAlternatif }}</h5>
-                                </div>
-                            </div>
-                            <div class="basis-1/3 px-3 text-right">
-                                <div class="rounded-circle inline-block h-12 w-12 bg-gradient-to-tl from-primary-color to-secondary-color text-center dark:bg-gradient-to-tl dark:from-primary-color-dark dark:to-secondary-color-dark">
-                                    <i class="ri-survey-line relative top-3 text-2xl leading-none text-white"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- row 2 -->
-        <div class="-mx-3 mb-5 flex flex-wrap">
-            <!-- SPK -->
-            <div class="mb-6 w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:mb-0">
-                <div class="min-w-0 rounded-lg bg-white bg-clip-border p-4 shadow-md dark:shadow-secondary-color-dark/20">
-                    <h4 class="mb-4 font-semibold text-primary-color dark:text-primary-color-dark">
-                        Sistem Pendukung Keputusan
-                    </h4>
-                    <p class="mb-3 text-justify text-primary-color-dark dark:text-primary-color">
-                        SMART merupakan metode pengambilan keputusan multi kriteria yang didasarkan pada setiap alternatif,
-                        yang terdiri dari sejumlah kriteria yang memiliki nilai dan diberi bobot untuk menunjukkan
-                        seberapa penting setiap kriteria dibandingkan dengan kriteria lainnya.
-                    </p>
-                    <a class="group text-sm font-semibold leading-normal text-primary-color dark:text-primary-color-dark" href="{{ route("kriteria") }}">
-                        Mulai
-                        <i class="ri-arrow-right-line ease-bounce group-hover:translate-x-1.25 ml-1 text-sm leading-normal transition-all duration-200"></i>
-                    </a>
-                </div>
-            </div>
-
-            <!-- Manfaat -->
-            <div class="mb-6 w-full max-w-full px-3 sm:w-1/2 sm:flex-none xl:mb-0">
-                <div class="min-w-0 rounded-lg bg-primary-color p-4 text-white shadow-md dark:bg-secondary-color-dark dark:shadow-secondary-color-dark/20">
-                    <h4 class="mb-4 font-semibold text-secondary-color dark:text-primary-color-dark">
-                        Kegunaan SMART (Simple Multi Attribute Rating Tachnique):
-                    </h4>
-                    <ul style="list-style-type: square;" class="mx-5 mb-3 text-white dark:text-white">
-                        <li>kesederhanaannya dalam merespon kebutuhan pembuat keputusan dan menganalisa responnya.</li>
-                        <li>Analisa yang digunakan jelas sehingga metode ini memberikan pemahaman masalah yang kuat dan dapat diterima oleh pembuat keputusan.</li>
-                        <li>Setiap penilaian pilihan tidak bergantung satu sama lain, metode SMART ini tidak akan mempengaruhi perhitungan pembobotan dengan menambah atau mengurangi pilihan.</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- row 4 -->
-        <div class="-mx-3 mt-6 flex flex-wrap gap-y-2">
-            <div class="mt-0 w-full max-w-full px-3 lg:flex-none">
-                <div class="dark:shadow-akaroa/20 relative z-20 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-primary-color/10 bg-white bg-clip-border shadow-xl">
-                    <div class="mb-0 rounded-t-2xl border-b-0 border-solid border-primary-color/10 p-6 pb-0 pt-4">
-                        <h6 class="font-semibold capitalize text-primary-color dark:text-primary-color-dark">Hasil Perhitungan SMART</h6>
-                    </div>
-                    <div class="flex-auto p-4">
-                        <div id="chart-perankingan"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  // ==== DataTables untuk ranking ====
+  $(function () {
+    $('#tblRanking').DataTable({
+      responsive: true,
+      pagingType: 'full_numbers',
+      order: [[4, 'desc']], // urut berdasarkan kolom "Total"
+    });
+  });
+</script>
 @endsection

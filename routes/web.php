@@ -23,33 +23,31 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
+    // INDEX bisa diakses semua user login (admin & wali_kelas)
+    Route::get('/kriteria', [KriteriaController::class, 'index'])->name('kriteria');
     // Dashboard Routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/hasil-akhir', [DashboardController::class, 'hasilAkhir'])->name('hasil-akhir');
 
     // Kriteria Routes
-    Route::group([
-        'prefix' => 'kriteria',
-    ], function() {
-        Route::get('/', [KriteriaController::class, 'index'])->name('kriteria');
-        Route::post('/simpan', [KriteriaController::class, 'store'])->name('kriteria.store');
-        Route::get('/ubah', [KriteriaController::class, 'edit'])->name('kriteria.edit');
-        Route::post('/ubah', [KriteriaController::class, 'update'])->name('kriteria.update');
-        Route::post('/hapus', [KriteriaController::class, 'delete'])->name('kriteria.delete');
-        Route::post('/impor', [KriteriaController::class, 'import'])->name('kriteria.import');
+    Route::middleware(['auth','admin'])->group(function () {
+        Route::get('/kriteria',            [KriteriaController::class, 'index'])->name('kriteria');
+        Route::post('/kriteria/store',     [KriteriaController::class, 'store'])->name('kriteria.store');
+        Route::get('/kriteria/edit',       [KriteriaController::class, 'edit'])->name('kriteria.edit');
+        Route::post('/kriteria/update',    [KriteriaController::class, 'update'])->name('kriteria.update');
+        Route::post('/kriteria/delete',    [KriteriaController::class, 'delete'])->name('kriteria.delete');
+
+        // Proses ROC + SMART (dipakai tombol di halaman kriteria)
+        Route::get('/spk/proses',          [KriteriaController::class, 'proses'])->name('spk.proses');
     });
 
     // Sub-Kriteria Routes
-    Route::group([
-        'prefix' => 'sub-kriteria',
-    ], function() {
-        Route::get('/', [SubKriteriaController::class, 'index'])->name('sub-kriteria');
-        Route::post('/simpan', [SubKriteriaController::class, 'store'])->name('sub-kriteria.store');
-        Route::get('/ubah', [SubKriteriaController::class, 'edit'])->name('sub-kriteria.edit');
-        Route::post('/ubah', [SubKriteriaController::class, 'update'])->name('sub-kriteria.update');
-        Route::post('/hapus', [SubKriteriaController::class, 'delete'])->name('sub-kriteria.delete');
-        Route::post('/impor', [SubKriteriaController::class, 'import'])->name('sub-kriteria.import');
+    Route::middleware('auth')->group(function () {
+        Route::get('/sub-kriteria',        [SubKriteriaController::class, 'index'])->name('subkriteria');
+        Route::post('/sub-kriteria/store', [SubKriteriaController::class, 'store'])->name('subkriteria.store');
+        Route::get('/sub-kriteria/edit',   [SubKriteriaController::class, 'edit'])->name('subkriteria.edit');
+        Route::post('/sub-kriteria/update',[SubKriteriaController::class, 'update'])->name('subkriteria.update');
+        Route::post('/sub-kriteria/delete',[SubKriteriaController::class, 'delete'])->name('subkriteria.delete');
     });
 
     // Alternatif Routes

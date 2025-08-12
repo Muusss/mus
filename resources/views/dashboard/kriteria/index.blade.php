@@ -1,335 +1,196 @@
-@extends("dashboard.layouts.main")
+@extends('dashboard.layouts.main')
 
-@section("js")
-    <script>
-        $(document).ready(function() {
-            $('#myTable').DataTable({
-                responsive: {
-                    details: {
-                        type: 'column',
-                        target: 'tr',
-                    },
-                },
-                ordering: false,
-                pagingType: 'full_numbers',
-            });
-        });
+@section('content')
+@php $isAdmin = auth()->check() && (auth()->user()->role === 'admin'); @endphp
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Data Kriteria</h3>
 
-        function create_button() {
-            $("input[name='id']").val("");
-            $("input[name='kriteria']").val("");
-            $("input[name='bobot']").val("");
-            $("input[name='kode']").val("{{ $kode }}");
-        }
+  @if($isAdmin)
+  <div class="d-flex gap-2">
+    <a href="{{ route('spk.proses') }}" class="btn btn-success" onclick="return confirm('Hitung ulang ROC + SMART sekarang?')">
+      Proses ROC + SMART
+    </a>
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm" onclick="create_button()">
+      Tambah Kriteria
+    </button>
+  </div>
+@endif
+</div>
 
-        function edit_button(kriteria_id) {
-            // Loading effect start
-            let loading = `<span class="loading loading-dots loading-md text-purple-600"></span>`;
-            $("#loading_edit1").html(loading);
-            $("#loading_edit2").html(loading);
-            $("#loading_edit3").html(loading);
-            $("#loading_edit4").html(loading);
+<div class="card">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table id="tblKriteria" class="table table-striped table-bordered w-100">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Kode</th>
+            <th>Nama Kriteria</th>
+            <th>Atribut</th>
+            <th>Prioritas</th>
+            <th>Bobot ROC</th>
+            <th style="width:130px;">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          @foreach ($kriteria as $k)
+            <tr>
+              <td>{{ $loop->iteration }}</td>
+              <td>{{ $k->kode }}</td>
+              <td>{{ $k->kriteria }}</td>
+              <td class="text-capitalize">{{ $k->atribut }}</td>
+              <td>{{ $k->urutan_prioritas }}</td>
+              <td>
+                @if(!is_null($k->bobot_roc))
+                  {{ number_format($k->bobot_roc, 4) }}
+                @else
+                  -
+                @endif
+              </td>
+              <td class="text-nowrap">
+                @if($isAdmin)
+                    <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#modalForm" onclick="show_button({{ $k->id }})">Edit</button>
+                    <form action="{{ route('kriteria.delete') }}" method="POST" class="d-inline" onsubmit="return confirm('Hapus kriteria {{ $k->kode }} ?')">
+                    @csrf
+                    <input type="hidden" name="id" value="{{ $k->id }}">
+                    <button type="submit" class="btn btn-sm btn-danger">Hapus</button>
+                    </form>
+                @else
+                    <span class="text-muted">-</span>
+                @endif
+                </td>
+            </tr>
+          @endforeach
+        </tbody>
+        @if(isset($sumBobotKriteria))
+        <tfoot>
+          <tr>
+            <th colspan="5" class="text-end">Total Bobot ROC</th>
+            <th>{{ number_format($sumBobotKriteria, 4) }}</th>
+            <th></th>
+          </tr>
+        </tfoot>
+        @endif
+      </table>
+    </div>
+  </div>
+</div>
 
-            $.ajax({
-                type: "get",
-                url: "{{ route('kriteria.edit') }}",
-                data: {
-                    "_token": "{{ csrf_token() }}",
-                    "kriteria_id": kriteria_id
-                },
-                success: function(data) {
-                    $("input[name='id']").val(data.data.id);
-                    $("input[name='kode']").val(data.data.kode);
-                    $("input[name='kriteria']").val(data.data.kriteria);
-                    $("input[name='bobot']").val(data.data.bobot);
+{{-- Modal Create / Edit --}}
+<div class="modal fade" id="modalForm" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <form id="formKriteria" method="POST" action="{{ route('kriteria.store') }}">
+        @csrf
+        <input type="hidden" name="id"> {{-- diisi saat edit --}}
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">Tambah Kriteria</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Kode</label>
+              <input type="text" class="form-control" name="kode" placeholder="C1" required maxlength="10">
+            </div>
+            <div class="col-md-9">
+              <label class="form-label">Nama Kriteria</label>
+              <input type="text" class="form-control" name="kriteria" required maxlength="100">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Atribut</label>
+              <select class="form-select" name="atribut" required>
+                <option value="" disabled selected>Pilih</option>
+                <option value="benefit">Benefit</option>
+                <option value="cost">Cost</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Urutan Prioritas</label>
+              <input type="number" class="form-control" name="urutan_prioritas" min="1" step="1" required>
+            </div>
 
-                    if (data.data.jenis_kriteria == "benefit") {
-                        $("#benefit").prop("checked", true);
-                    } else if (data.data.jenis_kriteria == "cost") {
-                        $("#cost").prop("checked", true);
-                    }
+            <div class="col-md-4">
+              <label class="form-label">Bobot ROC (otomatis)</label>
+              <input type="text" class="form-control" name="bobot_roc" readonly placeholder="Akan dihitung">
+            </div>
+          </div>
 
-                    // Loading effect end
-                    loading = "";
-                    $("#loading_edit1").html(loading);
-                    $("#loading_edit2").html(loading);
-                    $("#loading_edit3").html(loading);
-                    $("#loading_edit4").html(loading);
-                }
-            });
-        }
-
-        function delete_button(kriteria_id) {
-            Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Data yang dihapus tidak dapat dipulihkan kembali!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#6419E6',
-                cancelButtonColor: '#F87272',
-                confirmButtonText: 'Hapus',
-                cancelButtonText: 'Batal',
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    $.ajax({
-                        type: "post",
-                        url: "{{ route('kriteria.delete') }}",
-                        data: {
-                            "_token": "{{ csrf_token() }}",
-                            "kriteria_id": kriteria_id
-                        },
-                        success: function(response) {
-                            Swal.fire({
-                                title: 'Data berhasil dihapus!',
-                                icon: 'success',
-                                confirmButtonColor: '#6419E6',
-                                confirmButtonText: 'OK'
-                            }).then((result) => {
-                                if (result.isConfirmed) {
-                                    location.reload();
-                                }
-                            });
-                        },
-                        error: function(response) {
-                            Swal.fire({
-                                title: 'Data gagal dihapus!',
-                                icon: 'error',
-                                confirmButtonColor: '#6419E6',
-                                confirmButtonText: 'OK'
-                            });
-                        }
-                    });
-                }
-            })
-        }
-    </script>
+          {{-- pesan validasi --}}
+          @if ($errors->any())
+            <div class="alert alert-danger mt-3">
+              <ul class="mb-0">
+                @foreach ($errors->all() as $err)
+                  <li>{{ $err }}</li>
+                @endforeach
+              </ul>
+            </div>
+          @endif
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmit">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 @endsection
 
-@section("container")
-    <div class="-mx-3 flex flex-wrap">
-        <div class="w-full max-w-full flex-none px-3">
-            {{-- Awal Modal Create --}}
-            <input type="checkbox" id="create_button" class="modal-toggle" />
-            <div class="modal" role="dialog">
-                <div class="modal-box">
-                    <div class="mb-3 flex justify-between">
-                        <h3 class="text-lg font-bold">Tambah {{ $title }}</h3>
-                        <label for="create_button" class="cursor-pointer">
-                            <i class="ri-close-large-fill"></i>
-                        </label>
-                    </div>
-                    <div>
-                        <form action="{{ route('kriteria.store') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <input type="text" name="id" hidden>
-                            <label class="form-control w-full">
-                                <div class="label">
-                                    <span class="label-text font-semibold">
-                                        <x-label-input-required>Kode</x-label-input-required>
-                                    </span>
-                                </div>
-                                <input type="text" name="kode" class="input input-bordered w-full cursor-default bg-slate-100 text-primary-color" value="{{ old('kode') }}" required readonly />
-                                @error('kode')
-                                    <div class="label">
-                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                    </div>
-                                @enderror
-                            </label>
-                            <label class="form-control w-full">
-                                <div class="label">
-                                    <span class="label-text font-semibold">
-                                        <x-label-input-required>Kriteria</x-label-input-required>
-                                    </span>
-                                </div>
-                                <input type="text" name="kriteria" class="input input-bordered w-full text-primary-color" value="{{ old('kriteria') }}" required />
-                                @error('kriteria')
-                                    <div class="label">
-                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                    </div>
-                                @enderror
-                            </label>
-                            <label class="form-control w-full">
-                                <div class="label">
-                                    <span class="label-text font-semibold">
-                                        <x-label-input-required>Bobot</x-label-input-required>
-                                    </span>
-                                </div>
-                                <input type="number" min="0" max="100" step="1" name="bobot" class="input input-bordered w-full text-primary-color" value="{{ old('bobot') }}" required />
-                                @error('bobot')
-                                    <div class="label">
-                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                    </div>
-                                @enderror
-                            </label>
-                            <label class="form-control w-full">
-                                <div class="label">
-                                    <span class="label-text font-semibold">
-                                        <x-label-input-required>Jenis Kriteria</x-label-input-required>
-                                    </span>
-                                </div>
-                                <div class="form-control">
-                                    <label class="label cursor-pointer">
-                                        <span class="label-text">Cost</span>
-                                        <input type="radio" value="cost" name="jenis_kriteria" class="radio-primary radio" />
-                                    </label>
-                                </div>
-                                <div class="form-control">
-                                    <label class="label cursor-pointer">
-                                        <span class="label-text">Benefit</span>
-                                        <input type="radio" value="benefit" name="jenis_kriteria" class="radio-primary radio" checked />
-                                    </label>
-                                </div>
-                                @error('jenis_kriteria')
-                                    <div class="label">
-                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                    </div>
-                                @enderror
-                            </label>
-                            <button type="submit" class="btn btn-success mt-3 w-full text-white">Simpan</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {{-- Akhir Modal Create --}}
+@section('js')
+<script>
+$(function () {
+  $('#tblKriteria').DataTable({
+    responsive: true,
+    pagingType: 'full_numbers',
+    order: [[1, 'asc']]
+  });
+});
 
-            {{-- Awal Modal Edit --}}
-            <input type="checkbox" id="edit_button" class="modal-toggle" />
-            <div class="modal" role="dialog">
-                <div class="modal-box">
-                    <div class="mb-3 flex justify-between">
-                        <h3 class="text-lg font-bold">Ubah {{ $title }}</h3>
-                        <label for="edit_button" class="cursor-pointer">
-                            <i class="ri-close-large-fill"></i>
-                        </label>
-                    </div>
-                    <div>
-                        <form action="{{ route('kriteria.update') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <input type="text" name="id" hidden>
-                            <label class="form-control w-full">
-                                <div class="label">
-                                    <span class="label-text font-semibold">
-                                        <x-label-input-required>Kode</x-label-input-required>
-                                    </span>
-                                </div>
-                                <input type="text" name="kode" class="input input-bordered w-full cursor-default bg-slate-100 text-primary-color" required />
-                                @error('kode')
-                                    <div class="label">
-                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                    </div>
-                                @enderror
-                            </label>
-                            <label class="form-control w-full">
-                                <div class="label">
-                                    <span class="label-text font-semibold">
-                                        <x-label-input-required>Kriteria</x-label-input-required>
-                                    </span>
-                                </div>
-                                <input type="text" name="kriteria" class="input input-bordered w-full text-primary-color" required />
-                                @error('kriteria')
-                                    <div class="label">
-                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                    </div>
-                                @enderror
-                            </label>
-                            <label class="form-control w-full">
-                                <div class="label">
-                                    <span class="label-text font-semibold">
-                                        <x-label-input-required>Bobot</x-label-input-required>
-                                    </span>
-                                </div>
-                                <input type="number" min="0" max="100" step="1" name="bobot" class="input input-bordered w-full text-primary-color" required />
-                                @error('bobot')
-                                    <div class="label">
-                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                    </div>
-                                @enderror
-                            </label>
-                            <label class="form-control w-full">
-                                <div class="label">
-                                    <span class="label-text font-semibold">
-                                        <x-label-input-required>Jenis Kriteria</x-label-input-required>
-                                    </span>
-                                </div>
-                                <div class="form-control">
-                                    <label class="label cursor-pointer">
-                                        <span class="label-text">Cost</span>
-                                        <input type="radio" value="cost" name="jenis_kriteria" id="cost" class="radio-primary radio" />
-                                    </label>
-                                </div>
-                                <div class="form-control">
-                                    <label class="label cursor-pointer">
-                                        <span class="label-text">Benefit</span>
-                                        <input type="radio" value="benefit" name="jenis_kriteria" id="benefit" class="radio-primary radio" />
-                                    </label>
-                                </div>
-                                @error('jenis_kriteria')
-                                    <div class="label">
-                                        <span class="label-text-alt text-sm text-error">{{ $message }}</span>
-                                    </div>
-                                @enderror
-                            </label>
-                            <button type="submit" class="btn btn-warning mt-3 w-full text-white">Perbarui</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {{-- Akhir Modal Edit --}}
+function create_button() {
+  $('#modalTitle').text('Tambah Kriteria');
+  $('#formKriteria').attr('action', '{{ route('kriteria.store') }}');
+  $('#formKriteria input[name=_method]').remove();
 
-            {{-- Awal Tabel Kriteria --}}
-            <div class="relative mb-6 flex min-w-0 flex-col break-words rounded-2xl border-0 border-solid border-transparent bg-white bg-clip-border shadow-xl dark:bg-white dark:shadow-secondary-color-dark/20">
-                <div class="border-b-solid mb-0 flex items-center justify-between rounded-t-2xl border-b-0 border-b-transparent p-6 pb-3">
-                    <h6 class="font-bold text-primary-color dark:text-primary-color-dark">Tabel {{ $title }}</h6>
-                    <div class="w-1/2 max-w-full flex-none px-3 text-right">
-                        <label for="create_button" class="mb-0 inline-block cursor-pointer rounded-lg border border-solid border-success bg-transparent px-4 py-1 text-center align-middle text-sm font-bold leading-normal tracking-tight text-success shadow-none transition-all ease-in hover:-translate-y-px hover:opacity-75 active:opacity-90 md:px-8 md:py-2" onclick="return create_button()">
-                            <i class="ri-add-fill"></i>
-                            Tambah
-                        </label>
-                    </div>
-                </div>
-                <div class="flex-auto px-0 pb-2 pt-0">
-                    <div class="overflow-x-auto p-0 px-6 pb-6">
-                        <table id="myTable" class="nowrap stripe mb-3 w-full max-w-full border-collapse items-center align-top" style="width: 100%;">
-                            <thead class="align-bottom">
-                                <tr class="bg-primary-color text-xs font-bold uppercase text-white dark:bg-primary-color-dark dark:text-white">
-                                    <th class="rounded-tl">No.</th>
-                                    <th>Kode</th>
-                                    <th>Nama Kriteria</th>
-                                    <th>Bobot</th>
-                                    <th>Jenis Kriteria</th>
-                                    <th class="rounded-tr">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($kriteria as $value => $item)
-                                    <tr class="border-b border-primary-color bg-transparent dark:border-primary-color-dark">
-                                        <td><p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">{{ $value + 1 }}.</p></td>
-                                        <td><p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">{{ $item->kode }}</p></td>
-                                        <td><p class="text-left align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">{{ $item->kriteria }}</p></td>
-                                        <td><p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">{{ $item->bobot }}</p></td>
-                                        <td><p class="text-center align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">{{ $item->jenis_kriteria }}</p></td>
-                                        <td>
-                                            <div class="text-center align-middle">
-                                                <label for="edit_button" class="btn btn-outline btn-warning btn-sm" onclick="return edit_button('{{ $item->id }}')"><i class="ri-pencil-line text-base"></i></label>
-                                                <label for="delete_button" class="btn btn-outline btn-error btn-sm" onclick="return delete_button('{{ $item->id }}')"><i class="ri-delete-bin-line text-base"></i></label>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                            <tr>
-                                <td></td>
-                                <td></td>
-                                <td class="text-right align-middle text-base font-semibold leading-tight text-primary-color dark:text-primary-color-dark">Total Bobot:</td>
-                                <td class="text-center align-middle text-base font-bold leading-tight text-primary-color dark:text-primary-color-dark">{{ $sumBobot }}</td>
-                                <td></td>
-                                <td></td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            {{-- Akhir Tabel Kriteria --}}
-        </div>
-    </div>
+  $('#formKriteria input[name=id]').val('');
+  $('#formKriteria input[name=kode]').val('');
+  $('#formKriteria input[name=kriteria]').val('');
+  $('#formKriteria select[name=atribut]').val('');
+  $('#formKriteria input[name=urutan_prioritas]').val('');
+  $('#formKriteria input[name=bobot_roc]').val('');
+}
+
+function show_button(kriteria_id) {
+  $('#modalTitle').text('Edit Kriteria');
+  $('#formKriteria').attr('action', '{{ route('kriteria.update') }}');
+  if (!$('#formKriteria input[name=_method]').length) {
+    $('#formKriteria').append('<input type="hidden" name="_method" value="POST">');
+  }
+
+  $('#btnSubmit').prop('disabled', true).text('Memuat...');
+
+  $.ajax({
+    type: 'GET',
+    url: '{{ route('kriteria.edit') }}',
+    data: {
+      _token: '{{ csrf_token() }}',
+      kriteria_id: kriteria_id
+    },
+    success: function (d) {
+      $('#formKriteria input[name=id]').val(d.id);
+      $('#formKriteria input[name=kode]').val(d.kode);
+      $('#formKriteria input[name=kriteria]').val(d.kriteria);
+      $('#formKriteria select[name=atribut]').val(d.atribut);
+      $('#formKriteria input[name=urutan_prioritas]').val(d.urutan_prioritas);
+      $('#formKriteria input[name=bobot_roc]').val(d.bobot_roc ?? '');
+    },
+    error: function () {
+      alert('Gagal memuat data kriteria.');
+    },
+    complete: function () {
+      $('#btnSubmit').prop('disabled', false).text('Simpan');
+    }
+  });
+}
+</script>
 @endsection

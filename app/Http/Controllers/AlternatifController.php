@@ -6,102 +6,105 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 
+use App\Models\User;
 use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
 use App\Models\NilaiAkhir;
-use App\Models\User;
 
 class AlternatifController extends Controller
 {
-    public function __construct()
+    // (opsional) aktifkan kalau kamu sudah punya AlternatifPolicy
+    // public function __construct()
+    // {
+    //     $this->authorizeResource(Alternatif::class, 'alternatif');
+    // }
+
+    /** Helper sederhana: cek wali_kelas */
+    private function isWali(?User $u): bool
     {
-        $this->authorizeResource(Alternatif::class, 'alternatif');
+        return $u && ($u->role ?? null) === 'wali_kelas';
     }
 
-    /** Helper: cek apakah user wali_kelas */
-    private function userIsWaliKelas(?User $user): bool
-    {
-        return $user !== null && ($user->role ?? null) === 'wali_kelas';
-    }
-
+    /** LIST */
     public function index()
     {
         $title = 'Data Siswa';
         $user  = Auth::user();
 
         $q = Alternatif::query();
-
-        if ($this->userIsWaliKelas($user)) {
+        if ($this->isWali($user)) {
             $q->where('kelas', $user->kelas);
         }
 
+        // ⬇️ kirim KOLEKSI MODEL langsung (bukan Resource)
         $alternatif = $q->orderBy('nis', 'asc')->get();
 
         return view('dashboard.alternatif.index', compact('title', 'alternatif'));
     }
 
+    /** STORE */
     public function store(Request $request)
     {
         $user = Auth::user();
 
         $data = $request->validate([
-            'nis'         => ['required','string','max:30','unique:alternatif,nis'],
-            'nama_siswa'  => ['required','string','max:100'],
-            'jk'          => ['required', Rule::in(['Lk','Pr'])],
-            'kelas'       => ['required', Rule::in(['6A','6B','6C','6D'])],
+            'nis'        => ['required','string','max:30','unique:alternatifs,nis'],
+            'nama_siswa' => ['required','string','max:100'],
+            'jk'         => ['required', Rule::in(['Lk','Pr'])],
+            'kelas'      => ['required', Rule::in(['6A','6B','6C','6D'])],
         ]);
 
-        if ($this->userIsWaliKelas($user)) {
-            $data['kelas'] = $user->kelas; // kunci ke kelas wali
+        if ($this->isWali($user)) {
+            $data['kelas'] = $user->kelas; // wali hanya boleh simpan ke kelasnya
         }
 
         $ok = Alternatif::create($data);
-
         return to_route('alternatif')->with($ok ? 'success' : 'error', $ok ? 'Siswa berhasil disimpan' : 'Siswa gagal disimpan');
     }
 
+    /** EDIT (AJAX) */
     public function edit(Request $request)
     {
-        $alternatif = Alternatif::findOrFail($request->alternatif_id);
-        $this->authorize('view', $alternatif);
-
-        return response()->json($alternatif);
+        $row = Alternatif::findOrFail($request->alternatif_id);
+        // $this->authorize('view', $row); // aktifkan bila pakai policy
+        return response()->json($row);
     }
 
+    /** UPDATE */
     public function update(Request $request)
     {
-        $alternatif = Alternatif::findOrFail($request->id);
-        $this->authorize('update', $alternatif);
+        $row = Alternatif::findOrFail($request->id);
+        // $this->authorize('update', $row);
 
         $user = Auth::user();
 
         $data = $request->validate([
-            'nis'         => ['required','string','max:30', Rule::unique('alternatif','nis')->ignore($alternatif->id)],
-            'nama_siswa'  => ['required','string','max:100'],
-            'jk'          => ['required', Rule::in(['Lk','Pr'])],
-            'kelas'       => ['required', Rule::in(['6A','6B','6C','6D'])],
+            'nis'        => ['required','string','max:30', Rule::unique('alternatifs','nis')->ignore($row->id)],
+            'nama_siswa' => ['required','string','max:100'],
+            'jk'         => ['required', Rule::in(['Lk','Pr'])],
+            'kelas'      => ['required', Rule::in(['6A','6B','6C','6D'])],
         ]);
 
-        if ($this->userIsWaliKelas($user)) {
-            $data['kelas'] = $user->kelas; // kunci ke kelas wali
+        if ($this->isWali($user)) {
+            $data['kelas'] = $user->kelas;
         }
 
-        $ok = $alternatif->update($data);
-
+        $ok = $row->update($data);
         return to_route('alternatif')->with($ok ? 'success' : 'error', $ok ? 'Siswa berhasil diperbarui' : 'Siswa gagal diperbarui');
     }
 
+    /** DELETE */
     public function delete(Request $request)
     {
-        $alternatif = Alternatif::findOrFail($request->id);
-        $this->authorize('delete', $alternatif);
-
-        $ok = $alternatif->delete();
+        $row = Alternatif::findOrFail($request->id);
+        // $this->authorize('delete', $row);
+        $ok  = $row->delete();
 
         return to_route('alternatif')->with($ok ? 'success' : 'error', $ok ? 'Siswa berhasil dihapus' : 'Siswa gagal dihapus');
     }
 
+    /** === PERHITUNGAN ROC + SMART === */
     public function perhitunganNilaiAkhir()
     {
         Kriteria::hitungROC();
@@ -120,7 +123,7 @@ class AlternatifController extends Controller
         $sumBobotKriteria = (float) $kriteria->sum('bobot_roc');
 
         $hasil = NilaiAkhir::query()
-            ->when($this->userIsWaliKelas($user), function ($q) use ($user) {
+            ->when($this->isWali($user), function ($q) use ($user) {
                 $q->whereHas('alternatif', fn($s) => $s->where('kelas', $user->kelas));
             })
             ->with('alternatif')
@@ -128,13 +131,11 @@ class AlternatifController extends Controller
             ->get();
 
         $alternatif = Alternatif::query()
-            ->when($this->userIsWaliKelas($user), function ($q) use ($user) {
-                $q->where('kelas', $user->kelas);
-            })
+            ->when($this->isWali($user), fn($q) => $q->where('kelas', $user->kelas))
             ->orderBy('nis','asc')
             ->get();
 
-        return view('dashboard.perhitungan.index', compact('title', 'kriteria', 'sumBobotKriteria', 'hasil', 'alternatif'));
+        return view('dashboard.perhitungan.index', compact('title','kriteria','sumBobotKriteria','hasil','alternatif'));
     }
 
     public function perhitunganMetode()

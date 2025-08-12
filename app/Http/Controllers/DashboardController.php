@@ -2,35 +2,64 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Facades\Auth;
 use App\Models\Alternatif;
 use App\Models\Kriteria;
+use App\Models\Penilaian;
 use App\Models\NilaiAkhir;
-use App\Models\SubKriteria;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $title = "Dashboard";
+        $title = 'Dashboard';
+        $user  = Auth::user();
 
-        $jmlKriteria = Kriteria::count();
-        $jmlSubKriteria = SubKriteria::count();
-        $jmlAlternatif = Alternatif::count();
+        // Filter helper: wali_kelas hanya kelasnya
+        $filterKelas = function ($q) use ($user) {
+            if ($user && ($user->role ?? null) === 'wali_kelas') {
+                $q->where('kelas', $user->kelas);
+            }
+        };
 
-        $nilaiAkhir = NilaiAkhir::selectRaw('alternatif_id, SUM(nilai) as nilai')->groupBy('alternatif_id')->orderBy('alternatif_id', 'asc')->get();
+        // === Kartu ringkas
+        $jumlahSiswa = Alternatif::where($filterKelas)->count();
+        $jumlahKriteria = Kriteria::count();
+        $jumlahPenilaian = Penilaian::whereHas('alternatif', $filterKelas)->count();
 
-        return view('dashboard/index', compact('title', 'jmlKriteria', 'jmlSubKriteria', 'jmlAlternatif', 'nilaiAkhir'));
-    }
-
-    public function hasilAkhir()
-    {
-        $title = "Hasil Akhir";
+        // === Tabel / ranking (sudah 1 baris per siswa, kolom TOTAL)
         $nilaiAkhir = NilaiAkhir::query()
-            ->join('alternatif as a', 'a.id', '=', 'nilai_akhir.alternatif_id')
-            ->selectRaw("a.kode, a.alternatif, SUM(nilai) as nilai")
-            ->groupBy('a.kode', 'a.alternatif')
-            ->orderBy('nilai', 'desc')
-            ->get();
-        return view('dashboard.hasil-akhir.index', compact('title', 'nilaiAkhir'));
+            ->with(['alternatif:id,nis,nama_siswa,kelas'])
+            ->whereHas('alternatif', $filterKelas)
+            ->orderByDesc('total')
+            ->get(['id','alternatif_id','total','peringkat']);
+
+        // Top 5 untuk widget cepat (opsional)
+        $top5 = NilaiAkhir::query()
+            ->with(['alternatif:id,nis,nama_siswa,kelas'])
+            ->whereHas('alternatif', $filterKelas)
+            ->orderByDesc('total')
+            ->limit(5)
+            ->get(['id','alternatif_id','total','peringkat']);
+
+        // === Data untuk chart (labels & series)
+        // Hindari referensi ke kolom `nilai` —> pakai `total`
+        $chartLabels = [];
+        $chartSeries = [];
+        foreach ($nilaiAkhir as $row) {
+            $chartLabels[] = $row->alternatif->nama_siswa ?? ('Siswa '.$row->alternatif_id);
+            $chartSeries[] = round((float) $row->total, 3);
+        }
+
+        return view('dashboard.index', compact(
+            'title',
+            'jumlahSiswa',
+            'jumlahKriteria',
+            'jumlahPenilaian',
+            'nilaiAkhir',
+            'top5',
+            'chartLabels',
+            'chartSeries'
+        ));
     }
 }
