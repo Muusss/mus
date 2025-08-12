@@ -12,14 +12,18 @@ use App\Models\NilaiAkhir;
 
 class KriteriaController extends Controller
 {
-    public function index()
+    // app/Http/Controllers/KriteriaController.php
+    public function __construct()
     {
-        $title    = 'Data Kriteria';
-        $kriteria = Kriteria::orderBy('kode','asc')->get();
-        $sumBobotKriteria = (float) $kriteria->sum('bobot_roc');
-
-        return view('dashboard.kriteria.index', compact('title','kriteria','sumBobotKriteria'));
+        $this->middleware('admin')->except(['index']); // index boleh semua user login
     }
+    public function index() {
+    $title='Data Kriteria';
+    $kriteria = Kriteria::orderBy('kode')->get();
+    $sumBobotKriteria = (float)$kriteria->sum('bobot_roc');
+    return view('dashboard.kriteria.index', compact('title','kriteria','sumBobotKriteria'));
+    }
+
 
     public function store(Request $request)
     {
@@ -73,11 +77,6 @@ class KriteriaController extends Controller
         NilaiAkhir::hitungTotal(null, Auth::user());
 
         return to_route('kriteria')->with('success','Perhitungan ROC + SMART selesai');
-    }
-    public function __construct()
-    {
-        // admin untuk semua KECUALI index
-        $this->middleware('admin')->except(['index']);
     }
 
 }

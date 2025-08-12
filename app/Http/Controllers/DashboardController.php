@@ -43,7 +43,6 @@ class DashboardController extends Controller
             ->get(['id','alternatif_id','total','peringkat']);
 
         // === Data untuk chart (labels & series)
-        // Hindari referensi ke kolom `nilai` —> pakai `total`
         $chartLabels = [];
         $chartSeries = [];
         foreach ($nilaiAkhir as $row) {
@@ -61,5 +60,18 @@ class DashboardController extends Controller
             'chartLabels',
             'chartSeries'
         ));
+    }
+
+    public function hasilAkhir()
+    {
+        $title = 'Hasil Akhir';
+        $user = Auth::user();
+        
+        // Filter untuk wali kelas
+        $nilaiAkhir = NilaiAkhir::with('alternatif')   // penting untuk ->alternatif
+        ->orderByDesc('total')
+        ->get();    
+
+        return view('dashboard.hasil-akhir.index', compact('title', 'nilaiAkhir'));
     }
 }

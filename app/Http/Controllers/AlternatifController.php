@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 use App\Models\User;
 use App\Models\Alternatif;
@@ -14,7 +16,7 @@ use App\Models\NilaiAkhir;
 
 class AlternatifController extends Controller
 {
-    // (opsional) aktifkan kalau kamu sudah punya AlternatifPolicy
+    // (opsional) aktifkan kalau sudah punya AlternatifPolicy
     // public function __construct()
     // {
     //     $this->authorizeResource(Alternatif::class, 'alternatif');
@@ -27,24 +29,25 @@ class AlternatifController extends Controller
     }
 
     /** LIST */
-    public function index()
+    public function index(): View
     {
         $title = 'Data Siswa';
         $user  = Auth::user();
 
         $q = Alternatif::query();
-        if ($this->isWali($user)) {
+
+        // filter wali_kelas HANYA kalau kelas-nya terisi
+        if ($this->isWali($user) && $user->kelas) {
             $q->where('kelas', $user->kelas);
         }
 
-        // ⬇️ kirim KOLEKSI MODEL langsung (bukan Resource)
-        $alternatif = $q->orderBy('nis', 'asc')->get();
+        $alternatif = $q->orderBy('nis', 'asc')->get(); // <-- no named args
 
         return view('dashboard.alternatif.index', compact('title', 'alternatif'));
     }
 
     /** STORE */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $user = Auth::user();
 
@@ -55,28 +58,29 @@ class AlternatifController extends Controller
             'kelas'      => ['required', Rule::in(['6A','6B','6C','6D'])],
         ]);
 
-        if ($this->isWali($user)) {
-            $data['kelas'] = $user->kelas; // wali hanya boleh simpan ke kelasnya
+        if ($this->isWali($user) && $user->kelas) {
+            $data['kelas'] = $user->kelas; // wali hanya bisa ke kelasnya
         }
 
         $ok = Alternatif::create($data);
-        return to_route('alternatif')->with($ok ? 'success' : 'error', $ok ? 'Siswa berhasil disimpan' : 'Siswa gagal disimpan');
+
+        return to_route('alternatif')->with(
+            $ok ? 'success' : 'error',
+            $ok ? 'Siswa berhasil disimpan' : 'Siswa gagal disimpan'
+        );
     }
 
     /** EDIT (AJAX) */
     public function edit(Request $request)
     {
         $row = Alternatif::findOrFail($request->alternatif_id);
-        // $this->authorize('view', $row); // aktifkan bila pakai policy
         return response()->json($row);
     }
 
     /** UPDATE */
-    public function update(Request $request)
+    public function update(Request $request): RedirectResponse
     {
-        $row = Alternatif::findOrFail($request->id);
-        // $this->authorize('update', $row);
-
+        $row  = Alternatif::findOrFail($request->id);
         $user = Auth::user();
 
         $data = $request->validate([
@@ -86,26 +90,32 @@ class AlternatifController extends Controller
             'kelas'      => ['required', Rule::in(['6A','6B','6C','6D'])],
         ]);
 
-        if ($this->isWali($user)) {
+        if ($this->isWali($user) && $user->kelas) {
             $data['kelas'] = $user->kelas;
         }
 
         $ok = $row->update($data);
-        return to_route('alternatif')->with($ok ? 'success' : 'error', $ok ? 'Siswa berhasil diperbarui' : 'Siswa gagal diperbarui');
+
+        return to_route('alternatif')->with(
+            $ok ? 'success' : 'error',
+            $ok ? 'Siswa berhasil diperbarui' : 'Siswa gagal diperbarui'
+        );
     }
 
     /** DELETE */
-    public function delete(Request $request)
+    public function delete(Request $request): RedirectResponse
     {
         $row = Alternatif::findOrFail($request->id);
-        // $this->authorize('delete', $row);
         $ok  = $row->delete();
 
-        return to_route('alternatif')->with($ok ? 'success' : 'error', $ok ? 'Siswa berhasil dihapus' : 'Siswa gagal dihapus');
+        return to_route('alternatif')->with(
+            $ok ? 'success' : 'error',
+            $ok ? 'Siswa berhasil dihapus' : 'Siswa gagal dihapus'
+        );
     }
 
     /** === PERHITUNGAN ROC + SMART === */
-    public function perhitunganNilaiAkhir()
+    public function perhitunganNilaiAkhir(): RedirectResponse
     {
         Kriteria::hitungROC();
         Penilaian::normalisasiSMART(null, Auth::user());
@@ -114,6 +124,7 @@ class AlternatifController extends Controller
         return to_route('alternatif')->with('success', 'Perhitungan ROC + SMART selesai');
     }
 
+    // Tambahkan method ini di AlternatifController
     public function indexPerhitungan()
     {
         $title = "Hasil Perhitungan ROC + SMART";
@@ -134,11 +145,20 @@ class AlternatifController extends Controller
             ->when($this->isWali($user), fn($q) => $q->where('kelas', $user->kelas))
             ->orderBy('nis','asc')
             ->get();
+            
+        // Data untuk tabel normalisasi
+        $penilaian = Penilaian::with(['alternatif', 'kriteria'])
+            ->when($this->isWali($user), function($q) use ($user) {
+                $q->whereHas('alternatif', fn($s) => $s->where('kelas', $user->kelas));
+            })
+            ->get();
 
-        return view('dashboard.perhitungan.index', compact('title','kriteria','sumBobotKriteria','hasil','alternatif'));
+        return view('dashboard.perhitungan.index', compact(
+            'title','kriteria','sumBobotKriteria','hasil','alternatif','penilaian'
+        ));
     }
 
-    public function perhitunganMetode()
+    public function perhitunganMetode(): RedirectResponse
     {
         return $this->perhitunganNilaiAkhir();
     }

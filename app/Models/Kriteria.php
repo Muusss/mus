@@ -7,8 +7,19 @@ use Illuminate\Database\Eloquent\Model;
 class Kriteria extends Model
 {
     protected $table = 'kriterias';
+    
+    protected $fillable = [
+        'kode',
+        'kriteria', 
+        'atribut',
+        'urutan_prioritas',
+        'bobot_roc'
+    ];
 
-    protected $fillable = ['kode','kriteria','atribut','urutan_prioritas','bobot_roc']; // atribut: benefit|cost
+    protected $casts = [
+        'bobot_roc' => 'float',
+        'urutan_prioritas' => 'integer'
+    ];
 
     public function subKriteria()
     {
@@ -20,27 +31,37 @@ class Kriteria extends Model
         return $this->hasMany(Penilaian::class, 'kriteria_id');
     }
 
-    // Hitung bobot ROC dari urutan_prioritas (1 paling penting)
+    /**
+     * Hitung bobot ROC berdasarkan urutan prioritas
+     * Sesuai dengan rumus di penelitian
+     */
     public static function hitungROC(): void
     {
-        $rows = static::orderBy('urutan_prioritas')->get();
-        $m = $rows->count();
+        $kriterias = static::orderBy('urutan_prioritas', 'asc')->get();
+        $m = $kriterias->count();
+        
         if ($m === 0) return;
 
-        foreach ($rows as $idx => $kr) {
-            $rank = $idx + 1; // 1..m
+        foreach ($kriterias as $index => $kriteria) {
+            $rank = $index + 1;
             $sum = 0;
-            for ($i = $rank; $i <= $m; $i++) $sum += 1 / $i;
-            $kr->bobot_roc = $sum / $m;
-            $kr->save();
+            
+            // Hitung sesuai rumus ROC: Wm = (1/m) * Σ(1/i) dari i=rank sampai m
+            for ($i = $rank; $i <= $m; $i++) {
+                $sum += 1 / $i;
+            }
+            
+            $bobot = $sum / $m;
+            $kriteria->bobot_roc = $bobot;
+            $kriteria->save();
         }
 
-        // normalisasi agar total tepat 1
+        // Normalisasi agar total = 1
         $total = static::sum('bobot_roc');
         if ($total > 0) {
-            foreach (static::all() as $kr) {
-                $kr->bobot_roc = $kr->bobot_roc / $total;
-                $kr->save();
+            foreach (static::all() as $kriteria) {
+                $kriteria->bobot_roc = $kriteria->bobot_roc / $total;
+                $kriteria->save();
             }
         }
     }

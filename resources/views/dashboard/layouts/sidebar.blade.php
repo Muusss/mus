@@ -36,7 +36,7 @@
             </li>
 
             <li class="mt-0.5 w-full">
-                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["sub-kriteria"]) ? "rounded-lg font text-sidebar-primary dark:text-sidebar-primary-dark bg-primary-color-dark/10 dark:bg-primary-color-dark/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-primary-color-dark/10 dark:hover:bg-primary-color-dark/30" href="{{ route("sub-kriteria") }}">
+                <a class="py-2.7 ease-nav-brand {{ Request::routeIs(["subkriteria"]) ? "rounded-lg font text-sidebar-primary dark:text-sidebar-primary-dark bg-primary-color-dark/10 dark:bg-primary-color-dark/30" : "dark:text-white" }} mx-2 my-0 flex items-center whitespace-nowrap px-4 text-sm transition-colors hover:rounded-lg hover:bg-primary-color-dark/10 dark:hover:bg-primary-color-dark/30" href="{{ route("subkriteria") }}">
                     <div class="mr-2 flex h-8 w-8 items-center justify-center rounded-lg bg-center stroke-0 text-center xl:p-2.5">
                         <i class="ri-puzzle-2-fill relative top-0 text-lg leading-normal text-sidebar-primary dark:text-sidebar-primary-dark"></i>
                     </div>

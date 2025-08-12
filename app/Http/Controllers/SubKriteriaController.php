@@ -11,20 +11,17 @@ class SubKriteriaController extends Controller
 {
     // public function __construct() { $this->middleware(['auth','admin']); }
 
+    // app/Http/Controllers/SubKriteriaController.php
     public function index()
     {
         $title = 'Data Sub Kriteria';
-
         $sub = SubKriteria::with('kriteria:id,kode,kriteria')
-            ->orderBy('kriteria_id')
-            ->orderBy('skor', 'asc')
-            ->get();
-
+            ->orderBy('kriteria_id')->orderBy('skor','asc')->get();
         $kriteria = Kriteria::orderBy('kode')->get(['id','kode','kriteria']);
 
-        // ⬇️ path view sesuai folder kamu
         return view('dashboard.subkriteria.index', compact('title','sub','kriteria'));
     }
+
 
     public function store(Request $request)
     {

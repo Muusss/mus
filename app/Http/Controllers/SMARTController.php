@@ -13,27 +13,32 @@ use App\Models\NilaiAkhir;
 use App\Models\NilaiUtility;
 use App\Models\NormalisasiBobot;
 use App\Models\Penilaian;
+use Illuminate\Support\Facades\Auth;
 
 class SMARTController extends Controller
 {
     public function indexNormalisasiBobot()
     {
         $title = "Normalisasi Bobot";
-        $normalisasiBobot = NormalisasiBobotResource::collection(NormalisasiBobot::with('kriteria')->orderBy('kriteria_id', 'asc')->get());
-        $sumBobot = Kriteria::sum('bobot');
+        $normalisasiBobot = NormalisasiBobotResource::collection(
+            NormalisasiBobot::with('kriteria')->orderBy('kriteria_id', 'asc')->get()
+        );
+        $sumBobot = Kriteria::sum('bobot_roc');
         return view('dashboard.normalisasi-bobot.index', compact('title', 'normalisasiBobot', 'sumBobot'));
     }
 
     public function perhitunganNormalisasiBobot()
     {
         $kriteria = Kriteria::orderBy('kode', 'asc')->get();
-        $sumBobot = $kriteria->sum('bobot');
-        NormalisasiBobot::truncate(); // This will remove all data in the table
+        $sumBobot = $kriteria->sum('bobot_roc');
+        
+        // Truncate tabel normalisasi_bobots (plural)
+        NormalisasiBobot::truncate();
 
         foreach ($kriteria as $item) {
             NormalisasiBobot::create([
                 'kriteria_id' => $item->id,
-                'normalisasi' => $item->bobot / $sumBobot,
+                'normalisasi' => $sumBobot > 0 ? $item->bobot_roc / $sumBobot : 0,
             ]);
         }
 
@@ -43,8 +48,10 @@ class SMARTController extends Controller
     public function indexNilaiUtility()
     {
         $title = "Nilai Utility";
-        $nilaiUtility = NilaiUtilityResource::collection(NilaiUtility::orderBy('alternatif_id', 'asc')->orderBy('kriteria_id', 'asc')->get());
-        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode', 'asc')->get());
+        $nilaiUtility = NilaiUtilityResource::collection(
+            NilaiUtility::orderBy('alternatif_id', 'asc')->orderBy('kriteria_id', 'asc')->get()
+        );
+        $alternatif = AlternatifResource::collection(Alternatif::orderBy('nis', 'asc')->get());
         $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
         return view('dashboard.nilai-utility.index', compact('title', 'nilaiUtility', 'alternatif', 'kriteria'));
     }
@@ -52,25 +59,38 @@ class SMARTController extends Controller
     public function perhitunganNilaiUtility()
     {
         $kriteria = Kriteria::orderBy('kode', 'asc')->get();
-        $alternatif = Alternatif::orderBy('kode', 'asc')->get();
+        $alternatif = Alternatif::orderBy('nis', 'asc')->get();
+        
+        // Truncate tabel nilai_utilities (plural)
         NilaiUtility::truncate();
 
+        // Hitung nilai min-max per kriteria dari penilaian
         $nilaiMaxMin = Penilaian::query()
-            ->join('kriteria as k', 'k.id', '=', 'penilaian.kriteria_id')
-            ->join('sub_kriteria as sk', 'sk.id', '=', 'penilaian.sub_kriteria_id')
-            ->selectRaw("penilaian.kriteria_id, k.kriteria, MAX(sk.bobot) as nilaiMax, MIN(sk.bobot) as nilaiMin")
-            ->groupBy('penilaian.kriteria_id', 'k.kriteria')
+            ->join('kriterias as k', 'k.id', '=', 'penilaians.kriteria_id')
+            ->selectRaw("penilaians.kriteria_id, k.kriteria, MAX(penilaians.nilai_asli) as nilaiMax, MIN(penilaians.nilai_asli) as nilaiMin")
+            ->groupBy('penilaians.kriteria_id', 'k.kriteria')
             ->get();
 
         foreach ($alternatif as $item) {
             foreach ($kriteria as $value) {
-                $nilaiMax = $nilaiMaxMin->where('kriteria_id', $value->id)->first()->nilaiMax;
-                $nilaiMin = $nilaiMaxMin->where('kriteria_id', $value->id)->first()->nilaiMin;
-                $subKriteria = Penilaian::where('kriteria_id', $value->id)->where('alternatif_id', $item->id)->first()->subKriteria->bobot;
+                $penilaian = Penilaian::where('kriteria_id', $value->id)
+                    ->where('alternatif_id', $item->id)
+                    ->first();
+                    
+                if (!$penilaian) continue;
+                
+                $nilaiMax = $nilaiMaxMin->where('kriteria_id', $value->id)->first()->nilaiMax ?? 0;
+                $nilaiMin = $nilaiMaxMin->where('kriteria_id', $value->id)->first()->nilaiMin ?? 0;
+                $nilaiAsli = $penilaian->nilai_asli;
 
-                $nilai = ($value->jenis_kriteria == 'benefit')
-                    ? ($subKriteria - $nilaiMin) / ($nilaiMax - $nilaiMin)
-                    : ($nilaiMax - $subKriteria) / ($nilaiMax - $nilaiMin);
+                // Hitung nilai utility berdasarkan atribut kriteria
+                if ($nilaiMax == $nilaiMin) {
+                    $nilai = 1; // Jika semua nilai sama
+                } else {
+                    $nilai = ($value->atribut == 'benefit')
+                        ? ($nilaiAsli - $nilaiMin) / ($nilaiMax - $nilaiMin)
+                        : ($nilaiMax - $nilaiAsli) / ($nilaiMax - $nilaiMin);
+                }
 
                 NilaiUtility::create([
                     'alternatif_id' => $item->id,
@@ -86,31 +106,22 @@ class SMARTController extends Controller
     public function indexNilaiAkhir()
     {
         $title = "Nilai Akhir";
-        $nilaiAkhir = NilaiAkhirResource::collection(NilaiAkhir::orderBy('alternatif_id', 'asc')->orderBy('kriteria_id', 'asc')->get());
-        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode', 'asc')->get());
+        $nilaiAkhir = NilaiAkhirResource::collection(
+            NilaiAkhir::orderBy('alternatif_id', 'asc')->get()
+        );
+        $alternatif = AlternatifResource::collection(Alternatif::orderBy('nis', 'asc')->get());
         $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
         return view('dashboard.nilai-akhir.index', compact('title', 'nilaiAkhir', 'alternatif', 'kriteria'));
     }
 
     public function perhitunganNilaiAkhir()
     {
-        $kriteria = Kriteria::orderBy('kode', 'asc')->get();
-        $alternatif = Alternatif::orderBy('kode', 'asc')->get();
-        NilaiAkhir::truncate();
-
-        foreach ($alternatif as $item) {
-            foreach ($kriteria as $value) {
-                $normalisasiBobot = NormalisasiBobot::where('kriteria_id', $value->id)->first()->normalisasi;
-                $nilaiUtility = NilaiUtility::where('kriteria_id', $value->id)->where('alternatif_id', $item->id)->first()->nilai;
-                $nilai = $normalisasiBobot * $nilaiUtility;
-
-                NilaiAkhir::create([
-                    'alternatif_id' => $item->id,
-                    'kriteria_id' => $value->id,
-                    'nilai' => $nilai,
-                ]);
-            }
-        }
+        $user = Auth::user();
+        
+        // Gunakan metode yang sudah ada di model
+        Kriteria::hitungROC();
+        Penilaian::normalisasiSMART(null, $user);
+        NilaiAkhir::hitungTotal(null, $user);
 
         return to_route('nilai-akhir')->with('success', 'Perhitungan Nilai Akhir Berhasil Dilakukan');
     }
@@ -118,28 +129,108 @@ class SMARTController extends Controller
     public function indexPerhitungan()
     {
         $title = "Perhitungan Metode";
+        $user = Auth::user();
 
-        $normalisasiBobot = NormalisasiBobotResource::collection(NormalisasiBobot::with('kriteria')->orderBy('kriteria_id', 'asc')->get());
-        $nilaiUtility = NilaiUtilityResource::collection(NilaiUtility::orderBy('alternatif_id', 'asc')->orderBy('kriteria_id', 'asc')->get());
-        $nilaiAkhir = NilaiAkhirResource::collection(NilaiAkhir::orderBy('alternatif_id', 'asc')->orderBy('kriteria_id', 'asc')->get());
+        // 1) Kriteria
+        $kriteria = Kriteria::orderBy('kode', 'asc')->get();
+        $sumBobotKriteria = (float) $kriteria->sum('bobot_roc');
 
-        $alternatif = AlternatifResource::collection(Alternatif::orderBy('kode', 'asc')->get());
-        $kriteria = KriteriaResource::collection(Kriteria::orderBy('kode', 'asc')->get());
-        $sumBobotKriteria = $kriteria->sum('bobot');
+        $normalisasiBobot = $kriteria->map(function ($item) use ($sumBobotKriteria) {
+            return (object)[
+                'kriteria'    => $item,
+                'normalisasi' => $sumBobotKriteria > 0 ? $item->bobot_roc : 0,
+            ];
+        });
 
-        return view('dashboard.perhitungan.index', compact('title', 'normalisasiBobot', 'nilaiUtility', 'nilaiAkhir', 'alternatif', 'kriteria', 'sumBobotKriteria'));
+        // 2) Alternatif
+        $alternatif = Alternatif::query()
+            ->when($user && $user->role === 'wali_kelas', function ($q) use ($user) {
+                $q->where('kelas', $user->kelas);
+            })
+            ->orderBy('nis', 'asc')
+            ->get();
+
+        // 3) Ambil semua Penilaian sekali (hindari N+1)
+        $altIds  = $alternatif->pluck('id')->all();
+        $kritIds = $kriteria->pluck('id')->all();
+
+        $penilaianAll = Penilaian::whereIn('alternatif_id', $altIds)
+            ->whereIn('kriteria_id', $kritIds)
+            ->get()
+            ->keyBy(fn ($p) => $p->alternatif_id.'-'.$p->kriteria_id);
+
+        // Kirim juga ke view sebagai $penilaian (Collection biasa, bukan keyed),
+        // karena di tabel "Normalisasi Matriks" kamu pakai $penilaian->where(...)
+        $penilaian = $penilaianAll->values();
+
+        // 4) Nilai Utility (pakai nilai_normal; null -> 0)
+        $nilaiUtility = collect();
+        foreach ($alternatif as $alt) {
+            foreach ($kriteria as $krit) {
+                $key = $alt->id.'-'.$krit->id;
+                $p   = $penilaianAll->get($key);
+
+                $nilaiUtility->push((object)[
+                    'alternatif_id' => $alt->id,
+                    'kriteria_id'   => $krit->id,
+                    'nilai'         => $p?->nilai_normal ?? 0,
+                ]);
+            }
+        }
+
+        // 5) Nilai Akhir (nilai_normal × bobot_roc). 0 harus dihitung; hanya NULL yang di-skip
+        $nilaiAkhir = collect();
+        foreach ($alternatif as $alt) {
+            foreach ($kriteria as $krit) {
+                $key   = $alt->id.'-'.$krit->id;
+                $p     = $penilaianAll->get($key);
+                $nNorm = $p?->nilai_normal;
+
+                $nilai = ($nNorm !== null)
+                    ? ((float)$nNorm * (float)$krit->bobot_roc)
+                    : 0.0;
+
+                $nilaiAkhir->push((object)[
+                    'alternatif_id' => (int)$alt->id,
+                    'kriteria_id'   => (int)$krit->id,
+                    'nilai'         => (float)$nilai,
+                ]);
+            }
+        }
+
+        // 6) Hasil ranking
+        $hasil = NilaiAkhir::query()
+            ->when($user && $user->role === 'wali_kelas', function ($q) use ($user) {
+                $q->whereHas('alternatif', fn ($s) => $s->where('kelas', $user->kelas));
+            })
+            ->with('alternatif')
+            ->orderByDesc('total')
+            ->get();
+
+        return view('dashboard.perhitungan.index', compact(
+            'title',
+            'normalisasiBobot',
+            'nilaiUtility',
+            'nilaiAkhir',
+            'alternatif',
+            'kriteria',
+            'sumBobotKriteria',
+            'hasil',
+            'penilaian' // <— penting: dikirim ke view
+        ));
     }
+
+
 
     public function perhitunganMetode()
     {
-        $this->perhitunganNormalisasiBobot();
-        $this->perhitunganNilaiUtility();
-        $perhitungan = $this->perhitunganNilaiAkhir();
+        $user = Auth::user();
+        
+        // Langsung gunakan metode yang sudah ada
+        Kriteria::hitungROC();
+        Penilaian::normalisasiSMART(null, $user);
+        NilaiAkhir::hitungTotal(null, $user);
 
-        if ($perhitungan) {
-            return to_route('perhitungan')->with('success', 'Perhitungan Metode SMART Berhasil Dilakukan');
-        } else {
-            return to_route('perhitungan')->with('error', 'Perhitungan Metode SMART Gagal Dilakukan');
-        }
+        return to_route('perhitungan')->with('success', 'Perhitungan Metode ROC + SMART Berhasil Dilakukan');
     }
 }
