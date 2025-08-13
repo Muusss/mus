@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Laravel SMART | {{ $title ?? 'Dashboard' }}</title>
+    <title>SPK SMART | {{ $title ?? 'Dashboard' }}</title>
     
-    <!-- Update favicon dengan logo baru -->
-    <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('img/logo-yac.png') }}" />
-    <link rel="icon" type="image/png" href="{{ asset('img/logo-yac.png') }}" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -16,6 +15,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <!-- DataTables CSS -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     
@@ -23,6 +23,7 @@
     <style>
         :root {
             --sidebar-width: 250px;
+            --sidebar-collapsed-width: 80px;
             --primary-color: #4e73df;
             --primary-dark: #2e59d9;
             --secondary-color: #858796;
@@ -34,12 +35,24 @@
             --dark-color: #2c3e50;
         }
 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--light-color);
             color: #333;
             min-height: 100vh;
+        }
+
+        /* Layout Container */
+        .app-container {
             display: flex;
+            min-height: 100vh;
+            position: relative;
         }
 
         /* Sidebar Styles */
@@ -54,35 +67,77 @@
             z-index: 1000;
             transition: all 0.3s ease;
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .sidebar.collapsed {
-            width: 80px;
+            width: var(--sidebar-collapsed-width);
+        }
+
+        /* Mobile Sidebar Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* Mobile Sidebar Behavior */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-wrapper {
+                margin-left: 0 !important;
+            }
         }
 
         .sidebar .logo-section {
             padding: 1.5rem;
             text-align: center;
             border-bottom: 1px solid rgba(255,255,255,0.1);
+            min-height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
-        .sidebar .logo-section img {
-            width: 70px; /* Lebih besar untuk logo YAC */
-            height: 70px;
+        .sidebar .logo-section .logo-container {
+            width: 60px;
+            height: 60px;
+            background: white;
             border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             margin-bottom: 10px;
-            background: white; /* Tambah background putih */
             padding: 5px;
         }
 
-        .sidebar .logo-section h5 {
+        .sidebar .logo-section .logo-text {
             color: white;
             font-weight: 700;
+            font-size: 0.9rem;
             margin: 0;
             transition: opacity 0.3s;
+            white-space: nowrap;
         }
 
-        .sidebar.collapsed .logo-section h5 {
+        .sidebar.collapsed .logo-section .logo-text {
             display: none;
         }
 
@@ -116,6 +171,7 @@
             transition: all 0.3s ease;
             border-left: 3px solid transparent;
             text-decoration: none;
+            position: relative;
         }
 
         .sidebar-menu .nav-link:hover {
@@ -135,6 +191,11 @@
             width: 30px;
             text-align: center;
             margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-menu .nav-link span {
+            white-space: nowrap;
         }
 
         .sidebar.collapsed .nav-link span {
@@ -143,6 +204,21 @@
 
         .sidebar.collapsed .nav-link i {
             margin-right: 0;
+        }
+
+        /* Tooltip for collapsed sidebar */
+        .sidebar.collapsed .nav-link:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            left: 100%;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            font-size: 0.875rem;
+            margin-left: 10px;
+            z-index: 1000;
         }
 
         /* Main Content Wrapper */
@@ -156,7 +232,7 @@
         }
 
         .main-wrapper.expanded {
-            margin-left: 80px;
+            margin-left: var(--sidebar-collapsed-width);
         }
 
         /* Top Bar */
@@ -179,16 +255,42 @@
             color: var(--secondary-color);
             cursor: pointer;
             transition: color 0.3s;
+            padding: 0.5rem;
         }
 
         .topbar .toggle-sidebar:hover {
             color: var(--primary-color);
         }
 
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: inline-block;
+            }
+            
+            .desktop-menu-toggle {
+                display: none;
+            }
+        }
+
         .topbar .user-info {
             display: flex;
             align-items: center;
             gap: 1rem;
+        }
+
+        .topbar .user-info .user-name {
+            display: none;
+        }
+
+        @media (min-width: 576px) {
+            .topbar .user-info .user-name {
+                display: inline;
+            }
         }
 
         .topbar .user-avatar {
@@ -205,117 +307,17 @@
 
         /* Content Area */
         .content-area {
-            padding: 2rem;
+            padding: 1.5rem;
             flex: 1;
         }
 
-        /* Footer */
-        .footer {
-            background: white;
-            padding: 1.5rem 2rem;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
-            margin-top: auto;
+        @media (max-width: 576px) {
+            .content-area {
+                padding: 1rem;
+            }
         }
 
-        .footer-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .footer-left {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .footer-logo img {
-            width: 50px;
-            height: 50px;
-            border-radius: 8px;
-            background: white;
-            padding: 3px;
-        }
-
-        .footer-logo-text h6 {
-            margin: 0;
-            color: var(--primary-color);
-            font-weight: 700;
-            font-size: 0.9rem;
-        }
-
-        .footer-logo-text p {
-            margin: 0;
-            font-size: 0.75rem;
-            color: var(--secondary-color);
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-        }
-
-        .footer-links a {
-            color: var(--secondary-color);
-            text-decoration: none;
-            font-size: 0.875rem;
-            transition: color 0.3s;
-        }
-
-        .footer-links a:hover {
-            color: var(--primary-color);
-        }
-
-        .footer-right {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .footer-social {
-            display: flex;
-            gap: 0.75rem;
-        }
-
-        .footer-social a {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            background: var(--light-color);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--secondary-color);
-            transition: all 0.3s;
-            text-decoration: none;
-        }
-
-        .footer-social a:hover {
-            background: var(--primary-color);
-            color: white;
-            transform: translateY(-3px);
-        }
-
-        .footer-copyright {
-            color: var(--secondary-color);
-            font-size: 0.875rem;
-        }
-
-        .footer-divider {
-            border-top: 1px solid #e3e6f0;
-            margin: 1rem 0;
-        }
-
-        /* Cards */
+        /* Cards Responsive */
         .stat-card {
             background: white;
             border-radius: 15px;
@@ -323,6 +325,7 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
             transition: transform 0.3s, box-shadow 0.3s;
             border-left: 4px solid var(--primary-color);
+            margin-bottom: 1rem;
         }
 
         .stat-card:hover {
@@ -330,309 +333,288 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
 
-        .stat-card .icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
+        /* Tables Responsive */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .stat-card.primary .icon {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-        }
-
-        .stat-card.success .icon {
-            background: linear-gradient(135deg, var(--success-color), #17a673);
-            color: white;
-        }
-
-        .stat-card.warning .icon {
-            background: linear-gradient(135deg, var(--warning-color), #f4b619);
-            color: white;
-        }
-
-        .stat-card.info .icon {
-            background: linear-gradient(135deg, var(--info-color), #2c9faf);
-            color: white;
-        }
-
-        /* Tables */
         .custom-table {
             background: white;
             border-radius: 15px;
             padding: 1.5rem;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
         }
 
-        .custom-table table {
-            width: 100%;
+        @media (max-width: 576px) {
+            .custom-table {
+                padding: 1rem;
+                border-radius: 10px;
+            }
         }
 
-        .custom-table thead th {
-            background: var(--light-color);
-            color: var(--dark-color);
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            padding: 1rem;
-            border: none;
+        /* DataTables Responsive Override */
+        table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
+        table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
+            background-color: var(--primary-color);
         }
 
-        .custom-table tbody td {
-            padding: 1rem;
-            vertical-align: middle;
-            border-top: 1px solid #e3e6f0;
+        /* Footer Responsive */
+        .footer {
+            background: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            margin-top: auto;
         }
 
-        /* Buttons */
-        .btn-custom {
-            border-radius: 8px;
-            padding: 0.5rem 1.5rem;
-            font-weight: 600;
-            transition: all 0.3s;
-        }
-
-        .btn-custom-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-            color: white;
-            border: none;
-        }
-
-        .btn-custom-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(78, 115, 223, 0.3);
-            color: white;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
+            .footer {
+                padding: 1rem;
             }
             
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            
-            .main-wrapper {
-                margin-left: 0;
-            }
-
             .footer-content {
                 flex-direction: column;
                 text-align: center;
             }
-
-            .footer-left {
-                flex-direction: column;
+            
+            .footer-left,
+            .footer-right {
+                width: 100%;
+                margin-bottom: 1rem;
             }
-
+            
             .footer-links {
                 flex-wrap: wrap;
                 justify-content: center;
             }
+        }
 
-            .footer-right {
-                flex-direction: column;
+        /* Utility Classes */
+        .text-truncate-mobile {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 150px;
+        }
+
+        @media (min-width: 576px) {
+            .text-truncate-mobile {
+                max-width: none;
             }
+        }
+
+        /* Fix Bootstrap Modal on Mobile */
+        .modal-dialog {
+            margin: 1rem;
+        }
+
+        @media (max-width: 576px) {
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+            
+            .modal-content {
+                border-radius: 10px;
+            }
+        }
+
+        /* Loading Spinner */
+        .spinner-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 200px;
         }
     </style>
     @yield('css')
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav class="sidebar" id="sidebar">
-        <div class="logo-section">
-            <!-- Update logo di sidebar -->
-            <img src="{{ asset('img/logo-yac.png') }}" alt="Logo YAC">
-            <h5>SPK SDIT As Sunnah</h5>
-            <small style="color: rgba(255,255,255,0.8); font-size: 0.75rem;">Cirebon</small>
-        </div>
+    <div class="app-container">
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
         
-        <div class="sidebar-menu">
-            <div class="menu-header">Menu Utama</div>
-            
-            <div class="nav-item">
-                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
-                    <i class="bi bi-speedometer2"></i>
-                    <span>Dashboard</span>
-                </a>
-            </div>
-            
-            <div class="menu-header">Data Master</div>
-            
-            <div class="nav-item">
-                <a href="{{ route('kriteria') }}" class="nav-link {{ request()->routeIs('kriteria*') ? 'active' : '' }}">
-                    <i class="bi bi-list-check"></i>
-                    <span>Kriteria</span>
-                </a>
-            </div>
-            
-            <div class="nav-item">
-                <a href="{{ route('subkriteria') }}" class="nav-link {{ request()->routeIs('subkriteria*') ? 'active' : '' }}">
-                    <i class="bi bi-diagram-3"></i>
-                    <span>Sub Kriteria</span>
-                </a>
-            </div>
-
-            <div class="nav-item">
-                <a href="{{ route('periode') }}" class="nav-link {{ request()->routeIs('periode*') ? 'active' : '' }}">
-                    <i class="bi bi-calendar-week"></i>
-                    <span>Periode Semester</span>
-                </a>
-            </div>
-            
-            <div class="nav-item">
-                <a href="{{ route('alternatif') }}" class="nav-link {{ request()->routeIs('alternatif*') ? 'active' : '' }}">
-                    <i class="bi bi-people"></i>
-                    <span>Data Siswa</span>
-                </a>
-            </div>
-            
-            <div class="menu-header">SMART</div>
-            
-            <div class="nav-item">
-                <a href="{{ route('penilaian') }}" class="nav-link {{ request()->routeIs('penilaian*') ? 'active' : '' }}">
-                    <i class="bi bi-pencil-square"></i>
-                    <span>Penilaian</span>
-                </a>
-            </div>
-            
-            <div class="nav-item">
-                <a href="{{ route('perhitungan') }}" class="nav-link {{ request()->routeIs('perhitungan*') ? 'active' : '' }}">
-                    <i class="bi bi-calculator"></i>
-                    <span>Perhitungan</span>
-                </a>
-            </div>
-            
-            <div class="nav-item">
-                <a href="{{ route('hasil-akhir') }}" class="nav-link {{ request()->routeIs('hasil-akhir*') ? 'active' : '' }}">
-                    <i class="bi bi-trophy"></i>
-                    <span>Hasil Akhir</span>
-                </a>
-            </div>
-            
-            <div class="menu-header">Pengaturan</div>
-            
-            <div class="nav-item">
-                <a href="{{ route('profile.edit') }}" class="nav-link {{ request()->routeIs('profile*') ? 'active' : '' }}">
-                    <i class="bi bi-person-circle"></i>
-                    <span>Profile</span>
-                </a>
-            </div>
-            
-            <div class="nav-item">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" class="nav-link w-100 text-start">
-                        <i class="bi bi-box-arrow-right"></i>
-                        <span>Logout</span>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Main Content Wrapper -->
-    <div class="main-wrapper" id="mainContent">
-        <!-- Top Bar -->
-        <div class="topbar">
-            <button class="toggle-sidebar" onclick="toggleSidebar()">
-                <i class="bi bi-list"></i>
-            </button>
-            
-            <div class="user-info">
-                <span class="d-none d-md-inline">
-                    Hi, <strong>{{ auth()->user()->name }}</strong>
-                    @if(auth()->user()->role === 'wali_kelas')
-                        <span class="badge bg-info ms-2">Wali Kelas {{ auth()->user()->kelas }}</span>
-                    @elseif(auth()->user()->role === 'admin')
-                        <span class="badge bg-danger ms-2">Admin</span>
-                    @endif
-                </span>
-                <div class="user-avatar">
-                    {{ substr(auth()->user()->name, 0, 1) }}
+        <!-- Sidebar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="logo-section">
+                <div class="logo-container">
+                    <i class="bi bi-mortarboard-fill text-primary" style="font-size: 2rem;"></i>
                 </div>
+                <div class="logo-text">SPK SDIT As Sunnah</div>
             </div>
-        </div>
-        
-        <!-- Content Area -->
-        <div class="content-area">
-            @if(session('success'))
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="bi bi-check-circle me-2"></i>
-                    {{ session('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
             
-            @if(session('error'))
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="bi bi-exclamation-circle me-2"></i>
-                    {{ session('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            @endif
-
-            @yield('content')
-        </div>
-
-        <!-- Footer -->
-        <footer class="footer">
-            <div class="footer-content">
-                <div class="footer-left">
-                <div class="footer-logo">
-                    <!-- Update logo di footer -->
-                    <img src="{{ asset('img/logo-yac.png') }}" alt="Logo YAC">
-                    <div class="footer-logo-text">
-                        <h6>SDIT As Sunnah Cirebon</h6>
-                        <p>Yayasan As Sunnah Cirebon</p>
-                    </div>
-                </div>
-                    
-                    <div class="footer-links">
-                        <a href="{{ route('dashboard') }}">Dashboard</a>
-                        <a href="{{ route('alternatif') }}">Data Siswa</a>
-                        <a href="{{ route('perhitungan') }}">Perhitungan</a>
-                        <a href="{{ route('hasil-akhir') }}">Hasil</a>
-                    </div>
+            <div class="sidebar-menu">
+                <div class="menu-header">Menu Utama</div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('dashboard') }}" 
+                       class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                       data-tooltip="Dashboard">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
                 </div>
                 
-                <div class="footer-right">
-                    <div class="footer-social">
-                        <a href="https://web.facebook.com/assunnahcirebonofficial" title="Facebook">
-                            <i class="bi bi-facebook"></i>
-                        </a>
-                        <a href="https://www.instagram.com/assunnahcirebonofficial/" title="Instagram">
-                            <i class="bi bi-instagram"></i>
-                        </a>
-                        <a href="https://www.youtube.com/@Assunnahcirebonofficial" title="YouTube">
-                            <i class="bi bi-youtube"></i>
-                        </a>
-                    </div>
-                    
-                    <div class="footer-copyright">
-                        <strong>© {{ date('Y') }} Laravel SMART</strong>
+                <div class="menu-header">Data Master</div>
+                
+                @if(auth()->user()->role === 'admin')
+                <div class="nav-item">
+                    <a href="{{ route('users') }}" class="nav-link {{ request()->routeIs('users*') ? 'active' : '' }}">
+                        <i class="bi bi-people-fill"></i>
+                        <span>Data User</span>
+                    </a>
+                </div>
+                @endif
+
+                <div class="nav-item">
+                    <a href="{{ route('alternatif') }}" 
+                       class="nav-link {{ request()->routeIs('alternatif*') ? 'active' : '' }}"
+                       data-tooltip="Data Siswa">
+                        <i class="bi bi-people"></i>
+                        <span>Data Siswa</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('kriteria') }}" 
+                       class="nav-link {{ request()->routeIs('kriteria*') ? 'active' : '' }}"
+                       data-tooltip="Kriteria">
+                        <i class="bi bi-list-check"></i>
+                        <span>Kriteria</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('subkriteria') }}" 
+                       class="nav-link {{ request()->routeIs('subkriteria*') ? 'active' : '' }}"
+                       data-tooltip="Sub Kriteria">
+                        <i class="bi bi-diagram-3"></i>
+                        <span>Sub Kriteria</span>
+                    </a>
+                </div>
+
+                <div class="nav-item">
+                    <a href="{{ route('periode') }}" 
+                       class="nav-link {{ request()->routeIs('periode*') ? 'active' : '' }}"
+                       data-tooltip="Periode">
+                        <i class="bi bi-calendar-week"></i>
+                        <span>Periode Semester</span>
+                    </a>
+                </div>
+                
+                <div class="menu-header">SMART</div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('penilaian') }}" 
+                       class="nav-link {{ request()->routeIs('penilaian*') ? 'active' : '' }}"
+                       data-tooltip="Penilaian">
+                        <i class="bi bi-pencil-square"></i>
+                        <span>Penilaian</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('perhitungan') }}" 
+                       class="nav-link {{ request()->routeIs('perhitungan*') ? 'active' : '' }}"
+                       data-tooltip="Perhitungan">
+                        <i class="bi bi-calculator"></i>
+                        <span>Perhitungan</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('hasil-akhir') }}" 
+                       class="nav-link {{ request()->routeIs('hasil-akhir*') ? 'active' : '' }}"
+                       data-tooltip="Hasil Akhir">
+                        <i class="bi bi-trophy"></i>
+                        <span>Hasil Akhir</span>
+                    </a>
+                </div>
+                
+                <div class="menu-header">Pengaturan</div>
+                
+                <div class="nav-item">
+                    <a href="{{ route('profile.edit') }}" 
+                       class="nav-link {{ request()->routeIs('profile*') ? 'active' : '' }}"
+                       data-tooltip="Profile">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Profile</span>
+                    </a>
+                </div>
+                
+                <div class="nav-item">
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="nav-link w-100 text-start" data-tooltip="Logout">
+                            <i class="bi bi-box-arrow-right"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content Wrapper -->
+        <div class="main-wrapper" id="mainContent">
+            <!-- Top Bar -->
+            <div class="topbar">
+                <button class="toggle-sidebar desktop-menu-toggle" onclick="toggleSidebarDesktop()">
+                    <i class="bi bi-list"></i>
+                </button>
+                
+                <button class="toggle-sidebar mobile-menu-toggle" onclick="toggleSidebar()">
+                    <i class="bi bi-list"></i>
+                </button>
+                
+                <div class="user-info">
+                    <span class="user-name">
+                        Hi, <strong>{{ auth()->user()->name }}</strong>
+                        @if(auth()->user()->role === 'wali_kelas')
+                            <span class="badge bg-info ms-2">Wali {{ auth()->user()->kelas }}</span>
+                        @elseif(auth()->user()->role === 'admin')
+                            <span class="badge bg-danger ms-2">Admin</span>
+                        @endif
+                    </span>
+                    <div class="user-avatar">
+                        {{ substr(auth()->user()->name, 0, 1) }}
                     </div>
                 </div>
             </div>
             
-            <div class="footer-divider"></div>
-            
-            <div class="text-center">
-                <small class="text-muted">
-                    <i class="bi bi-code-slash me-1"></i>
-                    Developed with <i></i> by 
-                    <strong>SDIT As Sunnah Cirebon</strong> | 
-                    Metode ROC & SMART | 
-                    Laravel v{{ Illuminate\Foundation\Application::VERSION }}
-                </small>
+            <!-- Content Area -->
+            <div class="content-area">
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle me-2"></i>
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+                
+                @if(session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                @endif
+
+                @yield('content')
             </div>
-        </footer>
+
+            <!-- Footer -->
+            <footer class="footer">
+                <div class="footer-content">
+                    <div class="text-center">
+                        <strong>© {{ date('Y') }} SPK SDIT As Sunnah Cirebon</strong>
+                        <br>
+                        <small class="text-muted">
+                            Metode ROC & SMART | Laravel v{{ Illuminate\Foundation\Application::VERSION }}
+                        </small>
+                    </div>
+                </div>
+            </footer>
+        </div>
     </div>
 
     <!-- Scripts -->
@@ -640,16 +622,38 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.5.0/js/responsive.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
     
     <script>
-        function toggleSidebar() {
+        // Toggle Sidebar Desktop
+        function toggleSidebarDesktop() {
             document.getElementById('sidebar').classList.toggle('collapsed');
             document.getElementById('mainContent').classList.toggle('expanded');
+            
+            // Save state to localStorage
+            const isCollapsed = document.getElementById('sidebar').classList.contains('collapsed');
+            localStorage.setItem('sidebarCollapsed', isCollapsed);
         }
         
-        // Initialize DataTables globally
+        // Toggle Sidebar Mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('show');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        }
+        
+        // Load sidebar state
+        document.addEventListener('DOMContentLoaded', function() {
+            const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+            if (isCollapsed && window.innerWidth > 768) {
+                document.getElementById('sidebar').classList.add('collapsed');
+                document.getElementById('mainContent').classList.add('expanded');
+            }
+        });
+        
+        // Initialize DataTables globally with responsive
         $(document).ready(function() {
             $('.datatable').DataTable({
                 responsive: true,
@@ -666,14 +670,32 @@
                 }
             });
         });
-
-        // Add active class to current page in footer
-        $(document).ready(function() {
-            $('.footer-links a').each(function() {
-                if ($(this).attr('href') === window.location.pathname) {
-                    $(this).css('color', 'var(--primary-color)').css('font-weight', '600');
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            const menuToggle = document.querySelector('.mobile-menu-toggle');
+            
+            if (window.innerWidth <= 768 && 
+                !sidebar.contains(event.target) && 
+                !menuToggle.contains(event.target) &&
+                sidebar.classList.contains('show')) {
+                sidebar.classList.remove('show');
+                overlay.classList.remove('show');
+            }
+        });
+        
+        // Handle window resize
+        let resizeTimer;
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(function() {
+                if (window.innerWidth > 768) {
+                    document.getElementById('sidebar').classList.remove('show');
+                    document.getElementById('sidebarOverlay').classList.remove('show');
                 }
-            });
+            }, 250);
         });
     </script>
     @yield('js')

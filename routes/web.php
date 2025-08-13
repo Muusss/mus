@@ -9,6 +9,7 @@ use App\Http\Controllers\PeriodeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SMARTController;
 use App\Http\Controllers\SubKriteriaController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,7 +26,17 @@ Route::middleware('auth')->group(function () {
     // Dashboard Routes
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/hasil-akhir', [DashboardController::class, 'hasilAkhir'])->name('hasil-akhir');
-    
+
+    // User Management Routes (Admin Only)
+    Route::middleware(['auth', 'admin'])->group(function () {
+        Route::get('/users', [UserController::class, 'index'])->name('users');
+        Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
+        Route::get('/users/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::post('/users/update', [UserController::class, 'update'])->name('users.update');
+        Route::post('/users/delete', [UserController::class, 'delete'])->name('users.delete');
+        Route::post('/users/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
+    });
+        
     // Periode Routes
     Route::get('/periode', [PeriodeController::class, 'index'])->name('periode');
     Route::middleware(['admin'])->group(function () {
