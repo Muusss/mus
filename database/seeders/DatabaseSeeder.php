@@ -16,6 +16,7 @@ class DatabaseSeeder extends Seeder
         // Urutan penting - jangan diubah
         $this->call([
             UserSeeder::class,
+            PeriodeSeeder::class,
             KriteriaSeeder::class,
             AlternatifSeeder::class,    // 40 siswa (10 per kelas)
             SubKriteriaSeeder::class,

@@ -13,6 +13,7 @@ use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
 use App\Models\NilaiAkhir;
+use App\Models\Periode;
 
 class AlternatifController extends Controller
 {
@@ -127,11 +128,19 @@ class AlternatifController extends Controller
     /** === PERHITUNGAN ROC + SMART === */
     public function perhitunganNilaiAkhir(): RedirectResponse
     {
+        $periodeAktif = Periode::getActive();
+        
+        if (!$periodeAktif) {
+            return redirect()->route('periode')
+                ->with('error', 'Silakan aktifkan periode terlebih dahulu');
+        }
+        
         Kriteria::hitungROC();
-        Penilaian::normalisasiSMART(null, Auth::user());
-        NilaiAkhir::hitungTotal(null, Auth::user());
+        Penilaian::normalisasiSMART($periodeAktif->id, Auth::user());
+        NilaiAkhir::hitungTotal($periodeAktif->id, Auth::user());
 
-        return to_route('alternatif')->with('success', 'Perhitungan ROC + SMART selesai');
+        return to_route('alternatif')->with('success', 
+            "Perhitungan ROC + SMART untuk {$periodeAktif->nama_periode} selesai");
     }
 
     // Tambahkan method ini di AlternatifController

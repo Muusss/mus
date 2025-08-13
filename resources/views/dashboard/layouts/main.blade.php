@@ -478,6 +478,13 @@
                     <span>Sub Kriteria</span>
                 </a>
             </div>
+
+            <div class="nav-item">
+                <a href="{{ route('periode') }}" class="nav-link {{ request()->routeIs('periode*') ? 'active' : '' }}">
+                    <i class="bi bi-calendar-week"></i>
+                    <span>Periode Semester</span>
+                </a>
+            </div>
             
             <div class="nav-item">
                 <a href="{{ route('alternatif') }}" class="nav-link {{ request()->routeIs('alternatif*') ? 'active' : '' }}">

@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
+use App\Models\Periode;
 
 class PenilaianSeeder extends Seeder
 {
@@ -13,6 +14,14 @@ class PenilaianSeeder extends Seeder
     {
         $alternatifs = Alternatif::all();
         $kriterias   = Kriteria::all();
+        
+        // Get periode aktif
+        $periodeAktif = Periode::getActive();
+        
+        if (!$periodeAktif) {
+            $this->command->error('Tidak ada periode aktif! Jalankan PeriodeSeeder terlebih dahulu.');
+            return;
+        }
 
         if ($alternatifs->isEmpty() || $kriterias->isEmpty()) return;
 
@@ -92,10 +101,14 @@ class PenilaianSeeder extends Seeder
                     
                     Penilaian::updateOrCreate(
                         [
-                            'alternatif_id' => $siswa->id,
-                            'kriteria_id' => $kr->id
+                            'alternatif_id' => $alt->id, 
+                            'kriteria_id' => $kr->id,
+                            'periode_id' => $periodeAktif->id // Tambahkan periode_id
                         ],
-                        ['nilai_asli' => $nilai]
+                        [
+                            'nilai_asli' => $nilai,
+                            'nilai_normal' => null
+                        ]
                     );
                 }
             }

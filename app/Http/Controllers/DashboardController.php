@@ -8,6 +8,7 @@ use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
 use App\Models\NilaiAkhir;
+use App\Models\Periode;
 
 class DashboardController extends Controller
 {
@@ -15,6 +16,9 @@ class DashboardController extends Controller
     {
         $title = 'Dashboard';
         $user  = Auth::user();
+        
+        // Get periode aktif
+        $periodeAktif = Periode::getActive();
         
         // Get filter kelas dari request
         $kelasFilter = $request->get('kelas', 'all');
@@ -40,30 +44,46 @@ class DashboardController extends Controller
         
         $jumlahKriteria = Kriteria::count();
         
-        $jumlahPenilaian = Penilaian::whereHas('alternatif', $filterKelas)->count();
-
-        // === Tabel / ranking (filter per kelas)
-        $nilaiAkhir = NilaiAkhir::query()
-            ->with(['alternatif:id,nis,nama_siswa,kelas,jk'])
-            ->whereHas('alternatif', $filterKelas)
-            ->orderByDesc('total')
-            ->get(['id','alternatif_id','total','peringkat']);
-
-        // Recalculate ranking untuk kelas yang difilter
-        $rank = 1;
-        foreach ($nilaiAkhir as $row) {
-            $row->peringkat_kelas = $rank++;
+        // Penilaian dengan check periode
+        $jumlahPenilaian = 0;
+        if ($periodeAktif) {
+            $jumlahPenilaian = Penilaian::where('periode_id', $periodeAktif->id)
+                ->whereHas('alternatif', $filterKelas)
+                ->count();
         }
 
-        // Top 5 untuk widget cepat
-        $top5 = $nilaiAkhir->take(5);
-
-        // === Data untuk chart (labels & series)
+        // === Tabel / ranking (filter per kelas) dengan check periode
+        $nilaiAkhir = collect(); // Empty collection by default
+        $top5 = collect();
         $chartLabels = [];
         $chartSeries = [];
-        foreach ($nilaiAkhir->take(10) as $row) {
-            $chartLabels[] = $row->alternatif->nama_siswa ?? ('Siswa '.$row->alternatif_id);
-            $chartSeries[] = round((float) $row->total, 3);
+        
+        if ($periodeAktif) {
+            $nilaiAkhir = NilaiAkhir::query()
+                ->with(['alternatif' => function($q) {
+                    $q->select('id','nis','nama_siswa','kelas','jk');
+                }])
+                ->where('periode_id', $periodeAktif->id)
+                ->whereHas('alternatif', $filterKelas)
+                ->orderByDesc('total')
+                ->get(['id','alternatif_id','total','peringkat','periode_id']);
+
+            // Recalculate ranking untuk kelas yang difilter
+            $rank = 1;
+            foreach ($nilaiAkhir as $row) {
+                $row->peringkat_kelas = $rank++;
+            }
+
+            // Top 5 untuk widget cepat
+            $top5 = $nilaiAkhir->take(5);
+
+            // === Data untuk chart (labels & series)
+            foreach ($nilaiAkhir->take(10) as $row) {
+                if ($row->alternatif) {
+                    $chartLabels[] = $row->alternatif->nama_siswa;
+                    $chartSeries[] = round((float) $row->total, 3);
+                }
+            }
         }
 
         // Get list kelas untuk dropdown
@@ -79,7 +99,8 @@ class DashboardController extends Controller
             'chartLabels',
             'chartSeries',
             'kelasFilter',
-            'kelasList'
+            'kelasList',
+            'periodeAktif'
         ));
     }
 
@@ -87,6 +108,14 @@ class DashboardController extends Controller
     {
         $title = 'Hasil Akhir';
         $user = Auth::user();
+        
+        // Get periode aktif
+        $periodeAktif = Periode::getActive();
+        
+        if (!$periodeAktif) {
+            return redirect()->route('periode')
+                ->with('warning', 'Silakan aktifkan periode semester terlebih dahulu');
+        }
         
         // Get filter kelas
         $kelasFilter = $request->get('kelas', 'all');
@@ -96,8 +125,9 @@ class DashboardController extends Controller
             $kelasFilter = $user->kelas;
         }
         
-        // Query dengan filter
+        // Query dengan filter dan periode
         $nilaiAkhir = NilaiAkhir::with('alternatif')
+            ->where('periode_id', $periodeAktif->id)
             ->when($kelasFilter && $kelasFilter !== 'all', function($q) use ($kelasFilter) {
                 $q->whereHas('alternatif', function($query) use ($kelasFilter) {
                     $query->where('kelas', $kelasFilter);
@@ -114,6 +144,12 @@ class DashboardController extends Controller
         
         $kelasList = ['6A', '6B', '6C', '6D'];
 
-        return view('dashboard.hasil-akhir.index', compact('title', 'nilaiAkhir', 'kelasFilter', 'kelasList'));
+        return view('dashboard.hasil-akhir.index', compact(
+            'title', 
+            'nilaiAkhir', 
+            'kelasFilter', 
+            'kelasList',
+            'periodeAktif'
+        ));
     }
 }

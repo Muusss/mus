@@ -2,10 +2,25 @@
 
 @section('content')
 <div class="container-fluid">
+    <!-- Cek Periode Aktif -->
+    @if(!isset($periodeAktif))
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <strong>Perhatian!</strong> Belum ada periode semester yang aktif.
+        <a href="{{ route('periode') }}" class="btn btn-sm btn-primary ms-2">
+            <i class="bi bi-calendar-week"></i> Kelola Periode
+        </a>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    @endif
+
     <!-- Page Heading dengan Filter -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div class="d-flex align-items-center">
             <h1 class="h3 mb-0 text-gray-800">Dashboard</h1>
+            @if(isset($periodeAktif))
+                <span class="badge bg-success ms-3">{{ $periodeAktif->nama_periode }}</span>
+            @endif
             @if(auth()->user()->role !== 'wali_kelas')
             <!-- Filter Kelas untuk Admin -->
             <div class="ms-3">
@@ -23,9 +38,8 @@
             <span class="badge bg-info ms-3">Kelas {{ auth()->user()->kelas }}</span>
             @endif
         </div>
-        <a href="{{ route('spk.proses') }}" class="btn btn-custom btn-custom-primary">
-            <i class="bi bi-calculator me-2"></i>Proses Perhitungan
-        </a>
+        @if(isset($periodeAktif))
+        @endif
     </div>
 
     <!-- Info Box Filter -->
@@ -88,7 +102,7 @@
                         </div>
                         <div class="h4 mb-0 font-weight-bold">{{ $jumlahPenilaian ?? 0 }}</div>
                         <small class="text-muted">
-                            {{ $kelasFilter && $kelasFilter !== 'all' ? 'Kelas '.$kelasFilter : 'Terisi' }}
+                            {{ isset($periodeAktif) ? 'Terisi' : 'Belum Ada Periode' }}
                         </small>
                     </div>
                     <div class="icon">
@@ -105,15 +119,18 @@
                         <div class="text-xs font-weight-bold text-uppercase mb-1 text-muted">
                             Siswa Teladan
                         </div>
-                        @php
-                            $first = $nilaiAkhir->first();
-                            $topName = $first ? $first->alternatif->nama_siswa : '-';
-                        @endphp
-                        <div class="h5 mb-0 font-weight-bold">{{ $topName }}</div>
-                        @if($first)
+                        @if(isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
+                            @php
+                                $first = $nilaiAkhir->first();
+                                $topName = $first ? $first->alternatif->nama_siswa : '-';
+                            @endphp
+                            <div class="h5 mb-0 font-weight-bold">{{ $topName }}</div>
                             <small class="text-muted">
                                 Peringkat 1 {{ $kelasFilter && $kelasFilter !== 'all' ? 'Kelas '.$kelasFilter : '' }}
                             </small>
+                        @else
+                            <div class="h5 mb-0 font-weight-bold">-</div>
+                            <small class="text-muted">Belum ada data</small>
                         @endif
                     </div>
                     <div class="icon">
@@ -124,6 +141,7 @@
         </div>
     </div>
 
+    @if(isset($periodeAktif) && isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
     <!-- Charts & Tables -->
     <div class="row">
         <!-- Chart -->
@@ -190,13 +208,15 @@
                         <button class="btn btn-sm btn-info" onclick="exportToExcel()">
                             <i class="bi bi-file-earmark-excel"></i> Export Excel
                         </button>
-                        <button class="btn btn-sm btn-danger" onclick="exportToPDF()">
+                        <a href="{{ route('pdf.hasilAkhir') }}?kelas={{ $kelasFilter }}" 
+                           target="_blank" 
+                           class="btn btn-sm btn-danger">
                             <i class="bi bi-file-earmark-pdf"></i> Export PDF
-                        </button>
+                        </a>
                     </div>
                 </div>
                 <div class="table-responsive">
-                    <table class="table datatable" id="rankingTable">
+                    <table class="table table-striped" id="rankingTable">
                         <thead>
                             <tr>
                                 <th>Rank</th>
@@ -248,6 +268,30 @@
             </div>
         </div>
     </div>
+    @else
+    <!-- Jika belum ada data -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+                    <h4 class="mt-3">Belum Ada Data</h4>
+                    @if(!isset($periodeAktif))
+                        <p class="text-muted">Silakan aktifkan periode semester terlebih dahulu.</p>
+                        <a href="{{ route('periode') }}" class="btn btn-primary">
+                            <i class="bi bi-calendar-week"></i> Kelola Periode
+                        </a>
+                    @else
+                        <p class="text-muted">Belum ada data penilaian untuk periode {{ $periodeAktif->nama_periode }}.</p>
+                        <a href="{{ route('penilaian') }}" class="btn btn-primary">
+                            <i class="bi bi-pencil-square"></i> Input Penilaian
+                        </a>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
 
@@ -261,19 +305,29 @@ function filterByKelas() {
 
 // Export functions
 function exportToExcel() {
-    // Implementation for Excel export
     alert('Fitur export Excel akan segera tersedia');
 }
 
-function exportToPDF() {
-    const kelas = '{{ $kelasFilter }}';
-    const url = kelas && kelas !== 'all' 
-        ? '{{ route("pdf.hasilAkhir") }}?kelas=' + kelas
-        : '{{ route("pdf.hasilAkhir") }}';
-    window.open(url, '_blank');
-}
-
 $(document).ready(function() {
+    // DataTable untuk ranking table
+    @if(isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
+    $('#rankingTable').DataTable({
+        responsive: true,
+        pageLength: 25,
+        order: [[0, 'asc']],
+        language: {
+            search: "Cari:",
+            lengthMenu: "Tampilkan _MENU_ data",
+            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+            paginate: {
+                first: "Pertama",
+                last: "Terakhir",
+                next: "Selanjutnya",
+                previous: "Sebelumnya"
+            }
+        }
+    });
+    
     // Chart
     const chartData = @json($chartSeries ?? []);
     const chartLabels = @json($chartLabels ?? []);
@@ -329,6 +383,7 @@ $(document).ready(function() {
         const chart = new ApexCharts(document.querySelector("#chart_peringkat"), options);
         chart.render();
     }
+    @endif
 });
 </script>
 @endsection

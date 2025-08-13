@@ -17,17 +17,23 @@ class NilaiAkhir extends Model
     protected $casts = [
         'total' => 'float',
         'peringkat' => 'integer',
+        'periode_id' => 'integer',
     ];
 
     public function alternatif()
     {
         return $this->belongsTo(Alternatif::class,'alternatif_id');
     }
+    
+    public function periode()
+    {
+        return $this->belongsTo(Periode::class,'periode_id');
+    }
 
     // Scopes
     public function scopePeriode(Builder $q, ?int $periodeId): Builder
     {
-        if ($periodeId !== null && Schema::hasColumn($this->getTable(), 'periode_id')) {
+        if ($periodeId !== null) {
             $q->where('periode_id', $periodeId);
         }
         return $q;
@@ -41,18 +47,23 @@ class NilaiAkhir extends Model
         return $q;
     }
 
-    // Hitung total & ranking
+    // Hitung total & ranking dengan periode
     public static function hitungTotal(?int $periodeId = null, ?User $user = null): void
     {
-        $hasPeriodeNA = Schema::hasColumn('nilai_akhirs', 'periode_id');
-        $hasPeriodePN = Schema::hasColumn('penilaians',  'periode_id');
-
-        $bobot = Kriteria::pluck('bobot_roc','id'); // [kriteria_id => w]
-
-        $penQ = Penilaian::query();
-        if ($periodeId !== null && $hasPeriodePN) {
-            $penQ->where('periode_id', $periodeId);
+        // Gunakan periode aktif jika tidak ada yang dipilih
+        if ($periodeId === null) {
+            $aktivePeriode = Periode::getActive();
+            $periodeId = $aktivePeriode ? $aktivePeriode->id : null;
         }
+        
+        if (!$periodeId) {
+            throw new \Exception('Periode harus dipilih atau diaktifkan');
+        }
+
+        $bobot = Kriteria::pluck('bobot_roc','id');
+
+        $penQ = Penilaian::query()->where('periode_id', $periodeId);
+        
         if ($user && ($user->role ?? null) === 'wali_kelas') {
             $penQ->whereHas('alternatif', fn(Builder $s) => $s->where('kelas', $user->kelas));
         }
@@ -60,35 +71,38 @@ class NilaiAkhir extends Model
         $altIds = $penQ->select('alternatif_id')->distinct()->pluck('alternatif_id');
         if ($altIds->isEmpty()) return;
 
-        DB::transaction(function () use ($altIds, $bobot, $periodeId, $hasPeriodeNA, $hasPeriodePN) {
-            $del = static::query()->whereIn('alternatif_id', $altIds);
-            if ($periodeId !== null && $hasPeriodeNA) $del->where('periode_id', $periodeId);
-            $del->delete();
+        DB::transaction(function () use ($altIds, $bobot, $periodeId) {
+            // Delete existing nilai akhir untuk periode ini
+            static::query()
+                ->whereIn('alternatif_id', $altIds)
+                ->where('periode_id', $periodeId)
+                ->delete();
 
             foreach ($altIds as $altId) {
-                $q = Penilaian::where('alternatif_id', $altId);
-                if ($periodeId !== null && $hasPeriodePN) $q->where('periode_id', $periodeId);
-
-                $items = $q->get(['kriteria_id','nilai_normal']);
+                $items = Penilaian::where('alternatif_id', $altId)
+                    ->where('periode_id', $periodeId)
+                    ->get(['kriteria_id','nilai_normal']);
 
                 $total = 0.0;
                 foreach ($items as $it) {
                     $total += (float)($bobot[$it->kriteria_id] ?? 0) * (float)($it->nilai_normal ?? 0);
                 }
 
-                $data = [
+                static::create([
                     'alternatif_id' => $altId,
                     'total' => round($total, 6),
-                ];
-                if ($periodeId !== null && $hasPeriodeNA) $data['periode_id'] = $periodeId;
-
-                static::create($data);
+                    'periode_id' => $periodeId
+                ]);
             }
 
-            $rankQ = static::query()->whereIn('alternatif_id', $altIds);
-            if ($periodeId !== null && $hasPeriodeNA) $rankQ->where('periode_id', $periodeId);
-
-            $ranked = $rankQ->orderByDesc('total')->orderBy('alternatif_id')->get();
+            // Update ranking untuk periode ini
+            $ranked = static::query()
+                ->whereIn('alternatif_id', $altIds)
+                ->where('periode_id', $periodeId)
+                ->orderByDesc('total')
+                ->orderBy('alternatif_id')
+                ->get();
+                
             $rank = 1;
             foreach ($ranked as $row) {
                 $row->peringkat = $rank++;

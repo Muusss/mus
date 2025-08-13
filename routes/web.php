@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\KriteriaController;
 use App\Http\Controllers\PDFController;
 use App\Http\Controllers\PenilaianController;
+use App\Http\Controllers\PeriodeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SMARTController;
 use App\Http\Controllers\SubKriteriaController;
@@ -25,6 +26,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/hasil-akhir', [DashboardController::class, 'hasilAkhir'])->name('hasil-akhir');
     
+    // Periode Routes
+    Route::get('/periode', [PeriodeController::class, 'index'])->name('periode');
+    Route::middleware(['admin'])->group(function () {
+        Route::post('/periode/store', [PeriodeController::class, 'store'])->name('periode.store');
+        Route::post('/periode/{id}/activate', [PeriodeController::class, 'setActive'])->name('periode.setActive');
+        Route::post('/periode/delete', [PeriodeController::class, 'delete'])->name('periode.delete');
+    });
+
     // PDF Route (dipindahkan ke sini agar accessible)
     Route::get('/pdf-hasil-akhir', [PDFController::class, 'pdf_hasil'])->name('pdf.hasilAkhir');
 
@@ -38,7 +47,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/kriteria/update', [KriteriaController::class, 'update'])->name('kriteria.update');
         Route::post('/kriteria/delete', [KriteriaController::class, 'delete'])->name('kriteria.delete');
         Route::get('/pdf/hasil-akhir', [PDFController::class, 'pdf_hasil'])->name('pdf.hasilAkhir');
-        Route::get('/spk/proses', [KriteriaController::class, 'proses'])->name('spk.proses');
     });
 
     // Sub-Kriteria Routes

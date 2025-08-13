@@ -14,15 +14,16 @@ class Penilaian extends Model
     protected $fillable = [
         'alternatif_id',
         'kriteria_id',
-        'sub_kriteria_id', // opsional
-        'nilai_asli',      // 1..4
-        'nilai_normal',    // 0..1
-        // 'periode_id',    // aktifkan kalau kamu pakai periode
+        'sub_kriteria_id',
+        'nilai_asli',
+        'nilai_normal',
+        'periode_id', // Tambahkan periode_id
     ];
 
     protected $casts = [
         'nilai_asli'   => 'float',
         'nilai_normal' => 'float',
+        'periode_id'   => 'integer',
     ];
 
     /* ===== Relasi ===== */
@@ -40,12 +41,16 @@ class Penilaian extends Model
     {
         return $this->belongsTo(SubKriteria::class, 'sub_kriteria_id');
     }
+    
+    public function periode(): BelongsTo
+    {
+        return $this->belongsTo(Periode::class, 'periode_id');
+    }
 
     /* ===== Scopes ===== */
     public function scopePeriode(Builder $q, ?int $periodeId): Builder
     {
-        // hindari named args, dan import Schema di atas
-        if ($periodeId !== null && Schema::hasColumn($this->getTable(), 'periode_id')) {
+        if ($periodeId !== null) {
             $q->where('periode_id', $periodeId);
         }
         return $q;
@@ -61,21 +66,15 @@ class Penilaian extends Model
         return $q;
     }
 
-    public function scopeForKriteria(Builder $q, int $kriteriaId): Builder
-    {
-        return $q->where('kriteria_id', $kriteriaId);
-    }
-
-    /* ===== Mutator kecil untuk jaga range 1..4 ===== */
-    public function setNilaiAsliAttribute($value): void
-    {
-        $v = (int) $value;
-        $this->attributes['nilai_asli'] = max(1, min(4, $v));
-    }
-
-    /* ===== Normalisasi SMART (min-max) ===== */
+    /* ===== Normalisasi SMART dengan Periode ===== */
     public static function normalisasiSMART(?int $periodeId = null, ?User $user = null): void
     {
+        // Gunakan periode aktif jika tidak ada yang dipilih
+        if ($periodeId === null) {
+            $aktivePeriode = Periode::getActive();
+            $periodeId = $aktivePeriode ? $aktivePeriode->id : null;
+        }
+
         $kriterias = Kriteria::all();
         foreach ($kriterias as $kr) {
             $q = static::query()
