@@ -1,4 +1,5 @@
 <?php
+// app/Http/Controllers/PDFController.php
 
 namespace App\Http\Controllers;
 
@@ -6,6 +7,7 @@ use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\NilaiAkhir;
 use App\Models\Penilaian;
+use App\Models\SubKriteria;
 use Barryvdh\DomPDF\Facade\PDF;
 use Illuminate\Support\Facades\Auth;
 
@@ -15,86 +17,95 @@ class PDFController extends Controller
     {
         $judul = 'Laporan Hasil Akhir';
         $user = Auth::user();
-        
-        // Filter berdasarkan role
-        $filterKelas = function($q) use ($user) {
-            if ($user && $user->role === 'wali_kelas') {
-                $q->where('kelas', $user->kelas);
+
+        // Ambil filter kelas dari query (?kelas=...); default 'all'
+        $kelasFilter = request()->get('kelas', 'all');
+
+        // Paksa filter kelas untuk role wali_kelas
+        if ($user && isset($user->role) && $user->role === 'wali_kelas') {
+            $kelasFilter = $user->kelas ?? $kelasFilter;
+        }
+
+        // Update judul bila ada filter kelas
+        if ($kelasFilter && $kelasFilter !== 'all') {
+            $judul .= ' - Kelas ' . $kelasFilter;
+        }
+
+        // Helper closure untuk filter kelas
+        $filterKelas = function($q) use ($kelasFilter) {
+            if ($kelasFilter && $kelasFilter !== 'all') {
+                $q->where('kelas', $kelasFilter);
             }
         };
-        
-        // Data penilaian dengan filter
-        $tabelPenilaian = Penilaian::with('kriteria', 'subKriteria', 'alternatif')
-            ->whereHas('alternatif', $filterKelas)
-            ->get();
-        
-        // Data normalisasi bobot (dari kriteria dengan bobot ROC)
-        $tabelNormalisasi = Kriteria::orderBy('kode')
-            ->select('id', 'kode', 'kriteria', 'bobot_roc as normalisasi')
-            ->get()
-            ->map(function($item) {
-                return (object)[
-                    'kriteria' => (object)[
-                        'kode' => $item->kode,
-                        'kriteria' => $item->kriteria
-                    ],
-                    'normalisasi' => $item->normalisasi
-                ];
-            });
-        
-        // Data utility (dari penilaian dengan nilai normal)
-        $tabelUtility = Penilaian::with('kriteria', 'alternatif')
-            ->whereHas('alternatif', $filterKelas)
-            ->get()
-            ->map(function($item) {
-                return (object)[
-                    'alternatif_id' => $item->alternatif_id,
-                    'kriteria_id' => $item->kriteria_id,
-                    'nilai' => $item->nilai_normal
-                ];
-            });
-        
-        // Data nilai akhir
-        $tabelNilaiAkhir = Penilaian::query()
-            ->join('kriterias as k', 'k.id', '=', 'penilaians.kriteria_id')
-            ->whereHas('alternatif', $filterKelas)
-            ->selectRaw('alternatif_id, kriteria_id, (nilai_normal * k.bobot_roc) as nilai')
-            ->get();
-        
-        // Data perankingan
-        $tabelPerankingan = NilaiAkhir::query()
-            ->join('alternatifs as a', 'a.id', '=', 'nilai_akhirs.alternatif_id')
-            ->selectRaw("a.nis as kode, a.nama_siswa as alternatif, nilai_akhirs.total as nilai")
-            ->when($user && $user->role === 'wali_kelas', function($q) use ($user) {
-                $q->where('a.kelas', $user->kelas);
-            })
-            ->orderBy('nilai', 'desc')
-            ->get();
-        
+
         // Data kriteria
-        $kriteria = Kriteria::orderBy('kode')->get(['id', 'kriteria']);
+        $kriteria = Kriteria::orderBy('urutan_prioritas')->get();
         
         // Data alternatif
         $alternatif = Alternatif::query()
             ->when($user && $user->role === 'wali_kelas', function($q) use ($user) {
                 $q->where('kelas', $user->kelas);
             })
+            ->when($kelasFilter && $kelasFilter !== 'all', function($q) use ($kelasFilter) {
+                $q->where('kelas', $kelasFilter);
+            })
             ->orderBy('nis')
-            ->selectRaw("id, nama_siswa as alternatif")
             ->get();
+        
+        // Data penilaian dengan fix null handling
+        $tabelPenilaian = Penilaian::with(['kriteria', 'subKriteria', 'alternatif'])
+            ->whereHas('alternatif', $filterKelas)
+            ->get()
+            ->map(function($item) {
+                return (object)[
+                    'alternatif' => $item->alternatif,
+                    'kriteria' => $item->kriteria,
+                    'sub_kriteria' => $item->subKriteria ? $item->subKriteria->label : 'Nilai: ' . $item->nilai_asli,
+                    'nilai_asli' => $item->nilai_asli,
+                    'nilai_normal' => $item->nilai_normal
+                ];
+            });
+        
+        // Data hasil akhir dengan ranking
+        $tabelPerankingan = NilaiAkhir::query()
+            ->join('alternatifs as a', 'a.id', '=', 'nilai_akhirs.alternatif_id')
+            ->selectRaw("a.nis as kode, a.nama_siswa as alternatif, nilai_akhirs.total as nilai")
+            ->when($kelasFilter && $kelasFilter !== 'all', function($q) use ($kelasFilter) {
+                $q->where('a.kelas', $kelasFilter);
+            })
+            ->orderBy('nilai', 'desc')
+            ->get();
+        
+        // Info Sekolah
+        $sekolah = (object)[
+            'nama' => 'SDIT As Sunnah Cirebon',
+            'alamat' => 'Jl. Pendidikan No. 123, Cirebon',
+            'tahun_ajaran' => date('Y') . '/' . (date('Y') + 1),
+            'semester' => 'Ganjil'
+        ];
+        
+        // Info tambahan
+        $tanggal_cetak = now()->format('d F Y');
+        $kelas_filter = ($user && $user->role === 'wali_kelas') ? $user->kelas : 'Semua Kelas';
 
-        $pdf = PDF::setOptions(['defaultFont' => 'sans-serif'])
-            ->loadview('dashboard.pdf.hasil_akhir', compact(
-                'judul',
-                'tabelPenilaian', 
-                'tabelNormalisasi',
-                'tabelUtility',
-                'tabelNilaiAkhir',
-                'tabelPerankingan',
-                'kriteria',
-                'alternatif'
-            ));
+        // Generate PDF
+        $pdf = PDF::setOptions([
+            'dpi' => 150,
+            'defaultFont' => 'sans-serif',
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true
+        ])->loadview('dashboard.pdf.hasil_akhir', compact(
+            'judul',
+            'sekolah',
+            'tanggal_cetak',
+            'kelas_filter',
+            'tabelPenilaian', 
+            'tabelPerankingan',
+            'kriteria',
+            'alternatif'
+        ));
 
-        return $pdf->stream();
+        $pdf->setPaper('A4', 'portrait');
+        return $pdf->stream('Laporan_Siswa_Teladan_' . date('Y-m-d') . '.pdf');
     }
 }

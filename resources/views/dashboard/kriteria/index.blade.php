@@ -6,15 +6,10 @@
   <h3 class="mb-0">Data Kriteria</h3>
 
   @if($isAdmin)
-  <div class="d-flex gap-2">
-    <a href="{{ route('spk.proses') }}" class="btn btn-success" onclick="return confirm('Hitung ulang ROC + SMART sekarang?')">
-      Proses ROC + SMART
-    </a>
     <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalForm" onclick="create_button()">
       Tambah Kriteria
     </button>
-  </div>
-@endif
+  @endif
 </div>
 
 <div class="card">
@@ -44,7 +39,7 @@
                 @if(!is_null($k->bobot_roc))
                   {{ number_format($k->bobot_roc, 4) }}
                 @else
-                  -
+                  <span class="text-muted">Belum dihitung</span>
                 @endif
               </td>
               <td class="text-nowrap">
@@ -58,7 +53,7 @@
                 @else
                     <span class="text-muted">-</span>
                 @endif
-                </td>
+              </td>
             </tr>
           @endforeach
         </tbody>
@@ -76,13 +71,13 @@
   </div>
 </div>
 
-{{-- Modal Create / Edit --}}
+{{-- Modal Create / Edit (tetap sama) --}}
 <div class="modal fade" id="modalForm" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <form id="formKriteria" method="POST" action="{{ route('kriteria.store') }}">
         @csrf
-        <input type="hidden" name="id"> {{-- diisi saat edit --}}
+        <input type="hidden" name="id">
         <div class="modal-header">
           <h5 class="modal-title" id="modalTitle">Tambah Kriteria</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
@@ -109,14 +104,12 @@
               <label class="form-label">Urutan Prioritas</label>
               <input type="number" class="form-control" name="urutan_prioritas" min="1" step="1" required>
             </div>
-
             <div class="col-md-4">
               <label class="form-label">Bobot ROC (otomatis)</label>
               <input type="text" class="form-control" name="bobot_roc" readonly placeholder="Akan dihitung">
             </div>
           </div>
 
-          {{-- pesan validasi --}}
           @if ($errors->any())
             <div class="alert alert-danger mt-3">
               <ul class="mb-0">

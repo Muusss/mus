@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\Penilaian;
@@ -10,45 +11,63 @@ use App\Models\NilaiAkhir;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $title = 'Dashboard';
         $user  = Auth::user();
+        
+        // Get filter kelas dari request
+        $kelasFilter = $request->get('kelas', 'all');
+        
+        // Jika user adalah wali kelas, force filter ke kelasnya
+        if ($user && $user->role === 'wali_kelas') {
+            $kelasFilter = $user->kelas;
+        }
 
-        // Filter helper: wali_kelas hanya kelasnya
-        $filterKelas = function ($q) use ($user) {
-            if ($user && ($user->role ?? null) === 'wali_kelas') {
-                $q->where('kelas', $user->kelas);
+        // Filter helper
+        $filterKelas = function ($q) use ($kelasFilter) {
+            if ($kelasFilter && $kelasFilter !== 'all') {
+                $q->where('kelas', $kelasFilter);
             }
         };
 
         // === Kartu ringkas
-        $jumlahSiswa = Alternatif::where($filterKelas)->count();
+        $jumlahSiswa = Alternatif::where(function($q) use ($kelasFilter) {
+            if ($kelasFilter && $kelasFilter !== 'all') {
+                $q->where('kelas', $kelasFilter);
+            }
+        })->count();
+        
         $jumlahKriteria = Kriteria::count();
+        
         $jumlahPenilaian = Penilaian::whereHas('alternatif', $filterKelas)->count();
 
-        // === Tabel / ranking (sudah 1 baris per siswa, kolom TOTAL)
+        // === Tabel / ranking (filter per kelas)
         $nilaiAkhir = NilaiAkhir::query()
-            ->with(['alternatif:id,nis,nama_siswa,kelas'])
+            ->with(['alternatif:id,nis,nama_siswa,kelas,jk'])
             ->whereHas('alternatif', $filterKelas)
             ->orderByDesc('total')
             ->get(['id','alternatif_id','total','peringkat']);
 
-        // Top 5 untuk widget cepat (opsional)
-        $top5 = NilaiAkhir::query()
-            ->with(['alternatif:id,nis,nama_siswa,kelas'])
-            ->whereHas('alternatif', $filterKelas)
-            ->orderByDesc('total')
-            ->limit(5)
-            ->get(['id','alternatif_id','total','peringkat']);
+        // Recalculate ranking untuk kelas yang difilter
+        $rank = 1;
+        foreach ($nilaiAkhir as $row) {
+            $row->peringkat_kelas = $rank++;
+        }
+
+        // Top 5 untuk widget cepat
+        $top5 = $nilaiAkhir->take(5);
 
         // === Data untuk chart (labels & series)
         $chartLabels = [];
         $chartSeries = [];
-        foreach ($nilaiAkhir as $row) {
+        foreach ($nilaiAkhir->take(10) as $row) {
             $chartLabels[] = $row->alternatif->nama_siswa ?? ('Siswa '.$row->alternatif_id);
             $chartSeries[] = round((float) $row->total, 3);
         }
+
+        // Get list kelas untuk dropdown
+        $kelasList = ['6A', '6B', '6C', '6D'];
 
         return view('dashboard.index', compact(
             'title',
@@ -58,20 +77,43 @@ class DashboardController extends Controller
             'nilaiAkhir',
             'top5',
             'chartLabels',
-            'chartSeries'
+            'chartSeries',
+            'kelasFilter',
+            'kelasList'
         ));
     }
 
-    public function hasilAkhir()
+    public function hasilAkhir(Request $request)
     {
         $title = 'Hasil Akhir';
         $user = Auth::user();
         
-        // Filter untuk wali kelas
-        $nilaiAkhir = NilaiAkhir::with('alternatif')   // penting untuk ->alternatif
-        ->orderByDesc('total')
-        ->get();    
+        // Get filter kelas
+        $kelasFilter = $request->get('kelas', 'all');
+        
+        // Force filter untuk wali kelas
+        if ($user && $user->role === 'wali_kelas') {
+            $kelasFilter = $user->kelas;
+        }
+        
+        // Query dengan filter
+        $nilaiAkhir = NilaiAkhir::with('alternatif')
+            ->when($kelasFilter && $kelasFilter !== 'all', function($q) use ($kelasFilter) {
+                $q->whereHas('alternatif', function($query) use ($kelasFilter) {
+                    $query->where('kelas', $kelasFilter);
+                });
+            })
+            ->orderByDesc('total')
+            ->get();
+        
+        // Recalculate ranking untuk kelas yang difilter
+        $rank = 1;
+        foreach ($nilaiAkhir as $row) {
+            $row->peringkat_kelas = $rank++;
+        }
+        
+        $kelasList = ['6A', '6B', '6C', '6D'];
 
-        return view('dashboard.hasil-akhir.index', compact('title', 'nilaiAkhir'));
+        return view('dashboard.hasil-akhir.index', compact('title', 'nilaiAkhir', 'kelasFilter', 'kelasList'));
     }
 }

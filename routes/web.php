@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/kriteria/edit', [KriteriaController::class, 'edit'])->name('kriteria.edit');
         Route::post('/kriteria/update', [KriteriaController::class, 'update'])->name('kriteria.update');
         Route::post('/kriteria/delete', [KriteriaController::class, 'delete'])->name('kriteria.delete');
+        Route::get('/pdf/hasil-akhir', [PDFController::class, 'pdf_hasil'])->name('pdf.hasilAkhir');
         Route::get('/spk/proses', [KriteriaController::class, 'proses'])->name('spk.proses');
     });
 

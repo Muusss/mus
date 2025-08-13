@@ -4,13 +4,29 @@
 <div class="container-fluid">
     <div class="row mb-3">
         <div class="col-12">
-            <h3>Perhitungan Metode ROC + SMART</h3>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
-                    <li class="breadcrumb-item active">Perhitungan</li>
-                </ol>
-            </nav>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3>Perhitungan Metode ROC + SMART</h3>
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Perhitungan</li>
+                        </ol>
+                    </nav>
+                </div>
+                
+                {{-- Tombol Proses ROC + SMART --}}
+                @if(auth()->user()->role === 'admin')
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" onclick="prosesROCSMART()">
+                        <i class="bi bi-calculator"></i> Proses ROC + SMART
+                    </button>
+                    <a href="{{ route('pdf.hasilAkhir') }}" target="_blank" class="btn btn-danger">
+                        <i class="bi bi-file-pdf"></i> Cetak PDF
+                    </a>
+                </div>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -42,6 +58,22 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alert Info -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <h5 class="alert-heading"><i class="bi bi-info-circle"></i> Informasi Perhitungan</h5>
+                <p class="mb-0">Klik tombol <strong>"Proses ROC + SMART"</strong> untuk menghitung ulang:</p>
+                <ul class="mb-0 mt-2">
+                    <li>Bobot kriteria dengan metode ROC (Rank Order Centroid)</li>
+                    <li>Normalisasi nilai dengan metode SMART</li>
+                    <li>Nilai akhir dan perankingan siswa</li>
+                </ul>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         </div>
     </div>
@@ -100,8 +132,7 @@
                     <div class="formula-box">
                         <h6>Rumus Rank Order Centroid:</h6>
                         <div class="text-center my-3">
-                            <img src="https://latex.codecogs.com/svg.latex?W_m%20=%20\frac{1}{m}\sum_{i=m}^{n}\frac{1}{i}" 
-                                 alt="ROC Formula" class="img-fluid">
+                            <code>W_m = (1/m) × Σ(1/i)</code>
                         </div>
                         <p class="small">Dimana:</p>
                         <ul class="small">
@@ -199,12 +230,33 @@
                                 @endforeach
                             </tr>
                         </thead>
-                        <x-nilai-table
-                            :alternatif="$alternatif"
-                            :kriteria="$kriteria"
-                            :data="$nilaiUtility"
-                            :show-total="false"
-                        />
+                        <tbody>
+                            @foreach ($alternatif as $alt)
+                                @php
+                                    $rows = $nilaiUtility->where('alternatif_id', $alt->id);
+                                    $nilaiPerKrit = [];
+                                    foreach ($kriteria as $krit) {
+                                        $rec = $rows->firstWhere('kriteria_id', $krit->id);
+                                        $nilaiPerKrit[$krit->id] = $rec->nilai ?? null;
+                                    }
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <p class="text-left align-middle text-base font-semibold leading-tight">
+                                            {{ $alt->nama_siswa }}
+                                        </p>
+                                    </td>
+                                    @foreach ($kriteria as $krit)
+                                        @php $v = $nilaiPerKrit[$krit->id]; @endphp
+                                        <td class="text-center">
+                                            <p class="align-middle text-base font-semibold leading-tight">
+                                                {{ $v === null ? '-' : number_format((float)$v, 3) }}
+                                            </p>
+                                        </td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -229,87 +281,57 @@
                                 <th class="text-center">Total</th>
                             </tr>
                         </thead>
-                        <x-nilai-table
-                            :alternatif="$alternatif"
-                            :kriteria="$kriteria"
-                            :data="$nilaiAkhir"
-                            :show-total="true"
-                        />
+                        <tbody>
+                            @foreach ($alternatif as $alt)
+                                @php
+                                    $rows = $nilaiAkhir->where('alternatif_id', $alt->id);
+                                    $nilaiPerKrit = [];
+                                    $total = 0;
+                                    foreach ($kriteria as $krit) {
+                                        $rec = $rows->firstWhere('kriteria_id', $krit->id);
+                                        $nilaiPerKrit[$krit->id] = $rec->nilai ?? null;
+                                        $total += ($rec->nilai ?? 0);
+                                    }
+                                @endphp
+                                <tr>
+                                    <td>
+                                        <p class="text-left align-middle text-base font-semibold leading-tight">
+                                            {{ $alt->nama_siswa }}
+                                        </p>
+                                    </td>
+                                    @foreach ($kriteria as $krit)
+                                        @php $v = $nilaiPerKrit[$krit->id]; @endphp
+                                        <td class="text-center">
+                                            <p class="align-middle text-base font-semibold leading-tight">
+                                                {{ $v === null ? '-' : number_format((float)$v, 3) }}
+                                            </p>
+                                        </td>
+                                    @endforeach
+                                    <td class="text-center">
+                                        <p class="align-middle text-base font-bold leading-tight">
+                                            {{ number_format($total, 3) }}
+                                        </p>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Hasil Perhitungan -->
+    <!-- Link ke Hasil Akhir -->
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-warning">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">5. Hasil Akhir (ROC × SMART)</h5>
-                        <button class="btn btn-success btn-sm" onclick="hitungUlang()">
-                            <i class="bi bi-calculator"></i> Hitung Ulang
-                        </button>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="tblHasil" class="table table-striped">
-                            <thead>
-                                <tr>
-                                    <th>Peringkat</th>
-                                    <th>NIS</th>
-                                    <th>Nama Siswa</th>
-                                    <th>Kelas</th>
-                                    @foreach($kriteria as $k)
-                                        <th class="text-center">{{ $k->kode }}</th>
-                                    @endforeach
-                                    <th class="text-center">Total</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach($hasil as $h)
-                                <tr class="{{ $loop->iteration <= 3 ? 'table-success' : '' }}">
-                                    <td>
-                                        <span class="badge bg-{{ $loop->iteration == 1 ? 'warning text-dark' : 'info' }}">
-                                            {{ $h->peringkat }}
-                                        </span>
-                                    </td>
-                                    <td>{{ $h->alternatif->nis }}</td>
-                                    <td><strong>{{ $h->alternatif->nama_siswa }}</strong></td>
-                                    <td>{{ $h->alternatif->kelas }}</td>
-                                    @foreach($kriteria as $k)
-                                        @php
-                                            $nilai = $penilaian->where('alternatif_id', $h->alternatif_id)
-                                                              ->where('kriteria_id', $k->id)
-                                                              ->first();
-                                            $nilaiAkhir = $nilai ? ($nilai->nilai_normal * $k->bobot_roc) : 0;
-                                        @endphp
-                                        <td class="text-center small">
-                                            {{ number_format($nilaiAkhir, 3) }}
-                                        </td>
-                                    @endforeach
-                                    <td class="text-center">
-                                        <span class="badge bg-primary">
-                                            {{ number_format($h->total, 4) }}
-                                        </span>
-                                    </td>
-                                    <td>
-                                        @if($loop->iteration == 1)
-                                            <span class="badge bg-success">Siswa Teladan</span>
-                                        @elseif($loop->iteration <= 3)
-                                            <span class="badge bg-info">Nominasi</span>
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
-                                </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
+            <div class="card bg-light">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-trophy-fill text-warning" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3">Lihat Hasil Akhir Perankingan</h4>
+                    <p class="text-muted">Hasil perhitungan telah selesai. Klik tombol di bawah untuk melihat perankingan siswa teladan.</p>
+                    <a href="{{ route('hasil-akhir') }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-arrow-right-circle"></i> Lihat Hasil Akhir
+                    </a>
                 </div>
             </div>
         </div>
@@ -317,34 +339,7 @@
 </div>
 @endsection
 
-@section('js')
-<script>
-function hitungUlang() {
-    Swal.fire({
-        title: 'Hitung Ulang?',
-        text: "Proses ini akan menghitung ulang semua nilai!",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#28a745',
-        cancelButtonColor: '#dc3545',
-        confirmButtonText: 'Ya, Hitung!',
-        cancelButtonText: 'Batal'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = "{{ route('perhitungan.smart') }}";
-        }
-    });
-}
-
-$(document).ready(function() {
-    $('#tblHasil').DataTable({
-        responsive: true,
-        pageLength: 25,
-        order: [[0, 'asc']]
-    });
-});
-</script>
-
+@section('css')
 <style>
 .steps-progress {
     display: flex;
@@ -406,4 +401,87 @@ $(document).ready(function() {
     border-radius: 8px;
 }
 </style>
+@endsection
+
+@section('js')
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function prosesROCSMART() {
+    Swal.fire({
+        title: 'Proses ROC + SMART',
+        html: `
+            <div class="text-start">
+                <p>Proses ini akan menghitung ulang:</p>
+                <ul>
+                    <li>Bobot kriteria dengan metode ROC</li>
+                    <li>Normalisasi nilai dengan metode SMART</li>
+                    <li>Nilai akhir dan perankingan</li>
+                </ul>
+                <p class="text-warning mt-3"><strong>Perhatian:</strong> Proses ini akan memperbarui semua nilai!</p>
+            </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#28a745',
+        cancelButtonColor: '#dc3545',
+        confirmButtonText: 'Ya, Proses!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Tampilkan loading
+            Swal.fire({
+                title: 'Memproses...',
+                html: 'Sedang menghitung ROC + SMART, harap tunggu...',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Submit form POST ke route perhitungan.smart
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("perhitungan.smart") }}';
+            
+            var token = document.createElement('input');
+            token.type = 'hidden';
+            token.name = '_token';
+            token.value = '{{ csrf_token() }}';
+            form.appendChild(token);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
+
+$(document).ready(function() {
+    // Cek jika ada session success
+    @if(session('success'))
+        Swal.fire({
+            title: 'Berhasil!',
+            text: '{{ session("success") }}',
+            icon: 'success',
+            confirmButtonColor: '#28a745'
+        });
+    @endif
+    
+    $('#tblHasil').DataTable({
+        responsive: true,
+        pageLength: 25,
+        order: [[0, 'asc']],
+        language: {
+            search: "Cari:",
+            lengthMenu: "Tampilkan _MENU_ data",
+            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+            paginate: {
+                first: "Pertama",
+                last: "Terakhir",
+                next: "Selanjutnya",
+                previous: "Sebelumnya"
+            }
+        }
+    });
+});
+</script>
 @endsection

@@ -29,21 +29,31 @@ class AlternatifController extends Controller
     }
 
     /** LIST */
-    public function index(): View
+    public function index(Request $request): View
     {
         $title = 'Data Siswa';
         $user  = Auth::user();
-
-        $q = Alternatif::query();
-
-        // filter wali_kelas HANYA kalau kelas-nya terisi
+        
+        // Get filter kelas
+        $kelasFilter = $request->get('kelas', 'all');
+        
+        // Force filter untuk wali kelas
         if ($this->isWali($user) && $user->kelas) {
-            $q->where('kelas', $user->kelas);
+            $kelasFilter = $user->kelas;
         }
 
-        $alternatif = $q->orderBy('nis', 'asc')->get(); // <-- no named args
+        $q = Alternatif::query();
+        
+        // Apply filter
+        if ($kelasFilter && $kelasFilter !== 'all') {
+            $q->where('kelas', $kelasFilter);
+        }
 
-        return view('dashboard.alternatif.index', compact('title', 'alternatif'));
+        $alternatif = $q->orderBy('kelas', 'asc')->orderBy('nis', 'asc')->get();
+        
+        $kelasList = ['6A', '6B', '6C', '6D'];
+
+        return view('dashboard.alternatif.index', compact('title', 'alternatif', 'kelasFilter', 'kelasList'));
     }
 
     /** STORE */

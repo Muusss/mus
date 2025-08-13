@@ -231,6 +231,7 @@ class SMARTController extends Controller
         Penilaian::normalisasiSMART(null, $user);
         NilaiAkhir::hitungTotal(null, $user);
 
-        return to_route('perhitungan')->with('success', 'Perhitungan Metode ROC + SMART Berhasil Dilakukan');
+        // Redirect ke halaman perhitungan dengan pesan sukses
+        return redirect()->route('perhitungan')->with('success', 'Perhitungan Metode ROC + SMART Berhasil Dilakukan');
     }
 }
