@@ -16,8 +16,26 @@ class PenilaianController extends Controller
 {
     public function index(Request $request)
     {
-        $alternatif = Alternatif::orderBy('nis')->get();
-        $kriteria   = Kriteria::orderBy('kode')->get();
+        $user = Auth::user();
+        
+        // Get filter kelas
+        $kelasFilter = $request->get('kelas', 'all');
+        
+        // Force filter untuk wali kelas
+        if ($user && $user->role === 'wali_kelas' && $user->kelas) {
+            $kelasFilter = $user->kelas;
+        }
+        
+        // Get alternatif dengan filter kelas
+        $alternatif = Alternatif::query()
+            ->when($kelasFilter && $kelasFilter !== 'all', function($q) use ($kelasFilter) {
+                $q->where('kelas', $kelasFilter);
+            })
+            ->orderBy('kelas')
+            ->orderBy('nis')
+            ->get();
+            
+        $kriteria = Kriteria::orderBy('kode')->get();
         
         // Get periode aktif atau dari request
         $periodeId = $request->get('periode_id');
@@ -38,13 +56,19 @@ class PenilaianController extends Controller
                 ->with('error', 'Silakan aktifkan periode terlebih dahulu');
         }
 
-        // Filter penilaian berdasarkan periode
+        // Filter penilaian berdasarkan periode dan alternatif yang sudah difilter
+        $altIds = $alternatif->pluck('id')->toArray();
         $penilaian = Penilaian::where('periode_id', $periodeAktif->id)
+            ->whereIn('alternatif_id', $altIds)
             ->get()
             ->groupBy(['alternatif_id','kriteria_id']);
 
+        // Get list kelas untuk dropdown
+        $kelasList = ['6A', '6B', '6C', '6D'];
+
         return view('dashboard.penilaian.index', compact(
-            'alternatif','kriteria','penilaian','periodeAktif','periodes'
+            'alternatif','kriteria','penilaian','periodeAktif','periodes',
+            'kelasFilter','kelasList'
         ));
     }
 
@@ -96,6 +120,13 @@ class PenilaianController extends Controller
         }
         
         if (!$periodeAktif) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Silakan aktifkan periode terlebih dahulu'
+                ], 400);
+            }
+            
             return redirect()->route('periode')
                 ->with('error', 'Silakan aktifkan periode terlebih dahulu');
         }
@@ -105,6 +136,8 @@ class PenilaianController extends Controller
             'nilai_asli.*' => ['nullable','numeric','min:1','max:4'],
         ]);
 
+        $updatedValues = [];
+        
         foreach ($data['nilai_asli'] as $kriteriaId => $nilai) {
             if ($nilai !== null && $nilai !== '') {
                 Penilaian::updateOrCreate(
@@ -118,66 +151,99 @@ class PenilaianController extends Controller
                         'nilai_normal' => null // akan dihitung saat normalisasi
                     ]
                 );
+                
+                $updatedValues[$kriteriaId] = $nilai;
             }
+        }
+
+        // Check if request is AJAX
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Penilaian {$alternatif->nama_siswa} berhasil disimpan",
+                'data' => [
+                    'alternatif_id' => $alternatif->id,
+                    'values' => $updatedValues
+                ]
+            ]);
         }
 
         return redirect()->route('penilaian', ['periode_id' => $periodeAktif->id])
             ->with('success', "Penilaian {$alternatif->nama_siswa} untuk {$periodeAktif->nama_periode} berhasil disimpan.");
     }
 
-    public function store(PenilaianStoreRequest $request)
+    // Method untuk quick edit semua siswa dalam satu kelas
+    public function editKelas(Request $request)
     {
-        $periodeAktif = Periode::getActive();
+        $kelas = $request->get('kelas');
+        $periodeId = $request->get('periode_id');
+        
+        if (!$kelas) {
+            return redirect()->route('penilaian')->with('error', 'Kelas tidak valid');
+        }
+        
+        $periodeAktif = $periodeId ? Periode::find($periodeId) : Periode::getActive();
         
         if (!$periodeAktif) {
-            return back()->with('error', 'Silakan aktifkan periode terlebih dahulu');
+            return redirect()->route('periode')
+                ->with('error', 'Silakan aktifkan periode terlebih dahulu');
         }
-
-        [$subId, $skor] = $this->resolveSubAndSkor(
-            $request->input('kriteria_id'),
-            $request->input('nilai_angka'),
-            $request->input('sub_kriteria_id'),
-            $request->input('label')
-        );
-
-        if (!$subId || !$skor) {
-            return back()->with('error','Tidak menemukan sub kriteria yang cocok. Periksa input.');
-        }
-
-        $row = Penilaian::updateOrCreate(
-            [
-                'alternatif_id' => $request->input('alternatif_id'),
-                'kriteria_id'   => $request->input('kriteria_id'),
-                'periode_id'    => $periodeAktif->id
-            ],
-            [
-                'sub_kriteria_id' => $subId,
-                'nilai_asli'      => $skor,
-                'nilai_normal'    => null,
-            ]
-        );
-
-        return back()->with($row ? 'success' : 'error', 
-            $row ? 'Nilai tersimpan untuk ' . $periodeAktif->nama_periode : 'Gagal menyimpan nilai.');
+        
+        $alternatifs = Alternatif::where('kelas', $kelas)
+            ->orderBy('nis')
+            ->get();
+            
+        $kriteria = Kriteria::orderBy('kode')->get();
+        
+        // Get all penilaian for this class
+        $altIds = $alternatifs->pluck('id')->toArray();
+        $penilaians = Penilaian::where('periode_id', $periodeAktif->id)
+            ->whereIn('alternatif_id', $altIds)
+            ->get()
+            ->groupBy(['alternatif_id', 'kriteria_id']);
+        
+        return view('dashboard.penilaian.edit-kelas', compact(
+            'alternatifs', 'kriteria', 'penilaians', 'periodeAktif', 'kelas'
+        ));
     }
-
-    private function resolveSubAndSkor(int $kriteriaId, ?float $nilaiAngka, ?int $subId, ?string $label): array
+    
+    // Method untuk update semua nilai dalam satu kelas
+    public function updateKelas(Request $request)
     {
-        if ($subId) {
-            $sub = SubKriteria::where('kriteria_id',$kriteriaId)->where('id',$subId)->first();
-            return $sub ? [$sub->id, (int)$sub->skor] : [null, null];
+        $kelas = $request->get('kelas');
+        $periodeId = $request->get('periode_id');
+        
+        $periodeAktif = $periodeId ? Periode::find($periodeId) : Periode::getActive();
+        
+        if (!$periodeAktif) {
+            return redirect()->route('periode')
+                ->with('error', 'Silakan aktifkan periode terlebih dahulu');
         }
-
-        if ($label) {
-            $sub = SubKriteriaMatcher::matchByLabel($kriteriaId, $label);
-            return $sub ? [$sub->id, (int)$sub->skor] : [null, null];
+        
+        $data = $request->validate([
+            'nilai' => ['required', 'array'],
+            'nilai.*.*' => ['nullable', 'numeric', 'min:1', 'max:4'],
+        ]);
+        
+        foreach ($data['nilai'] as $alternatifId => $kriteriaValues) {
+            foreach ($kriteriaValues as $kriteriaId => $nilai) {
+                if ($nilai !== null && $nilai !== '') {
+                    Penilaian::updateOrCreate(
+                        [
+                            'alternatif_id' => $alternatifId,
+                            'kriteria_id' => $kriteriaId,
+                            'periode_id' => $periodeAktif->id
+                        ],
+                        [
+                            'nilai_asli' => $nilai,
+                            'nilai_normal' => null
+                        ]
+                    );
+                }
+            }
         }
-
-        if ($nilaiAngka !== null) {
-            $sub = SubKriteriaMatcher::matchNumeric($kriteriaId, (float)$nilaiAngka);
-            return $sub ? [$sub->id, (int)$sub->skor] : [null, null];
-        }
-
-        return [null, null];
+        
+        return redirect()->route('penilaian', ['kelas' => $kelas])
+            ->with('success', "Penilaian kelas {$kelas} berhasil disimpan.");
     }
 }

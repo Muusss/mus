@@ -1,5 +1,4 @@
 <?php
-// app/Http/Controllers/PDFController.php
 
 namespace App\Http\Controllers;
 
@@ -7,7 +6,7 @@ use App\Models\Alternatif;
 use App\Models\Kriteria;
 use App\Models\NilaiAkhir;
 use App\Models\Penilaian;
-use App\Models\SubKriteria;
+use App\Models\Periode;
 use Barryvdh\DomPDF\Facade\PDF;
 use Illuminate\Support\Facades\Auth;
 
@@ -31,17 +30,13 @@ class PDFController extends Controller
             $judul .= ' - Kelas ' . $kelasFilter;
         }
 
-        // Helper closure untuk filter kelas
-        $filterKelas = function($q) use ($kelasFilter) {
-            if ($kelasFilter && $kelasFilter !== 'all') {
-                $q->where('kelas', $kelasFilter);
-            }
-        };
-
+        // Get periode aktif
+        $periodeAktif = Periode::getActive();
+        
         // Data kriteria
         $kriteria = Kriteria::orderBy('urutan_prioritas')->get();
         
-        // Data alternatif
+        // Data alternatif dengan filter
         $alternatif = Alternatif::query()
             ->when($user && $user->role === 'wali_kelas', function($q) use ($user) {
                 $q->where('kelas', $user->kelas);
@@ -54,13 +49,20 @@ class PDFController extends Controller
         
         // Data penilaian dengan fix null handling
         $tabelPenilaian = Penilaian::with(['kriteria', 'subKriteria', 'alternatif'])
-            ->whereHas('alternatif', $filterKelas)
+            ->when($periodeAktif, function($q) use ($periodeAktif) {
+                $q->where('periode_id', $periodeAktif->id);
+            })
+            ->when($kelasFilter && $kelasFilter !== 'all', function($q) use ($kelasFilter) {
+                $q->whereHas('alternatif', function($query) use ($kelasFilter) {
+                    $query->where('kelas', $kelasFilter);
+                });
+            })
             ->get()
             ->map(function($item) {
                 return (object)[
                     'alternatif' => $item->alternatif,
                     'kriteria' => $item->kriteria,
-                    'sub_kriteria' => $item->subKriteria ? $item->subKriteria->label : 'Nilai: ' . $item->nilai_asli,
+                    'sub_kriteria' => $item->subKriteria ? $item->subKriteria->label : null,
                     'nilai_asli' => $item->nilai_asli,
                     'nilai_normal' => $item->nilai_normal
                 ];
@@ -70,6 +72,9 @@ class PDFController extends Controller
         $tabelPerankingan = NilaiAkhir::query()
             ->join('alternatifs as a', 'a.id', '=', 'nilai_akhirs.alternatif_id')
             ->selectRaw("a.nis as kode, a.nama_siswa as alternatif, nilai_akhirs.total as nilai")
+            ->when($periodeAktif, function($q) use ($periodeAktif) {
+                $q->where('nilai_akhirs.periode_id', $periodeAktif->id);
+            })
             ->when($kelasFilter && $kelasFilter !== 'all', function($q) use ($kelasFilter) {
                 $q->where('a.kelas', $kelasFilter);
             })
@@ -81,12 +86,12 @@ class PDFController extends Controller
             'nama' => 'SDIT As Sunnah Cirebon',
             'alamat' => 'Jl. Pendidikan No. 123, Cirebon',
             'tahun_ajaran' => date('Y') . '/' . (date('Y') + 1),
-            'semester' => 'Ganjil'
+            'semester' => $periodeAktif ? ($periodeAktif->semester == 1 ? 'Ganjil' : 'Genap') : 'Ganjil'
         ];
         
         // Info tambahan
         $tanggal_cetak = now()->format('d F Y');
-        $kelas_filter = ($user && $user->role === 'wali_kelas') ? $user->kelas : 'Semua Kelas';
+        $kelas_filter = ($kelasFilter && $kelasFilter !== 'all') ? 'Kelas ' . $kelasFilter : 'Semua Kelas';
 
         // Generate PDF
         $pdf = PDF::setOptions([
@@ -106,6 +111,13 @@ class PDFController extends Controller
         ));
 
         $pdf->setPaper('A4', 'portrait');
-        return $pdf->stream('Laporan_Siswa_Teladan_' . date('Y-m-d') . '.pdf');
+        
+        $filename = 'Laporan_Siswa_Teladan';
+        if ($kelasFilter && $kelasFilter !== 'all') {
+            $filename .= '_Kelas_' . $kelasFilter;
+        }
+        $filename .= '_' . date('Y-m-d') . '.pdf';
+        
+        return $pdf->stream($filename);
     }
 }

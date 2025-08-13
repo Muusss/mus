@@ -1,4 +1,3 @@
-{{-- resources/views/dashboard/pdf/hasil_akhir.blade.php --}}
 <!DOCTYPE html>
 <html>
 <head>
@@ -6,7 +5,7 @@
     <title>{{ $judul }}</title>
     <style>
         @page {
-            margin: 2cm; /* Margin untuk semua sisi */
+            margin: 2cm;
         }
         
         * {
@@ -105,17 +104,13 @@
         }
         
         table td {
-            padding: 6px 8px; /* Tambah padding horizontal */
+            padding: 6px 8px;
             font-size: 10pt;
             border: 1px solid #ddd;
         }
         
         table tbody tr:nth-child(even) {
             background-color: #f9f9f9;
-        }
-        
-        table tbody tr:hover {
-            background-color: #f5f5f5;
         }
         
         /* Special Rows */
@@ -165,7 +160,7 @@
             width: 33%;
             text-align: center;
             vertical-align: top;
-            padding: 0 10px; /* Tambah padding horizontal */
+            padding: 0 10px;
         }
         
         .signature-box p {
@@ -271,30 +266,35 @@
                 <th width="12%">NIS</th>
                 <th width="30%">Nama Siswa</th>
                 <th width="10%">Kelas</th>
-                <th width="8%">JK</th>
                 <th width="12%">Nilai Total</th>
                 <th width="20%">Keterangan</th>
             </tr>
         </thead>
         <tbody>
+            @php $rank = 1; @endphp
             @foreach($tabelPerankingan as $item)
-            <tr class="{{ $item->peringkat == 1 ? 'ranking-1' : ($item->peringkat == 2 ? 'ranking-2' : ($item->peringkat == 3 ? 'ranking-3' : '')) }}">
-                <td class="text-center font-bold">{{ $item->peringkat }}</td>
-                <td class="text-center">{{ $item->nis }}</td>
-                <td>{{ $item->nama_siswa }}</td>
-                <td class="text-center">{{ $item->kelas }}</td>
-                <td class="text-center">{{ $item->jk }}</td>
+            <tr class="{{ $rank == 1 ? 'ranking-1' : ($rank == 2 ? 'ranking-2' : ($rank == 3 ? 'ranking-3' : '')) }}">
+                <td class="text-center font-bold">{{ $rank }}</td>
+                <td class="text-center">{{ $item->kode }}</td>
+                <td>{{ $item->alternatif }}</td>
+                <td class="text-center">
+                    @php
+                        $siswa = $alternatif->where('nis', $item->kode)->first();
+                    @endphp
+                    {{ $siswa ? $siswa->kelas : '-' }}
+                </td>
                 <td class="text-center font-bold">{{ number_format($item->nilai, 4) }}</td>
                 <td class="text-center">
-                    @if($item->peringkat == 1)
+                    @if($rank == 1)
                         <strong>SISWA TELADAN</strong>
-                    @elseif($item->peringkat <= 3)
+                    @elseif($rank <= 3)
                         Nominasi
                     @else
                         Partisipan
                     @endif
                 </td>
             </tr>
+            @php $rank++; @endphp
             @endforeach
         </tbody>
     </table>
@@ -310,15 +310,18 @@
             <table style="border: none; margin: 0;">
                 <tr>
                     <td style="border: none; width: 120px;"><strong>Nama</strong></td>
-                    <td style="border: none;">: {{ $tabelPerankingan->first()->nama_siswa }}</td>
+                    <td style="border: none;">: {{ $tabelPerankingan->first()->alternatif }}</td>
                 </tr>
                 <tr>
                     <td style="border: none;"><strong>NIS</strong></td>
-                    <td style="border: none;">: {{ $tabelPerankingan->first()->nis }}</td>
+                    <td style="border: none;">: {{ $tabelPerankingan->first()->kode }}</td>
                 </tr>
                 <tr>
                     <td style="border: none;"><strong>Kelas</strong></td>
-                    <td style="border: none;">: {{ $tabelPerankingan->first()->kelas }}</td>
+                    @php
+                        $siswaTerbaik = $alternatif->where('nis', $tabelPerankingan->first()->kode)->first();
+                    @endphp
+                    <td style="border: none;">: {{ $siswaTerbaik ? $siswaTerbaik->kelas : '-' }}</td>
                 </tr>
                 <tr>
                     <td style="border: none;"><strong>Nilai Total</strong></td>
@@ -359,7 +362,15 @@
                                               ->first();
                     @endphp
                     <td class="text-center" style="font-size: 9pt;">
-                        {{ $nilai ? $nilai->sub_kriteria : '-' }}
+                        @if($nilai)
+                            @if($nilai->sub_kriteria)
+                                {{ $nilai->sub_kriteria }}
+                            @else
+                                {{ $nilai->nilai_asli ?? '-' }}
+                            @endif
+                        @else
+                            -
+                        @endif
                     </td>
                 @endforeach
             </tr>
@@ -381,7 +392,7 @@
                 <p>&nbsp;</p>
                 <p>Wali Kelas</p>
                 <div class="signature-line"></div>
-                <p class="font-bold">{{ $user->name ?? '(.................................)' }}</p>
+                <p class="font-bold">(.................................)</p>
                 <p>NIP. </p>
             </div>
             <div class="signature-box">

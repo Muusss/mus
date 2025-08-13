@@ -139,7 +139,7 @@ class AlternatifController extends Controller
         Penilaian::normalisasiSMART($periodeAktif->id, Auth::user());
         NilaiAkhir::hitungTotal($periodeAktif->id, Auth::user());
 
-        return to_route('alternatif')->with('success', 
+        return redirect()->route('alternatif')->with('success', 
             "Perhitungan ROC + SMART untuk {$periodeAktif->nama_periode} selesai");
     }
 
