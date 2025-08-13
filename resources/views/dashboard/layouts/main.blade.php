@@ -116,6 +116,18 @@
             justify-content: center;
         }
 
+        .logo-container .logo-img{
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            display: block;
+        }
+
+        /* Perbesar logo saat sidebar collapse */
+        .sidebar.collapsed .logo-section { min-height: 88px; }
+        .sidebar.collapsed .logo-container { width: 68px; height: 68px; }
+
         .sidebar .logo-section .logo-container {
             width: 60px;
             height: 60px;
@@ -438,7 +450,7 @@
         <nav class="sidebar" id="sidebar">
             <div class="logo-section">
                 <div class="logo-container">
-                    <i class="bi bi-mortarboard-fill text-primary" style="font-size: 2rem;"></i>
+                    <img src="{{ asset('logo-yac.png') }}" alt="Logo YAC" class="logo-img">
                 </div>
                 <div class="logo-text">SPK SDIT As Sunnah</div>
             </div>
