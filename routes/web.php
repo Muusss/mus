@@ -74,7 +74,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/', [PenilaianController::class, 'index'])->name('penilaian');
         Route::get('/{id}/ubah', [PenilaianController::class, 'edit'])->name('penilaian.edit');
         Route::post('/{id}/ubah', [PenilaianController::class, 'update'])->name('penilaian.update');
-        Route::post('/impor', [PenilaianController::class, 'import'])->name('penilaian.import');
+        
+        // Route baru untuk edit kelas
+        Route::get('/kelas/edit', [PenilaianController::class, 'editKelas'])->name('penilaian.editKelas');
+        Route::post('/kelas/update', [PenilaianController::class, 'updateKelas'])->name('penilaian.updateKelas');
     });
 
 

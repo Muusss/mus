@@ -173,6 +173,7 @@ class PenilaianController extends Controller
     }
 
     // Method untuk quick edit semua siswa dalam satu kelas
+    // Method untuk edit semua siswa dalam satu kelas
     public function editKelas(Request $request)
     {
         $kelas = $request->get('kelas');
@@ -206,7 +207,7 @@ class PenilaianController extends Controller
             'alternatifs', 'kriteria', 'penilaians', 'periodeAktif', 'kelas'
         ));
     }
-    
+
     // Method untuk update semua nilai dalam satu kelas
     public function updateKelas(Request $request)
     {

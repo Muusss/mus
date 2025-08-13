@@ -64,6 +64,21 @@
 </div>
 @endif
 
+<!-- Tambahkan di atas tabel -->
+<div class="card mb-3">
+    <div class="card-body">
+        <h6>Quick Edit per Kelas:</h6>
+        <div class="btn-group" role="group">
+            @foreach($kelasList as $kls)
+                <a href="{{ route('penilaian.editKelas', ['kelas' => $kls, 'periode_id' => $periodeAktif->id]) }}" 
+                   class="btn btn-outline-primary">
+                    <i class="bi bi-pencil-square"></i> Edit Kelas {{ $kls }}
+                </a>
+            @endforeach
+        </div>
+    </div>
+</div>
+
 <div class="card">
     <div class="card-body">
         <div class="table-responsive">
