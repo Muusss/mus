@@ -19,20 +19,26 @@
     <!-- SweetAlert2 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     
-    <!-- Custom CSS -->
+    <!-- Custom CSS dengan Tema Hitam-Orange -->
     <style>
         :root {
             --sidebar-width: 250px;
             --sidebar-collapsed-width: 80px;
-            --primary-color: #4e73df;
-            --primary-dark: #2e59d9;
-            --secondary-color: #858796;
+            /* Ubah warna primary ke orange */
+            --primary-color: #ff6b35;
+            --primary-dark: #e55100;
+            --primary-light: #ff8c5a;
+            /* Warna sekunder dan pendukung */
+            --secondary-color: #2c2c2c;
+            --dark-color: #1a1a1a;
+            --darker-color: #0d0d0d;
             --success-color: #1cc88a;
             --info-color: #36b9cc;
             --warning-color: #f6c23e;
             --danger-color: #e74a3b;
             --light-color: #f8f9fc;
-            --dark-color: #2c3e50;
+            --text-light: #ffffff;
+            --text-muted: #858796;
         }
 
         * {
@@ -55,15 +61,16 @@
             position: relative;
         }
 
-        /* Sidebar Styles */
+        /* Sidebar Styles dengan tema hitam-orange */
         .sidebar {
             position: fixed;
             top: 0;
             left: 0;
             height: 100vh;
             width: var(--sidebar-width);
-            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            /* Gradient hitam ke dark grey */
+            background: linear-gradient(180deg, var(--dark-color) 0%, var(--darker-color) 100%);
+            box-shadow: 0 0 20px rgba(0,0,0,0.3);
             z-index: 1000;
             transition: all 0.3s ease;
             overflow-y: auto;
@@ -114,19 +121,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            background: var(--primary-color);
         }
-
-        .logo-container .logo-img{
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border-radius: 8px;
-            display: block;
-        }
-
-        /* Perbesar logo saat sidebar collapse */
-        .sidebar.collapsed .logo-section { min-height: 88px; }
-        .sidebar.collapsed .logo-container { width: 68px; height: 68px; }
 
         .sidebar .logo-section .logo-container {
             width: 60px;
@@ -138,6 +134,16 @@
             justify-content: center;
             margin-bottom: 10px;
             padding: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+        }
+
+        .logo-container .logo-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            max-width: 100%;
+            max-height: 100%;
         }
 
         .sidebar .logo-section .logo-text {
@@ -151,6 +157,16 @@
 
         .sidebar.collapsed .logo-section .logo-text {
             display: none;
+        }
+
+        /* Perbesar logo saat sidebar collapse */
+        .sidebar.collapsed .logo-section { 
+            min-height: 88px; 
+        }
+        
+        .sidebar.collapsed .logo-container { 
+            width: 68px; 
+            height: 68px; 
         }
 
         .sidebar-menu {
@@ -188,14 +204,14 @@
 
         .sidebar-menu .nav-link:hover {
             color: white;
-            background-color: rgba(255,255,255,0.1);
-            border-left-color: white;
+            background-color: rgba(255, 107, 53, 0.2);
+            border-left-color: var(--primary-color);
         }
 
         .sidebar-menu .nav-link.active {
             color: white;
-            background-color: rgba(255,255,255,0.15);
-            border-left-color: white;
+            background-color: rgba(255, 107, 53, 0.3);
+            border-left-color: var(--primary-color);
         }
 
         .sidebar-menu .nav-link i {
@@ -204,6 +220,12 @@
             text-align: center;
             margin-right: 10px;
             flex-shrink: 0;
+            color: var(--primary-light);
+        }
+
+        .sidebar-menu .nav-link.active i,
+        .sidebar-menu .nav-link:hover i {
+            color: var(--primary-color);
         }
 
         .sidebar-menu .nav-link span {
@@ -223,7 +245,7 @@
             content: attr(data-tooltip);
             position: absolute;
             left: 100%;
-            background: rgba(0,0,0,0.8);
+            background: var(--dark-color);
             color: white;
             padding: 5px 10px;
             border-radius: 4px;
@@ -231,6 +253,7 @@
             font-size: 0.875rem;
             margin-left: 10px;
             z-index: 1000;
+            border: 1px solid var(--primary-color);
         }
 
         /* Main Content Wrapper */
@@ -258,6 +281,7 @@
             position: sticky;
             top: 0;
             z-index: 999;
+            border-bottom: 3px solid var(--primary-color);
         }
 
         .topbar .toggle-sidebar {
@@ -321,6 +345,7 @@
         .content-area {
             padding: 1.5rem;
             flex: 1;
+            background: #f5f5f5;
         }
 
         @media (max-width: 576px) {
@@ -329,7 +354,7 @@
             }
         }
 
-        /* Cards Responsive */
+        /* Cards dengan tema orange */
         .stat-card {
             background: white;
             border-radius: 15px;
@@ -345,7 +370,29 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.15);
         }
 
-        /* Tables Responsive */
+        .stat-card.primary {
+            border-left-color: var(--primary-color);
+        }
+
+        .stat-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .stat-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .stat-card.info {
+            border-left-color: var(--info-color);
+        }
+
+        .stat-card .icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+            opacity: 0.8;
+        }
+
+        /* Tables */
         .table-responsive {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -366,18 +413,70 @@
             }
         }
 
-        /* DataTables Responsive Override */
+        /* DataTables styling */
+        table.dataTable thead {
+            background: var(--dark-color);
+            color: white;
+        }
+
+        table.dataTable thead th {
+            border-bottom: 2px solid var(--primary-color);
+        }
+
         table.dataTable.dtr-inline.collapsed > tbody > tr > td.dtr-control:before,
         table.dataTable.dtr-inline.collapsed > tbody > tr > th.dtr-control:before {
             background-color: var(--primary-color);
         }
 
-        /* Footer Responsive */
+        /* Buttons dengan tema orange */
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Badges */
+        .badge.bg-primary {
+            background-color: var(--primary-color) !important;
+        }
+
+        .badge.bg-secondary {
+            background-color: var(--secondary-color) !important;
+        }
+
+        .badge.bg-dark {
+            background-color: var(--dark-color) !important;
+        }
+
+        /* Alerts */
+        .alert-primary {
+            background-color: rgba(255, 107, 53, 0.1);
+            border-color: var(--primary-color);
+            color: var(--primary-dark);
+        }
+
+        /* Footer */
         .footer {
-            background: white;
+            background: var(--dark-color);
+            color: white;
             padding: 1.5rem 2rem;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
             margin-top: auto;
+            border-top: 3px solid var(--primary-color);
         }
 
         @media (max-width: 768px) {
@@ -389,46 +488,6 @@
                 flex-direction: column;
                 text-align: center;
             }
-            
-            .footer-left,
-            .footer-right {
-                width: 100%;
-                margin-bottom: 1rem;
-            }
-            
-            .footer-links {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-        }
-
-        /* Utility Classes */
-        .text-truncate-mobile {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 150px;
-        }
-
-        @media (min-width: 576px) {
-            .text-truncate-mobile {
-                max-width: none;
-            }
-        }
-
-        /* Fix Bootstrap Modal on Mobile */
-        .modal-dialog {
-            margin: 1rem;
-        }
-
-        @media (max-width: 576px) {
-            .modal-dialog {
-                margin: 0.5rem;
-            }
-            
-            .modal-content {
-                border-radius: 10px;
-            }
         }
 
         /* Loading Spinner */
@@ -437,6 +496,47 @@
             justify-content: center;
             align-items: center;
             min-height: 200px;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Form controls dengan tema orange */
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
+        }
+
+        /* Progress bars */
+        .progress-bar {
+            background-color: var(--primary-color);
+        }
+
+        /* SweetAlert2 custom theme */
+        .swal2-confirm {
+            background-color: var(--primary-color) !important;
+            border-color: var(--primary-color) !important;
+        }
+
+        .swal2-confirm:hover {
+            background-color: var(--primary-dark) !important;
+            border-color: var(--primary-dark) !important;
         }
     </style>
     @yield('css')
@@ -450,7 +550,27 @@
         <nav class="sidebar" id="sidebar">
             <div class="logo-section">
                 <div class="logo-container">
-                    <img src="{{ asset('logo-yac.png') }}" alt="Logo YAC" class="logo-img">
+                    @php
+                        $logoPath = null;
+                        $logoFiles = ['logo-yac.png', 'logo.png', 'logo.jpg', 'logo-sekolah.png'];
+                        
+                        foreach($logoFiles as $file) {
+                            if(file_exists(public_path($file))) {
+                                $logoPath = $file;
+                                break;
+                            }
+                        }
+                    @endphp
+                    
+                    @if($logoPath)
+                        <img src="{{ asset($logoPath) }}" 
+                             alt="Logo SDIT As Sunnah" 
+                             class="logo-img"
+                             onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'bi bi-mortarboard-fill\' style=\'font-size: 2rem; color: var(--primary-color);\'></i>';">
+                    @else
+                        <!-- Fallback icon jika tidak ada logo -->
+                        <i class="bi bi-mortarboard-fill" style="font-size: 2rem; color: var(--primary-color);"></i>
+                    @endif
                 </div>
                 <div class="logo-text">SPK SDIT As Sunnah</div>
             </div>
@@ -471,7 +591,8 @@
                 
                 @if(auth()->user()->role === 'admin')
                 <div class="nav-item">
-                    <a href="{{ route('users') }}" class="nav-link {{ request()->routeIs('users*') ? 'active' : '' }}">
+                    <a href="{{ route('users') }}" class="nav-link {{ request()->routeIs('users*') ? 'active' : '' }}"
+                       data-tooltip="Data User">
                         <i class="bi bi-people-fill"></i>
                         <span>Data User</span>
                     </a>
@@ -584,7 +705,7 @@
                         @if(auth()->user()->role === 'wali_kelas')
                             <span class="badge bg-info ms-2">Wali {{ auth()->user()->kelas }}</span>
                         @elseif(auth()->user()->role === 'admin')
-                            <span class="badge bg-danger ms-2">Admin</span>
+                            <span class="badge bg-dark ms-2">Admin</span>
                         @endif
                     </span>
                     <div class="user-avatar">
@@ -620,7 +741,7 @@
                     <div class="text-center">
                         <strong>© {{ date('Y') }} SPK SDIT As Sunnah Cirebon</strong>
                         <br>
-                        <small class="text-muted">
+                        <small style="color: var(--primary-light);">
                             Metode ROC & SMART | Laravel v{{ Illuminate\Foundation\Application::VERSION }}
                         </small>
                     </div>
