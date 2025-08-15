@@ -66,10 +66,9 @@
         {{-- Panel Kiri - Hidden on Mobile --}}
         <section class="hidden lg:flex flex-col justify-between bg-gradient-dark p-12 text-white">
             <div class="flex items-center gap-3">
-                <div class="h-12 w-12 rounded-lg bg-gradient-orange flex items-center justify-center">
-                    <svg class="h-8 w-8 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
-                    </svg>
+                <div class="h-16 w-16 rounded-lg bg-gradient-orange flex items-center justify-center">
+                    <!-- Logo Sekolah -->
+                    <img src="{{ asset('img/logo-yac.png') }}" alt="Logo Sekolah" class="h-12 w-12 object-cover">
                 </div>
                 <div>
                     <div class="text-lg font-bold">SPK SDIT As Sunnah</div>
@@ -109,15 +108,13 @@
             <p class="text-sm text-gray-500">© {{ date('Y') }} - SDIT As Sunnah Cirebon</p>
         </section>
 
-        {{-- Panel Kanan - Full Width on Mobile --}}
+        {{-- Panel Kanan --}}
         <section class="flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 login-container">
             <div class="w-full max-w-md">
                 {{-- Mobile Logo --}}
                 <div class="lg:hidden text-center mb-8">
                     <div class="h-20 w-20 mx-auto rounded-2xl bg-gradient-orange flex items-center justify-center mb-4">
-                        <svg class="h-12 w-12 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
-                        </svg>
+                        <img src="{{ asset('img/logo-sekolah.png') }}" alt="Logo Sekolah" class="h-12 w-12 object-cover">
                     </div>
                     <h4 class="text-xl font-bold text-gray-800">SPK SDIT As Sunnah</h4>
                     <p class="text-sm text-gray-600">Sistem Penilaian Siswa Teladan</p>
@@ -174,36 +171,10 @@
                                 Masuk
                             </button>
                         </div>
-                        
-                        <!-- Demo Accounts Info -->
-                        <div class="mt-4 p-3 bg-gray-50 rounded-lg">
-                            <p class="text-xs text-gray-600 font-semibold mb-2">Demo Accounts:</p>
-                            <div class="grid grid-cols-2 gap-2 text-xs">
-                                <button type="button" 
-                                        onclick="fillDemo('admin@assunnah.sch.id', 'admin123')"
-                                        class="p-2 bg-white border rounded hover:bg-orange-50 hover:border-orange">
-                                    <span class="font-semibold">Admin</span><br>
-                                    <span class="text-gray-500">admin123</span>
-                                </button>
-                                <button type="button" 
-                                        onclick="fillDemo('wali6a@assunnah.sch.id', 'wali123')"
-                                        class="p-2 bg-white border rounded hover:bg-orange-50 hover:border-orange">
-                                    <span class="font-semibold">Wali 6A</span><br>
-                                    <span class="text-gray-500">wali123</span>
-                                </button>
-                            </div>
-                        </div>
                     </form>
                 </div>
             </div>
         </section>
     </div>
-
-    <script>
-        function fillDemo(email, password) {
-            document.querySelector('input[name="email"]').value = email;
-            document.querySelector('input[name="password"]').value = password;
-        }
-    </script>
 </body>
 </html>

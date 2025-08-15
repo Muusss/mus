@@ -40,7 +40,7 @@
                 <div class="w-100 w-md-auto">
                     <select class="form-select" id="filterKelas" onchange="filterByKelas()">
                         <option value="all" {{ $kelasFilter == 'all' ? 'selected' : '' }}>
-                            <i class="bi bi-grid"></i> Semua Kelas
+                            Semua Kelas
                         </option>
                         @foreach($kelasList as $kelas)
                             <option value="{{ $kelas }}" {{ $kelasFilter == $kelas ? 'selected' : '' }}>
@@ -137,7 +137,8 @@
                         @if(isset($nilaiAkhir) && $nilaiAkhir->count() > 0)
                             @php
                                 $first = $nilaiAkhir->first();
-                                $topName = $first ? explode(' ', $first->alternatif->nama_siswa)[0] : '-';
+                                $fullName = optional(optional($first)->alternatif)->nama_siswa;
+                                $topName = $fullName ? explode(' ', $fullName)[0] : '-';
                             @endphp
                             <div class="h5 mb-0 font-weight-bold text-truncate">{{ $topName }}</div>
                             <small class="text-muted d-none d-sm-block">
@@ -198,9 +199,9 @@
                                         </span>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <h6 class="mb-0 small">{{ $siswa->alternatif->nama_siswa ?? '-' }}</h6>
+                                        <h6 class="mb-0 small">{{ optional($siswa->alternatif)->nama_siswa ?? '-' }}</h6>
                                         <small class="text-muted">
-                                            {{ $siswa->alternatif->kelas ?? '-' }}
+                                            {{ optional($siswa->alternatif)->kelas ?? '-' }}
                                         </small>
                                     </div>
                                     <div>
@@ -230,10 +231,10 @@
                                 @endif
                             </div>
                             <div class="flex-grow-1">
-                                <h6 class="mb-0">{{ $siswa->alternatif->nama_siswa ?? '-' }}</h6>
+                                <h6 class="mb-0">{{ optional($siswa->alternatif)->nama_siswa ?? '-' }}</h6>
                                 <small class="text-muted">
-                                    {{ $siswa->alternatif->kelas ?? '-' }} | 
-                                    NIS: {{ $siswa->alternatif->nis ?? '-' }}
+                                    {{ optional($siswa->alternatif)->kelas ?? '-' }} | 
+                                    NIS: {{ optional($siswa->alternatif)->nis ?? '-' }}
                                 </small>
                             </div>
                             <div>
@@ -260,7 +261,7 @@
                         <span class="badge bg-info ms-2 d-none d-md-inline">{{ $nilaiAkhir->count() }} siswa</span>
                     </h6>
                     <div class="btn-group btn-group-sm" role="group">
-                        <button class="btn btn-outline-info" onclick="exportToExcel()">
+                        <button class="btn btn-outline-info" onclick="exportToExcel(this)">
                             <i class="bi bi-file-earmark-excel"></i>
                             <span class="d-none d-sm-inline">Excel</span>
                         </button>
@@ -283,14 +284,14 @@
                                         <span class="badge bg-{{ $row->peringkat_kelas == 1 ? 'warning text-dark' : ($row->peringkat_kelas <= 3 ? 'info' : 'secondary') }} me-2">
                                             #{{ $row->peringkat_kelas }}
                                         </span>
-                                        <span class="badge bg-primary">{{ $row->alternatif->kelas ?? '-' }}</span>
+                                        <span class="badge bg-primary">{{ optional($row->alternatif)->kelas ?? '-' }}</span>
                                     </div>
                                     @if($row->peringkat_kelas == 1)
                                         <span class="badge bg-success">Teladan</span>
                                     @endif
                                 </div>
-                                <h6 class="mb-1">{{ $row->alternatif->nama_siswa ?? '-' }}</h6>
-                                <div class="small text-muted">NIS: {{ $row->alternatif->nis ?? '-' }}</div>
+                                <h6 class="mb-1">{{ optional($row->alternatif)->nama_siswa ?? '-' }}</h6>
+                                <div class="small text-muted">NIS: {{ optional($row->alternatif)->nis ?? '-' }}</div>
                                 <div class="mt-2">
                                     <strong>Nilai: </strong>
                                     <span class="badge bg-success">
@@ -299,7 +300,9 @@
                                 </div>
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <p class="text-center text-muted">Belum ada data</p>
+                    @endforelse
                     
                     @if($nilaiAkhir->count() > 10)
                         <div class="text-center mt-3">
@@ -332,12 +335,12 @@
                                             {{ $row->peringkat_kelas }}
                                         </span>
                                     </td>
-                                    <td>{{ $row->alternatif->nis ?? '-' }}</td>
-                                    <td><strong>{{ $row->alternatif->nama_siswa ?? '-' }}</strong></td>
+                                    <td>{{ optional($row->alternatif)->nis ?? '-' }}</td>
+                                    <td><strong>{{ optional($row->alternatif)->nama_siswa ?? '-' }}</strong></td>
                                     <td>
-                                        <span class="badge bg-primary">{{ $row->alternatif->kelas ?? '-' }}</span>
+                                        <span class="badge bg-primary">{{ optional($row->alternatif)->kelas ?? '-' }}</span>
                                     </td>
-                                    <td>{{ $row->alternatif->jk ?? '-' }}</td>
+                                    <td>{{ optional($row->alternatif)->jk ?? '-' }}</td>
                                     <td>
                                         <span class="badge bg-success">
                                             {{ number_format((float) ($row->total ?? 0), 4) }}
@@ -500,10 +503,9 @@ function filterByKelas() {
 }
 
 // Export functions
-function exportToExcel() {
+function exportToExcel(btn) {
     // Show loading on mobile
-    if (window.innerWidth < 768) {
-        const btn = event.target;
+    if (window.innerWidth < 768 && btn) {
         btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
         btn.disabled = true;
     }

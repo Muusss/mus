@@ -32,7 +32,7 @@
     </div>
 
     <!-- Statistik per Kelas - Responsive Cards -->
-    <div class="row g-2 mb-3">
+    {{-- <div class="row g-2 mb-3">
         @if($kelasFilter && $kelasFilter !== 'all')
             <!-- Single class stat -->
             @if(isset($stats[$kelasFilter]))
@@ -78,7 +78,7 @@
             </div>
             @endforeach
         @endif
-    </div>
+    </div> --}}
 
     <!-- Main Table Card -->
     <div class="card">
