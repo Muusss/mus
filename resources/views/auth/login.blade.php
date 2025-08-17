@@ -1,180 +1,207 @@
 <!-- File: resources/views/auth/login.blade.php -->
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Masuk | SPK SDIT As Sunnah</title>
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>
-        :root {
-            --primary-orange: #ff6b35;
-            --primary-dark-orange: #e55100;
-            --primary-light-orange: #ff8c5a;
-            --dark-bg: #1a1a1a;
-            --darker-bg: #0d0d0d;
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Masuk | SPK Siswa Teladan - SDIT As Sunnah</title>
 
-        .bg-gradient-dark {
-            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
-        }
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.bunny.net">
+  <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
 
-        .bg-gradient-orange {
-            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-dark-orange) 100%);
-        }
+  <!-- Bootstrap + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
-        .text-orange {
-            color: var(--primary-orange);
-        }
+  @vite(['resources/css/app.css', 'resources/js/app.js'])
+  <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
-        .border-orange {
-            border-color: var(--primary-orange);
-        }
+  <style>
+    :root{
+      /* Tetap aksen oranye seperti desain kamu */
+      --primary:#ff6b35;
+      --primary-dark:#e55100;
+      --ring: rgba(255,107,53,.16);
+      --card: rgba(255,255,255,.96);
+      --logo-size: 150px; 
+    }
 
-        .btn-orange {
-            background: var(--primary-orange);
-            color: white;
-            transition: all 0.3s ease;
-        }
+    *{box-sizing:border-box}
+    body{
+      font-family:'Figtree',sans-serif;
+      min-height:100vh; display:flex; flex-direction:column; overflow-x:hidden;
+      background: radial-gradient(1000px 520px at 15% -10%, #FF955533, transparent 70%),
+                  radial-gradient(900px 500px at 120% 120%, #FF6B3544, transparent 70%),
+                  linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
 
-        .btn-orange:hover {
-            background: var(--primary-dark-orange);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 107, 53, 0.3);
-        }
+    /* Nav kanan atas */
+    .nav-actions{position:absolute; top:18px; right:18px; display:flex; gap:10px; z-index:10}
+    .nav-btn{
+      padding:10px 18px; border-radius:999px; font-weight:600; color:#fff; text-decoration:none;
+      border:1.8px solid #ffffff80; background:#ffffff14; backdrop-filter:blur(10px);
+      display:inline-flex; align-items:center; gap:8px; transition:.25s ease;
+    }
+    .nav-btn:hover{ background:#fff; color:var(--primary); transform:translateY(-1px) }
 
-        .input-focus-orange:focus {
-            border-color: var(--primary-orange) !important;
-            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1) !important;
-        }
+    /* Wrapper */
+    .wrap{flex:1; display:flex; align-items:center; justify-content:center; padding:28px}
 
-        @media (max-width: 768px) {
-            .login-container {
-                padding: 1rem;
-            }
-            
-            .login-card {
-                margin: 0;
-                border-radius: 1rem;
-            }
-        }
-    </style>
+    /* Card */
+    .card-login{
+      width:100%; max-width:560px; background:var(--card); backdrop-filter:blur(20px);
+      border-radius:26px; padding:40px 36px; box-shadow:0 24px 54px rgba(0,0,0,.18);
+      border-top:4px solid var(--primary); animation:fadeUp .6s ease-out;
+    }
+    @keyframes fadeUp{from{opacity:0; transform:translateY(18px)} to{opacity:1; transform:translateY(0)}}
+
+    .logo-wrap{ display:flex; justify-content:center; margin-bottom:16px; }
+    .logo{
+    width: var(--logo-size);
+    height: var(--logo-size);
+    border-radius: 24px;
+    padding: 16px;
+    background:#fff;
+    border:3px solid var(--primary);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    animation:glow 2s ease-in-out infinite alternate;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
+    }
+    .logo img{ width:100%; height:100%; object-fit:contain; background:transparent }
+    .logo-fallback{ font-size:50px; color:var(--primary) }
+    @keyframes glow{from{box-shadow:0 0 10px -10px var(--primary)} to{box-shadow:0 0 20px 10px var(--primary)}}
+
+    .title{
+      text-align:center; font-weight:800; font-size:1.8rem; margin:10px 0 4px;
+      background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+      -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    }
+    .subtitle{ text-align:center; color:#6b7280; font-weight:600; margin-bottom:20px }
+
+    /* Form field */
+    .form-label{ font-weight:600; color:#374151 }
+    .form-control{
+      border-radius:14px; padding:12px 14px; border:1px solid #e5e7eb;
+      transition:border-color .15s ease, box-shadow .15s ease;
+    }
+    .form-control:focus{
+      border-color:var(--primary);
+      box-shadow:0 0 0 .25rem var(--ring);
+    }
+
+    /* --- FIX: ikon mata berada rapi di dalam kolom --- */
+    .password-wrap{ position: relative; }
+    .password-wrap .form-control{ padding-right: 3rem; }  /* ruang untuk tombol */
+    .toggle-pass{
+      position:absolute; right:12px; top:50%; transform:translateY(-50%);
+      width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center;
+      border:0; background:transparent; color:#6c757d; padding:0; line-height:1; cursor:pointer;
+    }
+    .toggle-pass:hover{ color:#374151 }
+
+    .btn-primary{
+      background:var(--primary); border-color:var(--primary);
+      border-radius:14px; padding:12px 16px; font-weight:800;
+      box-shadow:0 10px 20px rgba(255,107,53,.2);
+    }
+    .btn-primary:hover{ background:var(--primary-dark); border-color:var(--primary-dark) }
+
+    @media (max-width:768px){
+      .card-login{ padding:32px 24px; border-radius:22px }
+      :root{ --logo-size: 120px; }
+      .nav-actions{ right:12px; top:12px }
+    }
+
+    .footer{ color:#fff; text-align:center; padding:14px; font-size:.925rem; opacity:.9; }
+  </style>
 </head>
-<body class="h-full bg-gray-100">
-    <div class="min-h-full grid lg:grid-cols-2">
-        {{-- Panel Kiri - Hidden on Mobile --}}
-        <section class="hidden lg:flex flex-col justify-between bg-gradient-dark p-12 text-white">
-            <div class="flex items-center gap-3">
-                <div class="h-16 w-16 rounded-lg bg-gradient-orange flex items-center justify-center">
-                    <!-- Logo Sekolah -->
-                    <img src="{{ asset('img/logo-yac.png') }}" alt="Logo Sekolah" class="h-12 w-12 object-cover">
-                </div>
-                <div>
-                    <div class="text-lg font-bold">SPK SDIT As Sunnah</div>
-                    <p class="text-sm opacity-80">Cirebon</p>
-                </div>
-            </div>
+<body>
+  <!-- Nav kanan atas -->
+  <div class="nav-actions">
+    <a href="{{ url('/') }}" class="nav-btn"><i class="bi bi-house-door"></i> Beranda</a>
+    <a href="{{ route('hasil.publik') }}" class="nav-btn"><i class="bi bi-trophy"></i> Hasil Peringkat</a>
+  </div>
 
-            <div class="max-w-md">
-                <h1 class="text-4xl font-bold leading-tight">
-                    Sistem Penilaian <span class="text-orange">Siswa Teladan</span>
-                </h1>
-                <p class="mt-4 text-gray-300">
-                    Metode <b class="text-orange">ROC (Rank Order Centroid)</b> & <b class="text-orange">SMART</b>
-                </p>
-                <ul class="mt-8 space-y-3 text-gray-300">
-                    <li class="flex items-start gap-3">
-                        <svg class="h-6 w-6 flex-shrink-0 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>Manajemen data siswa kelas 6A - 6D</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <svg class="h-6 w-6 flex-shrink-0 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>6 Kriteria penilaian komprehensif</span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <svg class="h-6 w-6 flex-shrink-0 text-orange" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                        </svg>
-                        <span>Perhitungan otomatis & akurat</span>
-                    </li>
-                </ul>
-            </div>
+  <main class="wrap">
+    <section class="card-login">
+      <!-- Logo -->
+      <div class="logo-wrap">
+        <div class="logo">
+            <img src="{{ asset('img/logo-yac.png') }}" alt="Logo YAC" class="logo-img">
+        </div>
+        </div>
 
-            <p class="text-sm text-gray-500">© {{ date('Y') }} - SDIT As Sunnah Cirebon</p>
-        </section>
+      <h1 class="title">SPK Siswa Teladan</h1>
+      <p class="subtitle">Masuk untuk melanjutkan</p>
 
-        {{-- Panel Kanan --}}
-        <section class="flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8 login-container">
-            <div class="w-full max-w-md">
-                {{-- Mobile Logo --}}
-                <div class="lg:hidden text-center mb-8">
-                    <div class="h-20 w-20 mx-auto rounded-2xl bg-gradient-orange flex items-center justify-center mb-4">
-                        <img src="{{ asset('img/logo-sekolah.png') }}" alt="Logo Sekolah" class="h-12 w-12 object-cover">
-                    </div>
-                    <h4 class="text-xl font-bold text-gray-800">SPK SDIT As Sunnah</h4>
-                    <p class="text-sm text-gray-600">Sistem Penilaian Siswa Teladan</p>
-                </div>
+      <!-- Error -->
+      @if ($errors->any())
+        <div class="alert alert-danger border-0">
+          <div class="fw-semibold mb-1">Terjadi kesalahan:</div>
+          <ul class="mb-0 ps-3">
+            @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
 
-                <div class="text-center mb-8">
-                    <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Selamat Datang</h2>
-                    <p class="text-gray-500 mt-1">Silakan masuk untuk melanjutkan</p>
-                </div>
+      <!-- Form -->
+      <form method="POST" action="{{ route('login') }}" class="mt-3">
+        @csrf
 
-                {{-- Form Card --}}
-                <div class="bg-white shadow-xl rounded-2xl p-6 sm:p-8 login-card border-t-4 border-orange">
-                    @if ($errors->any())
-                        <div class="mb-5 rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-800">
-                            <div class="font-medium mb-1">Terjadi kesalahan</div>
-                            <ul class="list-disc list-inside text-sm">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+        <div class="mb-3">
+          <label for="email" class="form-label">Email</label>
+          <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus
+                 class="form-control" placeholder="nama@sekolah.sch.id">
+        </div>
 
-                    <form method="POST" action="{{ route('login') }}" x-data="{ showPassword: false }" class="space-y-5">
-                        @csrf
-                        <div>
-                            <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-                            <input type="email" id="email" name="email" required autofocus
-                                   class="mt-1 block w-full rounded-lg border-gray-300 text-black shadow-sm transition-colors input-focus-orange"
-                                   placeholder="nama@sekolah.sch.id" value="{{ old('email') }}">
-                        </div>
+        <div class="mb-3 password-wrap">
+          <label for="password" class="form-label">Kata Sandi</label>
+          <input id="password" type="password" name="password" required
+                 class="form-control" placeholder="••••••••">
+          <button type="button" class="toggle-pass" aria-label="Lihat/Sembunyikan sandi">
+            <i class="bi bi-eye"></i>
+          </button>
+        </div>
 
-                        <div>
-                            <label for="password" class="block text-sm font-medium text-gray-700">Kata Sandi</label>
-                            <div class="mt-1 relative">
-                                <input :type="showPassword ? 'text' : 'password'" id="password" name="password" required
-                                       class="block w-full rounded-lg border-gray-300 text-black pr-12 shadow-sm transition-colors input-focus-orange"
-                                       placeholder="••••••••">
-                                <button type="button" class="absolute inset-y-0 right-0 flex items-center px-4 text-gray-500 text-sm hover:text-gray-700"
-                                        @click="showPassword = !showPassword" x-text="showPassword ? 'Sembunyi' : 'Lihat'"></button>
-                            </div>
-                        </div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="remember" id="remember">
+            <label class="form-check-label" for="remember">Ingat saya</label>
+          </div>
+          {{-- @if (Route::has('password.request'))
+            <a class="link-offset-1" href="{{ route('password.request') }}">Lupa sandi?</a>
+          @endif --}}
+        </div>
 
-                        <div class="flex items-center justify-between pt-1">
-                            <label class="inline-flex items-center gap-2 text-sm text-gray-600">
-                                <input type="checkbox" name="remember" class="rounded border-gray-300 text-orange shadow-sm focus:ring-orange-500">
-                                <span class="select-none">Ingat saya</span>
-                            </label>
-                        </div>
+        <button type="submit" class="btn btn-primary w-100">
+          <i class="bi bi-box-arrow-in-right me-1"></i> Masuk
+        </button>
+      </form>
+    </section>
+  </main>
 
-                        <div class="pt-2">
-                            <button type="submit"
-                                    class="w-full rounded-lg btn-orange py-3 text-white font-semibold shadow-sm transition-all duration-200">
-                                Masuk
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </section>
-    </div>
+  <div class="footer">
+    &copy; {{ date('Y') }} SDIT As Sunnah Cirebon • Laravel {{ Illuminate\Foundation\Application::VERSION }}
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Toggle show/hide password
+    (() => {
+      const btn = document.querySelector('.toggle-pass');
+      const input = document.getElementById('password');
+      if(!btn || !input) return;
+      btn.addEventListener('click', () => {
+        const show = input.type === 'password';
+        input.type = show ? 'text' : 'password';
+        btn.querySelector('i').className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
+      });
+    })();
+  </script>
 </body>
 </html>

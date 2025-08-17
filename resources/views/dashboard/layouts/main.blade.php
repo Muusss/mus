@@ -7,7 +7,8 @@
     <title>SPK SMART | {{ $title ?? 'Dashboard' }}</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ asset('img/logo-yac.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('img/logo-yac.png') }}">
     
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -268,27 +269,13 @@
         <nav class="sidebar" id="sidebar">
             <div class="logo-section">
                 <div class="logo-container">
-                    @php
-                        $logoPath = null;
-                        $logoFiles = ['logo-yac.png', 'logo.png', 'logo.jpg', 'logo-sekolah.png'];
-                        
-                        foreach($logoFiles as $file) {
-                            if(file_exists(public_path($file))) {
-                                $logoPath = $file;
-                                break;
-                            }
-                        }
-                    @endphp
-                    
-                    @if($logoPath)
-                        <img src="{{ asset($logoPath) }}" 
-                             alt="Logo SDIT As Sunnah" 
-                             class="logo-img"
-                             onerror="this.onerror=null; this.parentElement.innerHTML='<i class=\'bi bi-mortarboard-fill\' style=\'font-size: 2rem; color: var(--primary-color);\'></i>';">
-                    @else
-                        <!-- Fallback icon jika tidak ada logo -->
-                        <i class="bi bi-mortarboard-fill" style="font-size: 2rem; color: var(--primary-color);"></i>
-                    @endif
+                    {{-- Pakai logo YAC langsung --}}
+                    <img
+                        src="{{ asset('img/logo-yac.png') }}"
+                        alt="Logo YAC"
+                        class="logo-img"
+                        onerror="this.outerHTML='<i class=&quot;bi bi-mortarboard-fill&quot; style=&quot;font-size:2rem;color:var(--primary-color);&quot;></i>';"
+                    >
                 </div>
                 <div class="logo-text">SPK SDIT As Sunnah</div>
             </div>
