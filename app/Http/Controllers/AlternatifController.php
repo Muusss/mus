@@ -17,11 +17,7 @@ use App\Models\Periode;
 
 class AlternatifController extends Controller
 {
-    // (opsional) aktifkan kalau sudah punya AlternatifPolicy
-    // public function __construct()
-    // {
-    //     $this->authorizeResource(Alternatif::class, 'alternatif');
-    // }
+    
 
     /** Helper sederhana: cek wali_kelas */
     private function isWali(?User $u): bool

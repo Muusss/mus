@@ -54,7 +54,23 @@ return new class extends Migration
 
     public function down(): void
     {
+        // Putuskan FK dari penilaians ke periodes jika masih ada
+        if (Schema::hasTable('penilaians')) {
+            Schema::table('penilaians', function (Blueprint $table) {
+                if (Schema::hasColumn('penilaians', 'periode_id')) {
+                    // Boleh pakai salah satu:
+                    // $table->dropForeign('penilaians_periode_id_foreign');
+                    $table->dropForeign(['periode_id']);
+                }
+            });
+        }
+
+        // Matikan constraint sementara sebagai “payung”
+        Schema::disableForeignKeyConstraints();
+
         Schema::dropIfExists('settings');
         Schema::dropIfExists('periodes');
+
+        Schema::enableForeignKeyConstraints();
     }
 };
