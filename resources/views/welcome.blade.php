@@ -440,10 +440,6 @@
             <i class="bi bi-trophy"></i>
             <span>Hasil Peringkat</span>
         </a>
-        <a href="{{ route('cek.nilai') }}" class="nav-btn primary">
-            <i class="bi bi-search"></i>
-            <span>Cek Nilai</span>
-        </a>
         @if (Route::has('login'))
             @auth
                 <a href="{{ url('/dashboard') }}" class="nav-btn">
@@ -494,14 +490,6 @@
                     </div>
                     <div class="action-title">Lihat Peringkat</div>
                     <div class="action-desc">Hasil peringkat siswa teladan</div>
-                </a>
-                
-                <a href="{{ route('cek.nilai') }}" class="action-card">
-                    <div class="action-icon">
-                        <i class="bi bi-search"></i>
-                    </div>
-                    <div class="action-title">Cek Nilai Siswa</div>
-                    <div class="action-desc">Lihat detail nilai per kriteria</div>
                 </a>
             </div>
             

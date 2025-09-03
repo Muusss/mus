@@ -407,11 +407,6 @@
                         <span>Peringkat</span>
                     </a>
                     
-                    <a href="{{ route('cek.nilai') }}" class="nav-link-custom {{ request()->routeIs('cek.nilai*') ? 'active' : '' }}">
-                        <i class="bi bi-search"></i>
-                        <span>Cek Nilai</span>
-                    </a>
-                    
                     @if (Route::has('login'))
                         @auth
                             <a href="{{ url('/dashboard') }}" class="btn btn-login">

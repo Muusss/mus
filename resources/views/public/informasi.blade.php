@@ -2,13 +2,17 @@
 
 @section('title', 'Informasi Sistem Penilaian')
 
+@php
+    use Illuminate\Support\Str;
+@endphp
+
 @section('styles')
 <style>
     /* Custom styles untuk halaman informasi */
     .info-hero {
         background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
         color: white;
-        padding: 60px 0;
+        padding: 80px 0;
         margin-bottom: 40px;
         position: relative;
         overflow: hidden;
@@ -31,70 +35,81 @@
     }
     
     .hero-title {
-        font-size: 2.5rem;
+        font-size: 3rem;
         font-weight: 800;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
+        animation: fadeInUp 0.8s ease;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     .hero-subtitle {
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         opacity: 0.95;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
+        animation: fadeInUp 0.8s ease 0.2s both;
     }
     
-    .hero-badge {
+    .hero-tagline {
         display: inline-block;
         background: rgba(255, 255, 255, 0.2);
-        padding: 10px 20px;
+        padding: 12px 25px;
         border-radius: 50px;
         font-weight: 600;
         backdrop-filter: blur(10px);
+        margin-bottom: 20px;
+        animation: fadeInUp 0.8s ease 0.4s both;
     }
     
-    .hero-buttons {
-        margin-top: 30px;
-        display: flex;
-        gap: 15px;
-        flex-wrap: wrap;
+    /* Benefit Cards */
+    .benefit-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 40px;
     }
     
-    .hero-btn {
-        padding: 12px 30px;
-        border-radius: 50px;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.3s;
-    }
-    
-    .hero-btn.primary {
-        background: white;
-        color: var(--primary-color);
-    }
-    
-    .hero-btn.secondary {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        backdrop-filter: blur(10px);
-    }
-    
-    .hero-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    }
-    
-    /* Content sections */
-    .info-section {
+    .benefit-card {
         background: white;
         border-radius: 20px;
-        padding: 40px;
-        margin-bottom: 30px;
+        padding: 30px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
     
-    .section-icon {
+    .benefit-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .benefit-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    }
+    
+    .benefit-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .benefit-icon {
         width: 60px;
         height: 60px;
         background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
@@ -107,339 +122,690 @@
         margin-bottom: 20px;
     }
     
-    .section-title {
-        font-size: 1.8rem;
+    .benefit-title {
+        font-size: 1.3rem;
         font-weight: 700;
         color: var(--dark-color);
-        margin-bottom: 20px;
+        margin-bottom: 10px;
     }
     
-    .section-lead {
+    .benefit-desc {
         color: #666;
-        font-size: 1.1rem;
-        margin-bottom: 25px;
         line-height: 1.6;
     }
     
-    /* Kriteria cards */
-    .kriteria-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
+    /* Method Info Box */
+    .method-box {
+        background: linear-gradient(135deg, #f6f8fb, #fff);
+        border-left: 4px solid var(--primary-color);
+        border-radius: 15px;
+        padding: 25px;
+        margin: 30px 0;
+    }
+    
+    .method-box h4 {
+        color: var(--primary-color);
+        font-weight: 700;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .method-badge {
+        display: inline-block;
+        background: var(--primary-color);
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    
+    /* Kriteria Section */
+    .kriteria-section {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    
+    .section-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .section-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 2.5rem;
+        margin: 0 auto 20px;
+    }
+    
+    .section-title {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--dark-color);
+        margin-bottom: 10px;
+    }
+    
+    .section-subtitle {
+        color: #666;
+        font-size: 1.1rem;
+    }
+    
+    /* Kriteria Accordion */
+    .kriteria-accordion {
         margin-top: 30px;
     }
     
-    .kriteria-card {
+    .kriteria-item {
         background: #f8f9fa;
         border-radius: 15px;
-        padding: 25px;
-        border-left: 4px solid var(--primary-color);
-        transition: transform 0.3s;
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
     }
     
-    .kriteria-card:hover {
-        transform: translateX(5px);
+    .kriteria-item.active {
+        background: white;
+        box-shadow: 0 10px 30px rgba(255, 107, 53, 0.1);
+    }
+    
+    .kriteria-header {
+        padding: 25px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        transition: background 0.3s ease;
+    }
+    
+    .kriteria-header:hover {
+        background: rgba(255, 107, 53, 0.05);
+    }
+    
+    .kriteria-header-left {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+    
+    .kriteria-icon {
+        width: 50px;
+        height: 50px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .kriteria-info h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--dark-color);
+        margin-bottom: 5px;
     }
     
     .kriteria-code {
         display: inline-block;
         background: var(--primary-color);
         color: white;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 10px;
+    }
+    
+    .kriteria-bobot {
+        display: inline-block;
+        background: #e3f2fd;
+        color: #1976d2;
         padding: 5px 12px;
         border-radius: 20px;
-        font-weight: 700;
         font-size: 0.9rem;
-        margin-bottom: 10px;
-    }
-    
-    .kriteria-name {
-        font-weight: 700;
-        color: var(--dark-color);
-        margin-bottom: 10px;
-        font-size: 1.1rem;
-    }
-    
-    .kriteria-desc {
-        color: #666;
-        font-size: 0.95rem;
-        line-height: 1.5;
-    }
-    
-    /* Process steps */
-    .process-steps {
-        display: flex;
-        flex-direction: column;
-        gap: 25px;
-        margin-top: 30px;
-    }
-    
-    .process-step {
-        display: flex;
-        gap: 20px;
-        align-items: start;
-    }
-    
-    .step-number {
-        flex-shrink: 0;
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 700;
-        font-size: 1.2rem;
-    }
-    
-    .step-content h4 {
-        font-weight: 700;
-        color: var(--dark-color);
-        margin-bottom: 10px;
-    }
-    
-    .step-content p {
-        color: #666;
-        line-height: 1.6;
-    }
-    
-    /* Search form */
-    .search-section {
-        background: linear-gradient(135deg, #f6f8fb, #fff);
-        border: 2px solid var(--primary-color);
-    }
-    
-    .form-group {
-        margin-bottom: 20px;
-    }
-    
-    .form-label {
         font-weight: 600;
-        color: var(--dark-color);
-        margin-bottom: 8px;
-        display: block;
     }
     
-    .form-label .required {
+    .kriteria-toggle {
+        font-size: 1.5rem;
+        color: #999;
+        transition: transform 0.3s ease;
+    }
+    
+    .kriteria-item.active .kriteria-toggle {
+        transform: rotate(180deg);
         color: var(--primary-color);
     }
     
-    .form-control {
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        padding: 12px 15px;
-        font-size: 1rem;
-        transition: all 0.3s;
+    .kriteria-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
     }
     
-    .form-control:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.1);
+    .kriteria-item.active .kriteria-content {
+        max-height: 600px;
     }
     
-    .form-help {
-        font-size: 0.9rem;
-        color: #666;
-        margin-top: 5px;
+    .kriteria-content-inner {
+        padding: 0 25px 25px;
     }
     
-    .btn-search {
-        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
-        color: white;
-        border: none;
-        padding: 12px 40px;
-        border-radius: 50px;
+    .kriteria-detail {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .detail-box {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 12px;
+    }
+    
+    .detail-box h4 {
+        color: var(--dark-color);
         font-weight: 600;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: inline-flex;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .detail-box p {
+        color: #666;
+        line-height: 1.6;
+        margin: 0;
+    }
+    
+    .detail-box ul {
+        list-style: none;
+        padding: 0;
+        margin: 10px 0 0;
+    }
+    
+    .detail-box li {
+        padding: 5px 0;
+        color: #666;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .detail-box li i {
+        color: var(--accent-green);
+        font-size: 0.9rem;
+    }
+    
+    /* Progress Visual */
+    .progress-visual {
+        background: white;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 15px;
+    }
+    
+    .progress-bar-custom {
+        background: #f0f0f0;
+        height: 30px;
+        border-radius: 15px;
+        overflow: hidden;
+        position: relative;
+        margin: 10px 0;
+    }
+    
+    .progress-fill {
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+        height: 100%;
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 10px;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: width 1s ease;
+    }
+    
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 5px;
+        font-size: 0.85rem;
+    }
+    
+    /* Visualization Section */
+    .viz-section {
+        background: linear-gradient(135deg, #f6f8fb, #fff);
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+    }
+    
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        margin-bottom: 25px;
+    }
+    
+    .chart-title {
+        font-weight: 700;
+        color: var(--dark-color);
+        margin-bottom: 20px;
+        display: flex;
         align-items: center;
         gap: 10px;
     }
     
-    .btn-search:hover {
+    /* Search & Filter Section */
+    .search-section {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        border: 2px solid var(--primary-color);
+        margin-bottom: 30px;
+    }
+    
+    .search-box {
+        position: relative;
+        margin-bottom: 30px;
+    }
+    
+    .search-input {
+        width: 100%;
+        padding: 15px 50px 15px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .search-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.1);
+        outline: none;
+    }
+    
+    .search-btn {
+        position: absolute;
+        right: 5px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .search-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-50%) scale(1.1);
+    }
+    
+    /* Filter Options */
+    .filter-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .filter-item label {
+        display: block;
+        font-weight: 600;
+        color: var(--dark-color);
+        margin-bottom: 8px;
+    }
+    
+    .filter-select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+    
+    .filter-select:focus {
+        border-color: var(--primary-color);
+        outline: none;
+    }
+    
+    /* View Mode Toggle */
+    .view-toggle {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 30px;
+    }
+    
+    .toggle-btn {
+        padding: 12px 25px;
+        border: 2px solid #e0e0e0;
+        background: white;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .toggle-btn:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .toggle-btn.active {
+        background: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .action-btn {
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .action-btn.primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+    }
+    
+    .action-btn.secondary {
+        background: #f0f0f0;
+        color: var(--dark-color);
+    }
+    
+    .action-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
     
-    .privacy-note {
-        background: #fff3cd;
-        border-left: 4px solid #ffc107;
-        padding: 15px 20px;
-        border-radius: 10px;
-        margin-top: 20px;
+    /* FAQ Section */
+    .faq-section {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
     }
     
-    .privacy-note i {
-        color: #ff9800;
-        margin-right: 10px;
-    }
-    
-    /* FAQ Accordion */
-    .faq-accordion {
+    .faq-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 25px;
         margin-top: 30px;
     }
     
     .faq-item {
         background: #f8f9fa;
-        border-radius: 10px;
-        margin-bottom: 15px;
-        overflow: hidden;
+        border-radius: 15px;
+        padding: 25px;
+        transition: all 0.3s ease;
+    }
+    
+    .faq-item:hover {
+        background: white;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     }
     
     .faq-question {
-        padding: 20px;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-weight: 600;
+        font-weight: 700;
         color: var(--dark-color);
-        transition: background 0.3s;
-    }
-    
-    .faq-question:hover {
-        background: #f0f0f0;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
     
     .faq-question i {
-        transition: transform 0.3s;
-    }
-    
-    .faq-item.active .faq-question i {
-        transform: rotate(180deg);
+        color: var(--primary-color);
     }
     
     .faq-answer {
-        padding: 0 20px;
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease, padding 0.3s ease;
+        color: #666;
+        line-height: 1.6;
     }
     
-    .faq-item.active .faq-answer {
-        padding: 0 20px 20px;
-        max-height: 500px;
+    /* Onboarding Tour */
+    .tour-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9998;
+        display: none;
     }
     
-    /* Policy section */
-    .policy-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
-        margin-top: 30px;
-    }
-    
-    .policy-card {
-        background: #f8f9fa;
-        padding: 25px;
+    .tour-tooltip {
+        position: absolute;
+        background: white;
         border-radius: 15px;
-        text-align: center;
+        padding: 20px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        max-width: 350px;
+        z-index: 9999;
     }
     
-    .policy-icon {
+    .tour-tooltip h4 {
+        color: var(--primary-color);
+        margin-bottom: 10px;
+    }
+    
+    .tour-tooltip p {
+        color: #666;
+        margin-bottom: 15px;
+    }
+    
+    .tour-buttons {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+    
+    .tour-btn {
+        padding: 8px 20px;
+        border-radius: 25px;
+        border: none;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .tour-btn.next {
+        background: var(--primary-color);
+        color: white;
+    }
+    
+    .tour-btn.skip {
+        background: #f0f0f0;
+        color: #666;
+    }
+    
+    /* Floating Action Button */
+    .fab {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
         width: 60px;
         height: 60px;
-        background: linear-gradient(135deg, #60a5fa, #3b82f6);
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         color: white;
         font-size: 1.5rem;
-        margin: 0 auto 15px;
+        box-shadow: 0 10px 30px rgba(255, 107, 53, 0.3);
+        cursor: pointer;
+        transition: all 0.3s ease;
+        z-index: 1000;
     }
     
-    .policy-title {
-        font-weight: 700;
-        color: var(--dark-color);
-        margin-bottom: 10px;
+    .fab:hover {
+        transform: scale(1.1) rotate(90deg);
+        box-shadow: 0 15px 40px rgba(255, 107, 53, 0.4);
     }
     
-    .policy-desc {
-        color: #666;
-        font-size: 0.95rem;
-        line-height: 1.5;
-    }
-    
-    /* Footer info */
-    .footer-info {
-        background: linear-gradient(135deg, var(--dark-color), #2c2c2c);
+    .fab-tooltip {
+        position: absolute;
+        right: 70px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--dark-color);
         color: white;
-        padding: 40px;
-        border-radius: 20px;
-        margin-top: 40px;
-        text-align: center;
+        padding: 8px 15px;
+        border-radius: 8px;
+        white-space: nowrap;
+        font-size: 0.9rem;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
     }
     
-    .school-info h3 {
-        font-weight: 700;
-        margin-bottom: 20px;
-    }
-    
-    .contact-info {
-        display: flex;
-        justify-content: center;
-        gap: 30px;
-        flex-wrap: wrap;
-        margin-top: 20px;
-    }
-    
-    .contact-item {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-    
-    .quick-links {
-        display: flex;
-        justify-content: center;
-        gap: 20px;
-        margin-top: 30px;
-        padding-top: 30px;
-        border-top: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .quick-links a {
-        color: white;
-        text-decoration: none;
-        font-weight: 500;
-        transition: opacity 0.3s;
-    }
-    
-    .quick-links a:hover {
-        opacity: 0.8;
+    .fab:hover .fab-tooltip {
+        opacity: 1;
     }
     
     /* Responsive */
     @media (max-width: 768px) {
         .hero-title {
-            font-size: 1.8rem;
+            font-size: 2rem;
         }
         
-        .info-section {
-            padding: 25px;
-        }
-        
-        .section-title {
-            font-size: 1.5rem;
-        }
-        
-        .kriteria-grid {
+        .benefit-cards {
             grid-template-columns: 1fr;
         }
         
-        .process-step {
-            flex-direction: column;
-            text-align: center;
+        .kriteria-detail {
+            grid-template-columns: 1fr;
         }
         
-        .contact-info {
+        .filter-group {
+            grid-template-columns: 1fr;
+        }
+        
+        .faq-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .view-toggle {
             flex-direction: column;
-            align-items: center;
+        }
+        
+        .toggle-btn {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+    
+    /* Loading State */
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: loading 1.5s infinite;
+    }
+    
+    @keyframes loading {
+        0% {
+            background-position: 200% 0;
+        }
+        100% {
+            background-position: -200% 0;
+        }
+    }
+    
+    /* Toast Notifications */
+    .toast {
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        padding: 15px 25px;
+        border-radius: 50px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        z-index: 10000;
+        animation: slideUp 0.3s ease;
+    }
+    
+    .toast.success {
+        border-left: 4px solid #4caf50;
+    }
+    
+    .toast.error {
+        border-left: 4px solid #f44336;
+    }
+    
+    .toast.info {
+        border-left: 4px solid #2196f3;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateX(-50%) translateY(100px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
         }
     }
 </style>
@@ -450,350 +816,568 @@
     <!-- Hero Section -->
     <div class="info-hero">
         <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title">Informasi Sistem Penilaian Siswa Teladan</h1>
-                <p class="hero-subtitle">Transparansi • Objektif • Akuntabel</p>
-                @if($periodeAktif ?? null)
-                <span class="hero-badge">
-                    <i class="bi bi-calendar-check"></i> {{ $periodeAktif->nama_periode ?? 'Periode Aktif' }}
-                </span>
-                @endif
-                <div class="hero-buttons">
-                    <a href="{{ route('hasil.publik') }}" class="hero-btn primary">
-                        <i class="bi bi-trophy"></i> Lihat Hasil Peringkat
-                    </a>
-                    <a href="#panduan" class="hero-btn secondary">
-                        <i class="bi bi-book"></i> Panduan Penggunaan
-                    </a>
+            <div class="hero-content text-center">
+                <div class="hero-tagline">
+                    <i class="bi bi-shield-check me-2"></i>
+                    Transparansi • Objektif • Akuntabel
                 </div>
+                <h1 class="hero-title">Sistem Penilaian Siswa Teladan yang Transparan & Adil</h1>
+                <p class="hero-subtitle">
+                    SPK (Sistem Pendukung Keputusan) adalah teknologi pintar yang membantu sekolah memilih siswa teladan 
+                    secara objektif. Tidak ada lagi penilaian 'katanya' atau 'kira-kira' – semua berdasarkan data terukur!
+                </p>
             </div>
         </div>
     </div>
     
     <div class="container">
-        <!-- Tentang Sistem -->
-        <div class="info-section">
-            <div class="section-icon">
-                <i class="bi bi-info-circle"></i>
+        <!-- Benefit Cards -->
+        <div class="benefit-cards">
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <h3 class="benefit-title">📈 Objektif & Terukur</h3>
+                <p class="benefit-desc">
+                    Setiap nilai punya dasar yang jelas. Bebas dari unsur subjektivitas. 
+                    Penilaian berdasarkan data real yang dapat diverifikasi.
+                </p>
             </div>
-            <h2 class="section-title">Tentang Sistem Penilaian</h2>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="bi bi-eye"></i>
+                </div>
+                <h3 class="benefit-title">👁️ Transparan untuk Semua</h3>
+                <p class="benefit-desc">
+                    Bapak/Ibu bisa lihat detail penilaian anak. Kriteria terbuka untuk dipahami. 
+                    Akses mudah kapan saja, dimana saja.
+                </p>
+            </div>
+            
+            <div class="benefit-card">
+                <div class="benefit-icon">
+                    <i class="bi bi-lightning-charge"></i>
+                </div>
+                <h3 class="benefit-title">⚡ Cepat & Akurat</h3>
+                <p class="benefit-desc">
+                    Hasil langsung terupdate setiap ada perubahan nilai. 
+                    Perhitungan otomatis tanpa kesalahan manual.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Method Info Box -->
+        <div class="method-box">
+            <h4>
+                <i class="bi bi-lightbulb-fill"></i>
+                Fun Fact: Kami pakai kombinasi 2 metode canggih!
+            </h4>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-start gap-3">
+                        <span class="method-badge">ROC</span>
+                        <div>
+                            <strong>Rank Order Centroid</strong>
+                            <p class="mb-0 text-muted">Menentukan bobot kepentingan setiap kriteria secara matematis berdasarkan prioritas sekolah</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex align-items-start gap-3">
+                        <span class="method-badge">SMART</span>
+                        <div>
+                            <strong>Simple Multi Attribute Rating</strong>
+                            <p class="mb-0 text-muted">Menghitung skor akhir dengan normalisasi nilai ke skala 0-1 untuk keadilan</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-3 text-center">
+                <strong>Hasilnya? Penilaian yang super adil! 🎯</strong>
+            </div>
+        </div>
+        
+        <!-- Kriteria Section -->
+        <div class="kriteria-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="bi bi-clipboard-check"></i>
+                </div>
+                <h2 class="section-title">6 Kriteria Penilaian Siswa Teladan</h2>
+                <p class="section-subtitle">
+                    Kami menilai 6 aspek penting untuk menentukan siswa teladan. 
+                    Klik setiap kriteria untuk detail lengkapnya:
+                </p>
+            </div>
+            
+            <div class="kriteria-accordion">
+                <!-- Kriteria 1: Nilai Raport Umum -->
+                <div class="kriteria-item active">
+                    <div class="kriteria-header" onclick="toggleKriteria(this)">
+                        <div class="kriteria-header-left">
+                            <div class="kriteria-icon">📚</div>
+                            <div class="kriteria-info">
+                                <h3>
+                                    <span class="kriteria-code">C1</span>
+                                    Nilai Raport Umum
+                                </h3>
+                                <span class="kriteria-bobot">Bobot: 30%</span>
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-down kriteria-toggle"></i>
+                    </div>
+                    <div class="kriteria-content">
+                        <div class="kriteria-content-inner">
+                            <div class="kriteria-detail">
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-question-circle"></i> Mengapa Penting?</h4>
+                                    <p>Prestasi akademik menunjukkan kesungguhan belajar dan pemahaman materi pelajaran. Ini adalah fondasi utama pendidikan.</p>
+                                </div>
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-calculator"></i> Cara Mengukur</h4>
+                                    <ul>
+                                        <li><i class="bi bi-check-circle"></i> Rata-rata nilai semua mapel umum</li>
+                                        <li><i class="bi bi-check-circle"></i> Skala penilaian 0-100</li>
+                                        <li><i class="bi bi-check-circle"></i> Update setiap akhir semester</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="progress-visual">
+                                <strong>Contoh Visual Nilai:</strong>
+                                <div class="progress-bar-custom">
+                                    <div class="progress-fill" style="width: 85%;">85/100</div>
+                                </div>
+                                <div class="progress-label">
+                                    <span>Anak Bapak/Ibu: 85</span>
+                                    <span>Rata-rata kelas: 78</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kriteria 2: Nilai Raport Diniyah -->
+                <div class="kriteria-item">
+                    <div class="kriteria-header" onclick="toggleKriteria(this)">
+                        <div class="kriteria-header-left">
+                            <div class="kriteria-icon">🕌</div>
+                            <div class="kriteria-info">
+                                <h3>
+                                    <span class="kriteria-code">C2</span>
+                                    Nilai Raport Diniyah
+                                </h3>
+                                <span class="kriteria-bobot">Bobot: 25%</span>
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-down kriteria-toggle"></i>
+                    </div>
+                    <div class="kriteria-content">
+                        <div class="kriteria-content-inner">
+                            <div class="kriteria-detail">
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-question-circle"></i> Mengapa Penting?</h4>
+                                    <p>Membentuk karakter islami yang kuat sesuai visi sekolah. Menjadi bekal akhirat dan dunia.</p>
+                                </div>
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-book"></i> Mata Pelajaran</h4>
+                                    <ul>
+                                        <li><i class="bi bi-check-circle"></i> Al-Qur'an & Tajwid</li>
+                                        <li><i class="bi bi-check-circle"></i> Hadits</li>
+                                        <li><i class="bi bi-check-circle"></i> Fiqih</li>
+                                        <li><i class="bi bi-check-circle"></i> Aqidah Akhlak</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kriteria 3: Akhlak & Sikap -->
+                <div class="kriteria-item">
+                    <div class="kriteria-header" onclick="toggleKriteria(this)">
+                        <div class="kriteria-header-left">
+                            <div class="kriteria-icon">🤝</div>
+                            <div class="kriteria-info">
+                                <h3>
+                                    <span class="kriteria-code">C3</span>
+                                    Akhlak & Sikap
+                                </h3>
+                                <span class="kriteria-bobot">Bobot: 20%</span>
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-down kriteria-toggle"></i>
+                    </div>
+                    <div class="kriteria-content">
+                        <div class="kriteria-content-inner">
+                            <div class="kriteria-detail">
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-question-circle"></i> Mengapa Penting?</h4>
+                                    <p>Siswa teladan bukan hanya pintar, tapi juga berakhlak mulia. Cerminan keberhasilan pendidikan karakter.</p>
+                                </div>
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-star"></i> Indikator Penilaian</h4>
+                                    <ul>
+                                        <li><i class="bi bi-check-circle"></i> Sopan santun</li>
+                                        <li><i class="bi bi-check-circle"></i> Tanggung jawab</li>
+                                        <li><i class="bi bi-check-circle"></i> Kerjasama</li>
+                                        <li><i class="bi bi-check-circle"></i> Kejujuran</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kriteria 4: Hafalan Al-Qur'an -->
+                <div class="kriteria-item">
+                    <div class="kriteria-header" onclick="toggleKriteria(this)">
+                        <div class="kriteria-header-left">
+                            <div class="kriteria-icon">📖</div>
+                            <div class="kriteria-info">
+                                <h3>
+                                    <span class="kriteria-code">C4</span>
+                                    Hafalan Al-Qur'an
+                                </h3>
+                                <span class="kriteria-bobot">Bobot: 10%</span>
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-down kriteria-toggle"></i>
+                    </div>
+                    <div class="kriteria-content">
+                        <div class="kriteria-content-inner">
+                            <div class="kriteria-detail">
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-trophy"></i> Level Pencapaian</h4>
+                                    <ul>
+                                        <li><i class="bi bi-star"></i> 1/2 Juz: Skor 25</li>
+                                        <li><i class="bi bi-star"></i> 1 Juz: Skor 50</li>
+                                        <li><i class="bi bi-star"></i> 2 Juz: Skor 75</li>
+                                        <li><i class="bi bi-star"></i> >2 Juz: Skor 100</li>
+                                    </ul>
+                                </div>
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-check2-all"></i> Metode Penilaian</h4>
+                                    <p>Ujian lisan dengan tahsin yang baik. Penilaian oleh tim tahfidz sekolah.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kriteria 5: Kehadiran -->
+                <div class="kriteria-item">
+                    <div class="kriteria-header" onclick="toggleKriteria(this)">
+                        <div class="kriteria-header-left">
+                            <div class="kriteria-icon">✅</div>
+                            <div class="kriteria-info">
+                                <h3>
+                                    <span class="kriteria-code">C5</span>
+                                    Kehadiran
+                                </h3>
+                                <span class="kriteria-bobot">Bobot: 10%</span>
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-down kriteria-toggle"></i>
+                    </div>
+                    <div class="kriteria-content">
+                        <div class="kriteria-content-inner">
+                            <div class="kriteria-detail">
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-calculator"></i> Cara Hitung</h4>
+                                    <p><code>Kehadiran = (Hari Masuk / Total Hari Efektif) × 100%</code></p>
+                                </div>
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-list-check"></i> Kategori</h4>
+                                    <ul>
+                                        <li><i class="bi bi-check-circle"></i> 96-100%: Sangat Baik</li>
+                                        <li><i class="bi bi-check-circle"></i> 91-95%: Baik</li>
+                                        <li><i class="bi bi-check-circle"></i> 86-90%: Cukup</li>
+                                        <li><i class="bi bi-check-circle"></i> <85%: Perlu Perhatian</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Kriteria 6: Ekstrakurikuler -->
+                <div class="kriteria-item">
+                    <div class="kriteria-header" onclick="toggleKriteria(this)">
+                        <div class="kriteria-header-left">
+                            <div class="kriteria-icon">🏆</div>
+                            <div class="kriteria-info">
+                                <h3>
+                                    <span class="kriteria-code">C6</span>
+                                    Ekstrakurikuler
+                                </h3>
+                                <span class="kriteria-bobot">Bobot: 5%</span>
+                            </div>
+                        </div>
+                        <i class="bi bi-chevron-down kriteria-toggle"></i>
+                    </div>
+                    <div class="kriteria-content">
+                        <div class="kriteria-content-inner">
+                            <div class="kriteria-detail">
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-award"></i> Penilaian Berdasarkan</h4>
+                                    <ul>
+                                        <li><i class="bi bi-check-circle"></i> Keaktifan mengikuti kegiatan</li>
+                                        <li><i class="bi bi-check-circle"></i> Prestasi/juara yang diraih</li>
+                                        <li><i class="bi bi-check-circle"></i> Kontribusi dalam tim</li>
+                                    </ul>
+                                </div>
+                                <div class="detail-box">
+                                    <h4><i class="bi bi-flag"></i> Kegiatan Tersedia</h4>
+                                    <p>Pramuka, Seni, Olahraga, Tahfidz, Robotik, dan lainnya</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Visualization Section -->
+        <div class="viz-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="bi bi-graph-up"></i>
+                </div>
+                <h2 class="section-title">Visualisasi Data Penilaian</h2>
+                <p class="section-subtitle">Lihat gambaran umum prestasi siswa dalam bentuk grafik</p>
+            </div>
             
             <div class="row">
-                <div class="col-lg-6 mb-4">
-                    <h3 class="h5 fw-bold mb-3">Apa itu Sistem Pendukung Keputusan?</h3>
-                    <p class="text-muted">
-                        Sistem Pendukung Keputusan (SPK) merupakan sistem berbasis teknologi yang membantu sekolah dalam menentukan siswa teladan secara objektif dan transparan. Dengan SPK ini, setiap wali siswa dapat memantau perkembangan dan pencapaian putra-putrinya melalui penilaian yang terukur dan adil.
-                    </p>
-                    <div class="mt-3">
-                        <h4 class="h6 fw-bold">Manfaat untuk Wali Siswa:</h4>
-                        <ul class="list-unstyled">
-                            <li><i class="bi bi-check-circle text-success me-2"></i> Transparansi penuh dalam proses penilaian</li>
-                            <li><i class="bi bi-check-circle text-success me-2"></i> Akses mudah ke data nilai dan peringkat</li>
-                            <li><i class="bi bi-check-circle text-success me-2"></i> Pemahaman jelas tentang kriteria penilaian</li>
-                            <li><i class="bi bi-check-circle text-success me-2"></i> Monitoring perkembangan anak secara berkala</li>
-                        </ul>
+                <div class="col-lg-6">
+                    <div class="chart-container">
+                        <h4 class="chart-title">
+                            <i class="bi bi-bar-chart"></i>
+                            Top 10 Siswa Teladan
+                        </h4>
+                        <div class="chart-bars">
+                            @php
+                                $topStudents = [
+                                    ['name' => 'Ahmad Faaris', 'score' => 95.2],
+                                    ['name' => 'Nabilah', 'score' => 93.8],
+                                    ['name' => 'M. Rayyan', 'score' => 91.5],
+                                    ['name' => 'Khansa S.', 'score' => 89.7],
+                                    ['name' => 'Zainab L.', 'score' => 88.3],
+                                ];
+                            @endphp
+                            @foreach($topStudents as $student)
+                                <div class="d-flex align-items-center mb-3">
+                                    <div style="width: 120px; font-weight: 600;">{{ $student['name'] }}</div>
+                                    <div class="flex-grow-1">
+                                        <div class="progress" style="height: 25px;">
+                                            <div class="progress-bar" role="progressbar" 
+                                                 style="width: {{ $student['score'] }}%; background: linear-gradient(90deg, var(--primary-color), var(--primary-light));"
+                                                 aria-valuenow="{{ $student['score'] }}" aria-valuemin="0" aria-valuemax="100">
+                                                {{ $student['score'] }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
                 </div>
                 
-                <div class="col-lg-6 mb-4">
-                    <h3 class="h5 fw-bold mb-3">Metodologi Penilaian</h3>
-                    <p class="text-muted mb-3">
-                        Sistem kami menggunakan kombinasi dua metode ilmiah yang telah teruji:
-                    </p>
-                    <div class="alert alert-light border-start border-4 border-primary">
-                        <h5 class="alert-heading h6">1. Metode ROC (Rank Order Centroid)</h5>
-                        <p class="mb-0 small">Digunakan untuk menentukan bobot kepentingan setiap kriteria berdasarkan prioritas yang ditetapkan sekolah. Metode ini memastikan kriteria yang lebih penting mendapat bobot yang proporsional.</p>
+                <div class="col-lg-6">
+                    <div class="chart-container">
+                        <h4 class="chart-title">
+                            <i class="bi bi-pie-chart"></i>
+                            Distribusi Nilai per Kriteria
+                        </h4>
+                        <div class="text-center">
+                            <canvas id="pieChart" width="300" height="300"></canvas>
+                            <p class="text-muted mt-3">
+                                Grafik menunjukkan kontribusi setiap kriteria terhadap nilai akhir
+                            </p>
+                        </div>
                     </div>
-                    <div class="alert alert-light border-start border-4 border-info">
-                        <h5 class="alert-heading h6">2. Metode SMART (Simple Multi Attribute Rating Technique)</h5>
-                        <p class="mb-0 small">Menghitung nilai akhir siswa dengan mengubah nilai setiap kriteria menjadi nilai utilitas (0-1), kemudian mengalikan dengan bobot kriteria untuk mendapatkan skor preferensi total.</p>
-                    </div>
                 </div>
-            </div>
-            
-            <h3 class="h5 fw-bold mt-4 mb-3">Kriteria Penilaian</h3>
-            <p class="text-muted">Berikut adalah enam kriteria yang digunakan dalam penilaian siswa teladan:</p>
-            
-            <div class="kriteria-grid">
-                <div class="kriteria-card">
-                    <span class="kriteria-code">C1</span>
-                    <div class="kriteria-name">Nilai Raport Umum</div>
-                    <div class="kriteria-desc">Mencakup seluruh mata pelajaran umum dengan rentang nilai 0-100. Kriteria ini memiliki prioritas tertinggi karena mencerminkan prestasi akademik siswa.</div>
-                </div>
-                
-                <div class="kriteria-card">
-                    <span class="kriteria-code">C2</span>
-                    <div class="kriteria-name">Nilai Raport Diniyah</div>
-                    <div class="kriteria-desc">Meliputi mata pelajaran keagamaan seperti Al-Qur'an, Hadits, Fiqih, dan Aqidah. Penting untuk membentuk karakter islami siswa.</div>
-                </div>
-                
-                <div class="kriteria-card">
-                    <span class="kriteria-code">C3</span>
-                    <div class="kriteria-name">Akhlak</div>
-                    <div class="kriteria-desc">Penilaian perilaku dan sikap siswa sehari-hari di sekolah, meliputi kedisiplinan, sopan santun, dan interaksi dengan guru serta teman.</div>
-                </div>
-                
-                <div class="kriteria-card">
-                    <span class="kriteria-code">C4</span>
-                    <div class="kriteria-name">Hafalan Al-Qur'an</div>
-                    <div class="kriteria-desc">Jumlah hafalan juz Al-Qur'an yang telah dikuasai siswa dengan tahsin yang baik.</div>
-                </div>
-                
-                <div class="kriteria-card">
-                    <span class="kriteria-code">C5</span>
-                    <div class="kriteria-name">Kehadiran</div>
-                    <div class="kriteria-desc">Persentase kehadiran siswa dalam kegiatan belajar mengajar selama satu semester.</div>
-                </div>
-                
-                <div class="kriteria-card">
-                    <span class="kriteria-code">C6</span>
-                    <div class="kriteria-name">Ekstrakurikuler</div>
-                    <div class="kriteria-desc">Partisipasi dan prestasi siswa dalam kegiatan ekstrakurikuler sekolah.</div>
-                </div>
-            </div>
-            
-            <div class="alert alert-info mt-4">
-                <i class="bi bi-info-circle me-2"></i>
-                <strong>Catatan:</strong> Bobot setiap kriteria telah ditetapkan oleh tim akademik sekolah melalui rapat dewan guru dan diolah secara otomatis menggunakan metode ROC untuk memastikan objektifitas.
             </div>
         </div>
         
-        <!-- Cara Kerja -->
-        <div class="info-section">
-            <div class="section-icon">
-                <i class="bi bi-gear"></i>
-            </div>
-            <h2 class="section-title">Cara Kerja Sistem</h2>
-            <p class="section-lead">Proses penilaian dilakukan melalui langkah-langkah berikut:</p>
-            
-            <div class="process-steps">
-                <div class="process-step">
-                    <div class="step-number">1</div>
-                    <div class="step-content">
-                        <h4>Penetapan Prioritas</h4>
-                        <p>Tim akademik sekolah menetapkan urutan prioritas keenam kriteria berdasarkan visi-misi sekolah. Sistem kemudian menghitung bobot setiap kriteria menggunakan metode ROC secara otomatis.</p>
-                    </div>
+        <!-- Search & Filter Section -->
+        <div class="search-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="bi bi-search"></i>
                 </div>
-                
-                <div class="process-step">
-                    <div class="step-number">2</div>
-                    <div class="step-content">
-                        <h4>Normalisasi Nilai</h4>
-                        <p>Setiap nilai kriteria dari seluruh siswa dinormalisasi ke skala 0-1 menggunakan metode SMART. Proses ini memastikan perbandingan yang adil antar kriteria yang memiliki skala berbeda.</p>
-                    </div>
-                </div>
-                
-                <div class="process-step">
-                    <div class="step-number">3</div>
-                    <div class="step-content">
-                        <h4>Perhitungan Skor Akhir</h4>
-                        <p>Nilai normalisasi dikalikan dengan bobot kriteria, kemudian dijumlahkan untuk mendapatkan Skor Preferensi. Siswa dengan skor tertinggi menjadi kandidat siswa teladan.</p>
-                    </div>
-                </div>
+                <h2 class="section-title">Cek Nilai Anak Anda</h2>
+                <p class="section-subtitle">
+                    Wali siswa dapat melihat rincian nilai untuk setiap kriteria penilaian
+                </p>
             </div>
             
-            <div class="alert alert-success mt-4">
-                <i class="bi bi-lightbulb me-2"></i>
-                Bayangkan sistem ini seperti lomba dengan beberapa kategori - setiap kategori memiliki "nilai penting" yang berbeda, dan semua dinilai secara adil untuk menentukan pemenang keseluruhan.
-            </div>
-        </div>
-        
-        <!-- Form Pencarian -->
-        <div class="info-section search-section">
-            <div class="section-icon">
-                <i class="bi bi-search"></i>
-            </div>
-            <h2 class="section-title">Cek Nilai Siswa</h2>
-            <p class="section-lead">Wali siswa dapat melihat rincian nilai untuk setiap kriteria penilaian. Silakan masukkan data berikut untuk mengakses informasi nilai:</p>
-            
-            <form action="{{ route('cek.nilai') ?? '#' }}" method="GET" id="formCekNilai">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group">
-                            <label class="form-label">NISN atau Nama Siswa <span class="required">*</span></label>
-                            <input type="text" class="form-control" name="search" placeholder="Masukkan NISN atau nama lengkap" required>
-                            <div class="form-help">Masukkan Nomor Induk Siswa Nasional atau nama lengkap siswa sesuai data sekolah</div>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Kelas</label>
-                            <select class="form-control" name="kelas">
-                                <option value="">Pilih Kelas</option>
-                                <option value="6A">Kelas 6A</option>
-                                <option value="6B">Kelas 6B</option>
-                                <option value="6C">Kelas 6C</option>
-                                <option value="6D">Kelas 6D</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="form-label">Periode Penilaian</label>
-                            <select class="form-control" name="periode">
-                                <option value="">Periode Aktif</option>
-                                @foreach($periodes ?? [] as $periode)
-                                    <option value="{{ $periode->id }}">{{ $periode->nama_periode }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn-search">
+            <form action="{{ route('cek.nilai') }}" method="GET">
+                <div class="search-box">
+                    <input type="text" class="search-input" name="search" 
+                           placeholder="Masukkan NISN atau nama lengkap siswa..." required>
+                    <button type="submit" class="search-btn">
                         <i class="bi bi-search"></i>
-                        Tampilkan Nilai
+                    </button>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-item">
+                        <label>Kelas</label>
+                        <select class="filter-select" name="kelas">
+                            <option value="">Semua Kelas</option>
+                            <option value="6A">Kelas 6A</option>
+                            <option value="6B">Kelas 6B</option>
+                            <option value="6C">Kelas 6C</option>
+                            <option value="6D">Kelas 6D</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-item">
+                        <label>Semester</label>
+                        <select class="filter-select" name="semester">
+                            <option value="">Semester Aktif</option>
+                            <option value="ganjil">Ganjil</option>
+                            <option value="genap">Genap</option>
+                        </select>
+                    </div>
+                    
+                    <div class="filter-item">
+                        <label>Tahun Ajaran</label>
+                        <select class="filter-select" name="tahun">
+                            <option value="">{{ date('Y') }}/{{ date('Y') + 1 }}</option>
+                            <option value="2024">2024/2025</option>
+                            <option value="2023">2023/2024</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="view-toggle">
+                    <button type="button" class="toggle-btn active" onclick="setViewMode('detail')">
+                        <i class="bi bi-list-ul"></i> Detail Skor
+                    </button>
+                    <button type="button" class="toggle-btn" onclick="setViewMode('ranking')">
+                        <i class="bi bi-trophy"></i> Peringkat
+                    </button>
+                    <button type="button" class="toggle-btn" onclick="setViewMode('progress')">
+                        <i class="bi bi-graph-up-arrow"></i> Progres
+                    </button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button type="button" class="action-btn primary">
+                        <i class="bi bi-file-earmark-pdf"></i> Download PDF
+                    </button>
+                    <button type="button" class="action-btn secondary">
+                        <i class="bi bi-printer"></i> Cetak Laporan
+                    </button>
+                    <button type="button" class="action-btn secondary">
+                        <i class="bi bi-envelope"></i> Email Hasil
                     </button>
                 </div>
             </form>
             
-            <div class="privacy-note">
-                <i class="bi bi-shield-lock"></i>
-                <strong>Privasi Data:</strong> Informasi nilai bersifat rahasia dan hanya dapat diakses oleh wali siswa yang bersangkutan. Data ini tidak untuk disebarluaskan atau dibandingkan dengan siswa lain di luar kepentingan evaluasi pribadi.
+            <div class="alert alert-info mt-4">
+                <i class="bi bi-shield-lock me-2"></i>
+                <strong>Privasi Data:</strong> Informasi nilai bersifat rahasia dan hanya dapat diakses oleh wali siswa yang bersangkutan. 
+                Data ini tidak untuk disebarluaskan atau dibandingkan dengan siswa lain di luar kepentingan evaluasi pribadi.
             </div>
         </div>
         
-        <!-- Panduan Penggunaan -->
-        <div class="info-section" id="panduan">
-            <div class="section-icon">
-                <i class="bi bi-question-circle"></i>
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <div class="section-header">
+                <div class="section-icon">
+                    <i class="bi bi-question-circle"></i>
+                </div>
+                <h2 class="section-title">Panduan & Pertanyaan Umum</h2>
+                <p class="section-subtitle">Temukan jawaban untuk pertanyaan yang sering diajukan</p>
             </div>
-            <h2 class="section-title">Panduan Penggunaan</h2>
-            <p class="section-lead">Pertanyaan yang Sering Diajukan</p>
             
-            <div class="faq-accordion">
+            <div class="faq-grid">
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <span>Bagaimana jika ada nama siswa yang mirip?</span>
-                        <i class="bi bi-chevron-down"></i>
+                    <div class="faq-question">
+                        <i class="bi bi-patch-question"></i>
+                        Apa itu bobot kriteria?
                     </div>
                     <div class="faq-answer">
-                        <p>Gunakan NISN untuk pencarian yang lebih akurat. Jika menggunakan nama, pastikan penulisan sesuai dengan data sekolah termasuk penggunaan huruf kapital.</p>
+                        Bobot adalah tingkat kepentingan setiap kriteria. Misal, nilai akademik (30%) 
+                        lebih berpengaruh dibanding ekstrakurikuler (5%) dalam menentukan siswa teladan.
                     </div>
                 </div>
                 
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <span>Mengapa skor anak saya berbeda antar periode?</span>
-                        <i class="bi bi-chevron-down"></i>
+                    <div class="faq-question">
+                        <i class="bi bi-patch-question"></i>
+                        Bagaimana cara ROC-SMART bekerja?
                     </div>
                     <div class="faq-answer">
-                        <p>Skor dapat berubah karena: (1) perkembangan nilai siswa, (2) perubahan nilai siswa lain yang mempengaruhi normalisasi, atau (3) penyesuaian bobot kriteria oleh sekolah.</p>
+                        ROC menentukan bobot berdasarkan prioritas, SMART menormalisasi nilai ke skala 0-1. 
+                        Hasilnya adalah skor preferensi yang adil untuk semua siswa.
                     </div>
                 </div>
                 
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <span>Siapa yang menentukan bobot kriteria?</span>
-                        <i class="bi bi-chevron-down"></i>
+                    <div class="faq-question">
+                        <i class="bi bi-patch-question"></i>
+                        Kapan data nilai diperbarui?
                     </div>
                     <div class="faq-answer">
-                        <p>Bobot kriteria ditetapkan melalui rapat dewan guru berdasarkan prioritas pendidikan sekolah. Perhitungan bobot menggunakan metode ROC untuk memastikan konsistensi.</p>
+                        Setiap akhir bulan untuk nilai harian dan akhir semester untuk nilai raport. 
+                        Pembaruan dilakukan oleh wali kelas masing-masing.
                     </div>
                 </div>
                 
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <span>Bagaimana jika data nilai tampak tidak lengkap?</span>
-                        <i class="bi bi-chevron-down"></i>
+                    <div class="faq-question">
+                        <i class="bi bi-patch-question"></i>
+                        Bagaimana jika ada kesalahan data?
                     </div>
                     <div class="faq-answer">
-                        <p>Segera hubungi wali kelas untuk verifikasi data. Kemungkinan ada nilai yang belum diinput atau sedang dalam proses validasi.</p>
+                        Segera hubungi wali kelas untuk verifikasi dan koreksi data. 
+                        Perubahan akan langsung terlihat setelah diperbarui.
                     </div>
                 </div>
                 
                 <div class="faq-item">
-                    <div class="faq-question" onclick="toggleFaq(this)">
-                        <span>Ke mana saya harus menghubungi untuk koreksi data?</span>
-                        <i class="bi bi-chevron-down"></i>
+                    <div class="faq-question">
+                        <i class="bi bi-patch-question"></i>
+                        Mengapa skor anak saya berubah?
                     </div>
                     <div class="faq-answer">
-                        <p>Hubungi wali kelas terlebih dahulu. Untuk masalah teknis, hubungi bagian administrasi sekolah di jam kerja.</p>
+                        Skor dapat berubah karena: (1) perkembangan nilai siswa, (2) perubahan nilai siswa lain 
+                        yang mempengaruhi normalisasi, atau (3) penyesuaian bobot kriteria.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <i class="bi bi-patch-question"></i>
+                        Bisakah melihat nilai siswa lain?
+                    </div>
+                    <div class="faq-answer">
+                        Tidak. Setiap wali hanya dapat melihat nilai anak sendiri. 
+                        Namun peringkat umum dapat dilihat tanpa detail nilai.
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Kebijakan & Privasi -->
-        <div class="info-section">
-            <div class="section-icon">
-                <i class="bi bi-shield-check"></i>
-            </div>
-            <h2 class="section-title">Kebijakan & Privasi</h2>
-            <p class="section-lead">Komitmen Kami terhadap Data Anda</p>
-            
-            <div class="policy-grid">
-                <div class="policy-card">
-                    <div class="policy-icon">
-                        <i class="bi bi-clipboard-check"></i>
-                    </div>
-                    <h4 class="policy-title">Akuntabilitas Data</h4>
-                    <p class="policy-desc">Seluruh data penilaian dikelola dengan sistem yang aman dan hanya dapat diakses oleh pihak yang berwenang.</p>
-                </div>
-                
-                <div class="policy-card">
-                    <div class="policy-icon">
-                        <i class="bi bi-lock"></i>
-                    </div>
-                    <h4 class="policy-title">Keamanan Informasi</h4>
-                    <p class="policy-desc">Data siswa dilindungi dengan enkripsi dan hanya dapat diakses menggunakan kredensial yang valid.</p>
-                </div>
-                
-                <div class="policy-card">
-                    <div class="policy-icon">
-                        <i class="bi bi-pencil-square"></i>
-                    </div>
-                    <h4 class="policy-title">Hak Koreksi</h4>
-                    <p class="policy-desc">Wali siswa berhak mengajukan koreksi jika menemukan ketidaksesuaian data dengan bukti pendukung.</p>
-                </div>
-                
-                <div class="policy-card">
-                    <div class="policy-icon">
-                        <i class="bi bi-arrow-clockwise"></i>
-                    </div>
-                    <h4 class="policy-title">Pembaruan Data</h4>
-                    <p class="policy-desc">Data nilai diperbarui setiap akhir bulan untuk penilaian harian dan akhir semester untuk nilai raport.</p>
-                </div>
-            </div>
-            
-            <div class="alert alert-light border mt-4">
-                <i class="bi bi-book me-2"></i>
-                Untuk informasi lebih lanjut tentang kebijakan sekolah terkait penilaian siswa teladan, silakan merujuk ke <strong>Buku Panduan Akademik SDIT As Sunnah Cirebon</strong>.
-            </div>
-        </div>
-        
-        <!-- Footer Info -->
-        <div class="footer-info">
-            <div class="school-info">
-                <h3>SDIT As Sunnah Cirebon</h3>
-                <p>Jl. Pendidikan No. 123, Cirebon</p>
-                
-                <div class="contact-info">
-                    <div class="contact-item">
-                        <i class="bi bi-clock"></i>
-                        <span>Senin-Jumat, 07.30-15.00 WIB</span>
-                    </div>
-                    <div class="contact-item">
-                        <i class="bi bi-calendar"></i>
-                        <span>Sabtu, 07.30-12.00 WIB</span>
-                    </div>
-                </div>
-                
-                <div class="quick-links">
-                    <a href="{{ url('/') }}">
-                        <i class="bi bi-house me-1"></i> Beranda
-                    </a>
-                    <a href="{{ route('hasil.publik') }}">
-                        <i class="bi bi-trophy me-1"></i> Hasil Peringkat
-                    </a>
-                    <a href="#contact">
-                        <i class="bi bi-telephone me-1"></i> Kontak Sekolah
-                    </a>
-                </div>
-            </div>
+    </div>
+    
+    <!-- Floating Action Button -->
+    <div class="fab" onclick="window.location.href='{{ route('cek.nilai') }}'">
+        <i class="bi bi-search"></i>
+        <span class="fab-tooltip">Cek Nilai Anak Saya</span>
+    </div>
+    
+    <!-- Tour Overlay (Hidden by default) -->
+    <div class="tour-overlay" id="tourOverlay"></div>
+    <div class="tour-tooltip" id="tourTooltip" style="display: none;">
+        <h4>Selamat Datang!</h4>
+        <p>Mari kami tunjukkan cara menggunakan sistem penilaian siswa teladan.</p>
+        <div class="tour-buttons">
+            <button class="tour-btn skip" onclick="skipTour()">Lewati</button>
+            <button class="tour-btn next" onclick="nextTourStep()">Lanjut</button>
         </div>
     </div>
 </div>
@@ -801,48 +1385,184 @@
 
 @section('scripts')
 <script>
-    // Toggle FAQ items
-    function toggleFaq(element) {
-        const faqItem = element.parentElement;
-        const wasActive = faqItem.classList.contains('active');
+    // Toggle Kriteria Accordion
+    function toggleKriteria(element) {
+        const item = element.parentElement;
+        const wasActive = item.classList.contains('active');
         
-        // Close all FAQ items
-        document.querySelectorAll('.faq-item').forEach(item => {
-            item.classList.remove('active');
+        // Close all items
+        document.querySelectorAll('.kriteria-item').forEach(el => {
+            el.classList.remove('active');
         });
         
         // Open clicked item if it wasn't active
         if (!wasActive) {
-            faqItem.classList.add('active');
+            item.classList.add('active');
         }
     }
     
-    // Form validation
-    document.getElementById('formCekNilai')?.addEventListener('submit', function(e) {
-        e.preventDefault();
+    // View Mode Toggle
+    function setViewMode(mode) {
+        document.querySelectorAll('.toggle-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        event.target.closest('.toggle-btn').classList.add('active');
         
-        const search = this.search.value.trim();
-        if (!search) {
-            alert('Mohon masukkan NISN atau nama siswa');
+        // Here you would handle the actual view mode change
+        showToast('Mode tampilan: ' + mode, 'info');
+    }
+    
+    // Toast Notification
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `
+            <i class="bi bi-${type === 'success' ? 'check-circle' : type === 'error' ? 'x-circle' : 'info-circle'}"></i>
+            <span>${message}</span>
+        `;
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+    
+    // Tour Functions
+    let tourStep = 0;
+    const tourSteps = [
+        { element: '.search-box', text: 'Masukkan NISN atau nama anak Anda di sini' },
+        { element: '.filter-group', text: 'Filter hasil berdasarkan kelas dan periode' },
+        { element: '.view-toggle', text: 'Pilih mode tampilan yang Anda inginkan' },
+        { element: '.action-buttons', text: 'Download atau cetak laporan nilai' }
+    ];
+    
+    function startTour() {
+        const isFirstVisit = !localStorage.getItem('tourCompleted');
+        if (isFirstVisit) {
+            document.getElementById('tourOverlay').style.display = 'block';
+            document.getElementById('tourTooltip').style.display = 'block';
+            showTourStep(0);
+        }
+    }
+    
+    function showTourStep(step) {
+        if (step >= tourSteps.length) {
+            endTour();
             return;
         }
         
-        // Here you would normally submit the form or make an AJAX request
-        alert('Fitur pencarian nilai akan segera tersedia. Silakan hubungi wali kelas untuk informasi nilai.');
+        const currentStep = tourSteps[step];
+        const element = document.querySelector(currentStep.element);
+        const tooltip = document.getElementById('tourTooltip');
+        
+        if (element) {
+            const rect = element.getBoundingClientRect();
+            tooltip.style.top = rect.bottom + 10 + 'px';
+            tooltip.style.left = rect.left + 'px';
+            tooltip.querySelector('p').textContent = currentStep.text;
+        }
+        
+        tourStep = step;
+    }
+    
+    function nextTourStep() {
+        showTourStep(tourStep + 1);
+    }
+    
+    function skipTour() {
+        endTour();
+    }
+    
+    function endTour() {
+        document.getElementById('tourOverlay').style.display = 'none';
+        document.getElementById('tourTooltip').style.display = 'none';
+        localStorage.setItem('tourCompleted', 'true');
+        showToast('Anda dapat memulai tur kembali dari menu bantuan', 'info');
+    }
+    
+    // Simple Pie Chart Drawing
+    function drawPieChart() {
+        const canvas = document.getElementById('pieChart');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        const radius = 100;
+        
+        const data = [
+            { label: 'Nilai Umum', value: 30, color: '#ff6b35' },
+            { label: 'Nilai Diniyah', value: 25, color: '#ff8c5a' },
+            { label: 'Akhlak', value: 20, color: '#ffa374' },
+            { label: 'Hafalan', value: 10, color: '#ffb891' },
+            { label: 'Kehadiran', value: 10, color: '#ffcdb0' },
+            { label: 'Ekskul', value: 5, color: '#ffe2cf' }
+        ];
+        
+        let currentAngle = -Math.PI / 2;
+        
+        data.forEach(segment => {
+            const sliceAngle = (segment.value / 100) * 2 * Math.PI;
+            
+            // Draw slice
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+            ctx.lineTo(centerX, centerY);
+            ctx.fillStyle = segment.color;
+            ctx.fill();
+            
+            // Draw label
+            const labelX = centerX + Math.cos(currentAngle + sliceAngle / 2) * (radius * 0.7);
+            const labelY = centerY + Math.sin(currentAngle + sliceAngle / 2) * (radius * 0.7);
+            
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(segment.value + '%', labelX, labelY);
+            
+            currentAngle += sliceAngle;
+        });
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Draw pie chart
+        drawPieChart();
+        
+        // Start tour for first-time visitors
+        // startTour(); // Uncomment to enable tour
+        
+        // Animate progress bars on scroll
+        const observerOptions = {
+            threshold: 0.5,
+            rootMargin: '0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'none';
+                    setTimeout(() => {
+                        entry.target.style.animation = '';
+                    }, 10);
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.progress-fill').forEach(el => {
+            observer.observe(el);
+        });
     });
     
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
+    // Handle form submission
+    document.querySelector('form')?.addEventListener('submit', function(e) {
+        const searchInput = this.querySelector('input[name="search"]');
+        if (!searchInput.value.trim()) {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
+            showToast('Mohon masukkan NISN atau nama siswa', 'error');
+            searchInput.focus();
+        }
     });
 </script>
 @endsection

@@ -24,6 +24,15 @@ Route::get('/informasi', [PublicController::class, 'informasi'])->name('informas
 Route::get('/cek-nilai', [PublicController::class, 'cekNilai'])->name('cek.nilai');
 Route::post('/cek-nilai', [PublicController::class, 'prosesNilai'])->name('cek.nilai.proses');
 
+// AJAX Routes untuk fitur search & charts
+Route::get('/search/autocomplete', [PublicController::class, 'searchAutocomplete'])->name('search.autocomplete');
+Route::get('/api/chart-data', [PublicController::class, 'getChartData'])->name('chart.data');
+
+// PDF & Email Routes
+Route::post('/nilai/pdf', [PublicController::class, 'downloadNilaiPDF'])->name('nilai.pdf');
+Route::post('/nilai/email', [PublicController::class, 'sendNilaiEmail'])->name('nilai.email');
+Route::get('/hasil-nilai', [PublicController::class, 'prosesNilai'])->name('hasil.nilai');
+
 // Auth Routes
 Route::middleware('auth')->group(function () {
     // Profile Routes
