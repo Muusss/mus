@@ -7,18 +7,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class AlternatifResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
-            'kode' => $this->kode,
-            'alternatif' => $this->alternatif,
-            'keterangan' => $this->keterangan,
+            'nis' => $this->nis,
+            'nama_siswa' => $this->nama_siswa,
+            'alternatif' => $this->nama_siswa, // alias for compatibility
+            'jk' => $this->jk,
+            'kelas' => $this->kelas,
         ];
     }
 }

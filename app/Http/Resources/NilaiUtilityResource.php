@@ -7,18 +7,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class NilaiUtilityResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
-            'alternatif' => new AlternatifResource($this->alternatif_id),
-            'kriteria' => new KriteriaResource($this->kriteria_id),
+            'alternatif_id' => $this->alternatif_id,
+            'kriteria_id' => $this->kriteria_id,
             'nilai' => $this->nilai,
         ];
     }
 }
+

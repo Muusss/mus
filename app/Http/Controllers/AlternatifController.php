@@ -17,8 +17,6 @@ use App\Models\Periode;
 
 class AlternatifController extends Controller
 {
-    
-
     /** Helper sederhana: cek wali_kelas */
     private function isWali(?User $u): bool
     {
@@ -49,8 +47,18 @@ class AlternatifController extends Controller
         $alternatif = $q->orderBy('kelas', 'asc')->orderBy('nis', 'asc')->get();
         
         $kelasList = ['6A', '6B', '6C', '6D'];
+        
+        // Calculate statistics per class
+        $stats = [];
+        foreach($kelasList as $kelas) {
+            $stats[$kelas] = [
+                'total' => Alternatif::where('kelas', $kelas)->count(),
+                'lk' => Alternatif::where('kelas', $kelas)->where('jk', 'Lk')->count(),
+                'pr' => Alternatif::where('kelas', $kelas)->where('jk', 'Pr')->count(),
+            ];
+        }
 
-        return view('dashboard.alternatif.index', compact('title', 'alternatif', 'kelasFilter', 'kelasList'));
+        return view('dashboard.alternatif.index', compact('title', 'alternatif', 'kelasFilter', 'kelasList', 'stats'));
     }
 
     /** STORE */
@@ -139,7 +147,7 @@ class AlternatifController extends Controller
             "Perhitungan ROC + SMART untuk {$periodeAktif->nama_periode} selesai");
     }
 
-    // Tambahkan method ini di AlternatifController
+    // Method untuk halaman perhitungan
     public function indexPerhitungan()
     {
         $title = "Hasil Perhitungan ROC + SMART";
