@@ -1,0 +1,120 @@
+/* Custom styles for Informasi SPK page */
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Accordion animations */
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.accordion-content.show {
+    max-height: 500px;
+    transition: max-height 0.3s ease-in;
+}
+
+/* FAQ animations */
+.faq-content {
+    transition: all 0.3s ease;
+}
+
+/* Progress bars for kriteria */
+.progress-bar-custom {
+    background: linear-gradient(90deg, #ff6b35 0%, #e55100 100%);
+    border-radius: 10px;
+    height: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar-custom::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* Card hover effects */
+.kriteria-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kriteria-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Tooltip styles */
+.tooltip-custom {
+    position: relative;
+    cursor: help;
+}
+
+.tooltip-custom::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.tooltip-custom:hover::after {
+    opacity: 1;
+}
+
+/* Loading animation */
+.loading-spinner {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #ff6b35;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+    .accordion-content.show {
+        max-height: 800px;
+    }
+    
+    .kriteria-card {
+        margin-bottom: 1rem;
+    }
+}
