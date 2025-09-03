@@ -108,6 +108,8 @@
             z-index: 1000;
             display: flex;
             gap: 15px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
         
         .nav-btn {
@@ -132,6 +134,16 @@
             box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
         
+        .nav-btn.primary {
+            background: rgba(255, 107, 53, 0.9);
+            border-color: var(--primary-color);
+        }
+        
+        .nav-btn.primary:hover {
+            background: white;
+            color: var(--primary-color);
+        }
+        
         .nav-btn i {
             font-size: 18px;
         }
@@ -154,7 +166,7 @@
             padding: 60px;
             box-shadow: 0 25px 50px rgba(0,0,0,0.2);
             text-align: center;
-            max-width: 700px;
+            max-width: 800px;
             width: 100%;
             animation: slideUp 0.8s ease-out;
         }
@@ -181,23 +193,23 @@
         }
         
         .logo{
-        width: var(--logo-size);
-        height: var(--logo-size);
-        border-radius: 24px;        /* opsional: samakan radius dengan login */
-        padding: 16px;              /* opsional: samakan padding dengan login */
-        background: #fff;
-        border: 3px solid var(--primary-color);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 10px 30px rgba(0,0,0,.1);
+            width: var(--logo-size);
+            height: var(--logo-size);
+            border-radius: 24px;
+            padding: 16px;
+            background: #fff;
+            border: 3px solid var(--primary-color);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,.1);
         }
         
         .logo img{
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        background: transparent;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: transparent;
         }
         
         .logo-fallback {
@@ -237,22 +249,93 @@
             margin-bottom: 30px;
         }
         
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .action-card {
+            background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,107,53,0.05));
+            border-radius: 20px;
+            padding: 25px;
+            text-decoration: none;
+            color: var(--dark-color);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .action-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--primary-light));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255,107,53,0.2);
+            border-color: var(--primary-color);
+        }
+        
+        .action-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .action-icon {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+        }
+        
+        .action-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--dark-color);
+        }
+        
+        .action-desc {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+        
+        /* Features */
         .features {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 20px;
-            margin-top: 40px;
+            margin-top: 30px;
         }
         
         .feature {
             padding: 20px;
-            background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,107,53,0.05));
+            background: #f8f9fa;
             border-radius: 15px;
             transition: transform 0.3s ease;
         }
         
         .feature:hover {
             transform: translateY(-5px);
+            background: white;
         }
         
         .feature i {
@@ -285,16 +368,20 @@
         /* Responsive */
         @media (max-width: 768px) {
             :root{ --logo-size: 120px; }
+            
             .nav-container {
                 top: 10px;
                 right: 10px;
+                left: 10px;
                 flex-direction: column;
-                width: auto;
+                gap: 10px;
             }
             
             .nav-btn {
                 padding: 10px 20px;
                 font-size: 0.9rem;
+                width: 100%;
+                justify-content: center;
             }
             
             .content-box {
@@ -302,16 +389,20 @@
             }
             
             .title {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
             
             .school-name {
-                font-size: 1.5rem;
+                font-size: 1.4rem;
             }
             
             .logo {
                 width: 120px;
                 height: 120px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
             }
             
             .features {
@@ -341,9 +432,17 @@
     
     <!-- Navigation -->
     <div class="nav-container">
+        <a href="{{ route('informasi') }}" class="nav-btn">
+            <i class="bi bi-info-circle"></i>
+            <span>Informasi Sistem</span>
+        </a>
         <a href="{{ route('hasil.publik') }}" class="nav-btn">
             <i class="bi bi-trophy"></i>
             <span>Hasil Peringkat</span>
+        </a>
+        <a href="{{ route('cek.nilai') }}" class="nav-btn primary">
+            <i class="bi bi-search"></i>
+            <span>Cek Nilai</span>
         </a>
         @if (Route::has('login'))
             @auth
@@ -365,13 +464,11 @@
         <div class="content-box">
             <!-- Logo -->
             <div class="logo glow">
-            <img src="{{ asset('img/logo-yac.png') }}" alt="Logo YAC">
+                <img src="{{ asset('img/logo-yac.png') }}" alt="Logo YAC">
             </div>
-
             
             <!-- Title -->
             <h1 class="title">SPK PENILAIAN SISWA TELADAN</h1>
-            {{-- <p class="subtitle">SISTEM PENDUKUNG KEPUTUSAN</p> --}}
             <h2 class="school-name">SDIT AS SUNNAH CIREBON</h2>
             
             <!-- Description -->
@@ -380,6 +477,33 @@
                 dan SMART (Simple Multi Attribute Rating Technique) untuk menentukan siswa 
                 berprestasi berdasarkan kriteria akademik, akhlak, dan keaktifan.
             </p>
+            
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="{{ route('informasi') }}" class="action-card">
+                    <div class="action-icon">
+                        <i class="bi bi-book"></i>
+                    </div>
+                    <div class="action-title">Panduan Sistem</div>
+                    <div class="action-desc">Pelajari cara kerja sistem penilaian</div>
+                </a>
+                
+                <a href="{{ route('hasil.publik') }}" class="action-card">
+                    <div class="action-icon">
+                        <i class="bi bi-trophy"></i>
+                    </div>
+                    <div class="action-title">Lihat Peringkat</div>
+                    <div class="action-desc">Hasil peringkat siswa teladan</div>
+                </a>
+                
+                <a href="{{ route('cek.nilai') }}" class="action-card">
+                    <div class="action-icon">
+                        <i class="bi bi-search"></i>
+                    </div>
+                    <div class="action-title">Cek Nilai Siswa</div>
+                    <div class="action-desc">Lihat detail nilai per kriteria</div>
+                </a>
+            </div>
             
             <!-- Features -->
             <div class="features">
@@ -392,6 +516,11 @@
                     <i class="bi bi-graph-up"></i>
                     <h4>6 Kriteria</h4>
                     <p>Penilaian komprehensif</p>
+                </div>
+                <div class="feature">
+                    <i class="bi bi-shield-check"></i>
+                    <h4>Transparan</h4>
+                    <p>Objektif & akuntabel</p>
                 </div>
                 <div class="feature">
                     <i class="bi bi-people"></i>

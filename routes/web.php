@@ -18,8 +18,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-// Halaman Hasil Publik - bisa diakses tanpa login
+// Halaman Publik - bisa diakses tanpa login
 Route::get('/hasil-peringkat', [PublicController::class, 'hasilPublik'])->name('hasil.publik');
+Route::get('/informasi', [PublicController::class, 'informasi'])->name('informasi');
+Route::get('/cek-nilai', [PublicController::class, 'cekNilai'])->name('cek.nilai');
+Route::post('/cek-nilai', [PublicController::class, 'prosesNilai'])->name('cek.nilai.proses');
 
 // Auth Routes
 Route::middleware('auth')->group(function () {
