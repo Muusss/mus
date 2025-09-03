@@ -1,479 +1,412 @@
-@extends('layouts.public')
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SPK Siswa Teladan - SDIT As Sunnah Cirebon</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,800&display=swap" rel="stylesheet" />
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link rel="icon" type="image/png" href="{{ asset('img/logo-yac.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('img/logo-yac.png') }}">
+    <style>
+        :root {
+            --primary-color: #ff6b35;
+            --primary-dark: #e55100;
+            --primary-light: #ff8c5a;
+            --secondary-color: #2c2c2c;
+            --dark-color: #1a1a1a;
+            --accent-green: #1cc88a;
+            --logo-size: 150px; 
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Figtree', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+        
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Floating shapes */
+        .shape {
+            position: absolute;
+            opacity: 0.1;
+        }
+        
+        .shape-1 {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            top: 10%;
+            left: 10%;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .shape-2 {
+            width: 120px;
+            height: 120px;
+            background: white;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            bottom: 10%;
+            right: 10%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+        
+        .shape-3 {
+            width: 60px;
+            height: 60px;
+            background: white;
+            transform: rotate(45deg);
+            top: 50%;
+            right: 5%;
+            animation: float 7s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+        
+        /* Navigation */
+        .nav-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 15px;
+        }
+        
+        .nav-btn {
+            padding: 12px 30px;
+            border: 2px solid white;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .nav-btn:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        .nav-btn i {
+            font-size: 18px;
+        }
+        
+        /* Main Content */
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .content-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 60px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            text-align: center;
+            max-width: 700px;
+            width: 100%;
+            animation: slideUp 0.8s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .logo-container {
+            margin-bottom: 30px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .logo{
+        width: var(--logo-size);
+        height: var(--logo-size);
+        border-radius: 24px;        /* opsional: samakan radius dengan login */
+        padding: 16px;              /* opsional: samakan padding dengan login */
+        background: #fff;
+        border: 3px solid var(--primary-color);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,.1);
+        }
+        
+        .logo img{
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: transparent;
+        }
+        
+        .logo-fallback {
+            font-size: 60px;
+            color: var(--primary-color);
+        }
+        
+        .title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--dark-color);
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .school-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+        
+        .description {
+            color: #777;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .feature {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(255,107,53,0.1), rgba(255,107,53,0.05));
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+        
+        .feature h4 {
+            font-size: 1rem;
+            color: var(--dark-color);
+            margin-bottom: 5px;
+        }
+        
+        .feature p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+        
+        /* Footer */
+        .footer {
+            background: rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: auto;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            :root{ --logo-size: 120px; }
+            .nav-container {
+                top: 10px;
+                right: 10px;
+                flex-direction: column;
+                width: auto;
+            }
+            
+            .nav-btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .content-box {
+                padding: 40px 30px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .school-name {
+                font-size: 1.5rem;
+            }
+            
+            .logo {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Glow effect */
+        .glow {
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes glow {
+            from { box-shadow: 0 0 10px -10px var(--primary-color); }
+            to { box-shadow: 0 0 20px 10px var(--primary-color); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation"></div>
+    
+    <!-- Floating Shapes -->
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    
+    <!-- Navigation -->
+    <div class="nav-container">
+        <a href="{{ route('hasil.publik') }}" class="nav-btn">
+            <i class="bi bi-trophy"></i>
+            <span>Hasil Peringkat</span>
+        </a>
+        @if (Route::has('login'))
+            @auth
+                <a href="{{ url('/dashboard') }}" class="nav-btn">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="nav-btn">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span>Login</span>
+                </a>
+            @endauth
+        @endif
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-container">
+        <div class="content-box">
+            <!-- Logo -->
+            <div class="logo glow">
+            <img src="{{ asset('img/logo-yac.png') }}" alt="Logo YAC">
+            </div>
 
-@section('title', 'Selamat Datang - SDIT As Sunnah Cirebon')
-
-@section('content')
-<!-- Hero Section -->
-<section class="relative bg-gradient-to-br from-orange-500 to-orange-600 text-white py-20">
-    <div class="container mx-auto px-4">
-        <div class="text-center">
-            <h1 class="text-5xl font-bold mb-4 animate-fade-in">
-                Sistem Penilaian Siswa Teladan
-            </h1>
-            <p class="text-2xl mb-2">SDIT As Sunnah Cirebon</p>
-            <p class="text-lg opacity-90">
-                Transparansi dan Objektivitas dalam Penilaian
+            
+            <!-- Title -->
+            <h1 class="title">SPK PENILAIAN SISWA TELADAN</h1>
+            {{-- <p class="subtitle">SISTEM PENDUKUNG KEPUTUSAN</p> --}}
+            <h2 class="school-name">SDIT AS SUNNAH CIREBON</h2>
+            
+            <!-- Description -->
+            <p class="description">
+                Sistem penilaian siswa teladan menggunakan metode ROC (Rank Order Centroid) 
+                dan SMART (Simple Multi Attribute Rating Technique) untuk menentukan siswa 
+                berprestasi berdasarkan kriteria akademik, akhlak, dan keaktifan.
             </p>
             
-            @if($periode)
-            <div class="mt-6">
-                <span class="inline-block px-6 py-3 bg-white text-orange-600 rounded-full font-semibold">
-                    <i class="fas fa-calendar-check mr-2"></i>
-                    Periode Aktif: {{ $periode->nama_periode }}
-                </span>
-            </div>
-            @endif
-        </div>
-        
-        <!-- Quick Stats -->
-        <div class="grid md:grid-cols-3 gap-6 mt-12">
-            <div class="bg-white/10 backdrop-blur rounded-lg p-6 text-center hover:bg-white/20 transition">
-                <div class="text-4xl font-bold animate-number" data-target="{{ $totalSiswa ?? 0 }}">0</div>
-                <div class="text-lg">Total Siswa</div>
-            </div>
-            <div class="bg-white/10 backdrop-blur rounded-lg p-6 text-center hover:bg-white/20 transition">
-                <div class="text-4xl font-bold animate-number" data-target="{{ $totalKriteria ?? 6 }}">0</div>
-                <div class="text-lg">Kriteria Penilaian</div>
-            </div>
-            <div class="bg-white/10 backdrop-blur rounded-lg p-6 text-center hover:bg-white/20 transition">
-                <div class="text-4xl font-bold animate-number" data-target="100">0</div>
-                <div class="text-lg">% Transparansi</div>
-            </div>
-        </div>
-        
-        <!-- CTA Buttons -->
-        <div class="flex flex-wrap justify-center gap-4 mt-12">
-            <a href="{{ route('public.informasi') }}" 
-               class="px-8 py-4 bg-white text-orange-600 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 font-semibold text-lg">
-                <i class="fas fa-info-circle mr-2"></i>
-                Pelajari Sistem Penilaian
-            </a>
-            <a href="{{ route('hasil.publik') }}" 
-               class="px-8 py-4 bg-orange-700 text-white rounded-lg shadow-lg hover:shadow-xl hover:bg-orange-800 transform hover:-translate-y-1 transition-all duration-300 font-semibold text-lg">
-                <i class="fas fa-trophy mr-2"></i>
-                Lihat Hasil Peringkat
-            </a>
-        </div>
-    </div>
-    
-    <!-- Animated Background -->
-    <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-10 -right-10 w-40 h-40 bg-orange-400 rounded-full opacity-20 animate-pulse"></div>
-        <div class="absolute -bottom-10 -left-10 w-60 h-60 bg-orange-300 rounded-full opacity-20 animate-pulse delay-1000"></div>
-    </div>
-</section>
-
-<!-- Features Section -->
-<section class="py-16 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">Mengapa Sistem Ini Penting?</h2>
-        
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition card-hover">
-                <div class="text-orange-500 text-4xl mb-4">
-                    <i class="fas fa-balance-scale"></i>
+            <!-- Features -->
+            <div class="features">
+                <div class="feature">
+                    <i class="bi bi-calculator"></i>
+                    <h4>ROC + SMART</h4>
+                    <p>Metode akurat</p>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Penilaian Objektif</h3>
-                <p class="text-gray-600">
-                    Menggunakan metode ROC-SMART yang terukur dan adil untuk semua siswa
-                </p>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition card-hover">
-                <div class="text-orange-500 text-4xl mb-4">
-                    <i class="fas fa-chart-line"></i>
+                <div class="feature">
+                    <i class="bi bi-graph-up"></i>
+                    <h4>6 Kriteria</h4>
+                    <p>Penilaian komprehensif</p>
                 </div>
-                <h3 class="text-xl font-bold mb-2">Perkembangan Holistik</h3>
-                <p class="text-gray-600">
-                    Menilai 6 aspek penting: akademik, agama, akhlak, hafalan, kehadiran, dan ekstrakurikuler
-                </p>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition card-hover">
-                <div class="text-orange-500 text-4xl mb-4">
-                    <i class="fas fa-users"></i>
-                </div>
-                <h3 class="text-xl font-bold mb-2">Transparansi Total</h3>
-                <p class="text-gray-600">
-                    Orang tua dapat memahami proses penilaian dan memantau perkembangan anak
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- How It Works Section -->
-<section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">Bagaimana Sistem Bekerja?</h2>
-        
-        <div class="max-w-4xl mx-auto">
-            <div class="relative">
-                <!-- Timeline -->
-                <div class="absolute left-8 top-0 bottom-0 w-0.5 bg-orange-300"></div>
-                
-                <!-- Steps -->
-                <div class="space-y-8">
-                    <div class="flex items-start">
-                        <div class="bg-orange-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-xl z-10">
-                            1
-                        </div>
-                        <div class="ml-8 bg-gray-50 p-6 rounded-lg flex-1">
-                            <h3 class="font-bold text-lg mb-2">Pengumpulan Data</h3>
-                            <p class="text-gray-600">Guru mengumpulkan data nilai dari berbagai aspek penilaian</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start">
-                        <div class="bg-orange-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-xl z-10">
-                            2
-                        </div>
-                        <div class="ml-8 bg-gray-50 p-6 rounded-lg flex-1">
-                            <h3 class="font-bold text-lg mb-2">Pembobotan ROC</h3>
-                            <p class="text-gray-600">Sistem memberikan bobot pada setiap kriteria sesuai prioritas</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start">
-                        <div class="bg-orange-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-xl z-10">
-                            3
-                        </div>
-                        <div class="ml-8 bg-gray-50 p-6 rounded-lg flex-1">
-                            <h3 class="font-bold text-lg mb-2">Perhitungan SMART</h3>
-                            <p class="text-gray-600">Nilai dinormalisasi dan dihitung menggunakan metode SMART</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-start">
-                        <div class="bg-orange-500 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-xl z-10">
-                            4
-                        </div>
-                        <div class="ml-8 bg-gray-50 p-6 rounded-lg flex-1">
-                            <h3 class="font-bold text-lg mb-2">Hasil Peringkat</h3>
-                            <p class="text-gray-600">Peringkat final ditampilkan secara transparan untuk semua pihak</p>
-                        </div>
-                    </div>
+                <div class="feature">
+                    <i class="bi bi-people"></i>
+                    <h4>4 Kelas</h4>
+                    <p>Kelas 6A-6D</p>
                 </div>
             </div>
         </div>
     </div>
-</section>
-
-<!-- Info Cards Section -->
-<section class="py-16 bg-gradient-to-br from-blue-50 to-indigo-100">
-    <div class="container mx-auto px-4">
-        <div class="grid md:grid-cols-2 gap-8">
-            <!-- For Parents Card -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-500 to-blue-600 p-6">
-                    <h3 class="text-2xl font-bold text-white">
-                        <i class="fas fa-user-friends mr-2"></i>
-                        Untuk Orang Tua
-                    </h3>
-                </div>
-                <div class="p-6">
-                    <ul class="space-y-3">
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Pahami kriteria penilaian anak Anda</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Lihat posisi dan perkembangan anak</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Dapatkan tips meningkatkan prestasi</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Simulasi perhitungan nilai</span>
-                        </li>
-                    </ul>
-                    <a href="{{ route('public.informasi') }}" 
-                       class="mt-6 inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
-                        Pelajari Lebih Lanjut →
-                    </a>
-                </div>
-            </div>
-            
-            <!-- For Teachers Card -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                <div class="bg-gradient-to-r from-green-500 to-green-600 p-6">
-                    <h3 class="text-2xl font-bold text-white">
-                        <i class="fas fa-chalkboard-teacher mr-2"></i>
-                        Untuk Guru
-                    </h3>
-                </div>
-                <div class="p-6">
-                    <ul class="space-y-3">
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Input nilai dengan mudah</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Perhitungan otomatis dan akurat</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Laporan lengkap dan terstruktur</span>
-                        </li>
-                        <li class="flex items-start">
-                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                            <span>Export data ke PDF</span>
-                        </li>
-                    </ul>
-                    <a href="{{ route('login') }}" 
-                       class="mt-6 inline-block bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition">
-                        Login Dashboard →
-                    </a>
-                </div>
-            </div>
-        </div>
+    
+    <!-- Footer -->
+    <div class="footer">
+        <p>&copy; {{ date('Y') }} SDIT As Sunnah Cirebon | Developed with Laravel {{ Illuminate\Foundation\Application::VERSION }}</p>
     </div>
-</section>
-
-<!-- FAQ Preview Section -->
-<section class="py-16 bg-white">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">Pertanyaan Umum</h2>
-        
-        <div class="max-w-3xl mx-auto space-y-4">
-            <div class="bg-gray-50 rounded-lg p-6">
-                <h3 class="font-bold text-lg mb-2">
-                    <i class="fas fa-question-circle text-orange-500 mr-2"></i>
-                    Apakah sistem ini adil untuk semua siswa?
-                </h3>
-                <p class="text-gray-600">
-                    Ya, sistem menggunakan metode ilmiah ROC-SMART yang objektif dan terukur. 
-                    Semua siswa dinilai dengan kriteria dan bobot yang sama.
-                </p>
-            </div>
-            
-            <div class="bg-gray-50 rounded-lg p-6">
-                <h3 class="font-bold text-lg mb-2">
-                    <i class="fas fa-question-circle text-orange-500 mr-2"></i>
-                    Bagaimana cara melihat nilai anak saya?
-                </h3>
-                <p class="text-gray-600">
-                    Anda dapat mencari data anak menggunakan NIS dan nama lengkap di halaman informasi SPK. 
-                    Data ditampilkan dengan menjaga privasi siswa lain.
-                </p>
-            </div>
-            
-            <div class="bg-gray-50 rounded-lg p-6">
-                <h3 class="font-bold text-lg mb-2">
-                    <i class="fas fa-question-circle text-orange-500 mr-2"></i>
-                    Kapan hasil penilaian diperbarui?
-                </h3>
-                <p class="text-gray-600">
-                    Hasil penilaian diperbarui setiap akhir semester (2 kali setahun) untuk memastikan data yang akurat.
-                </p>
-            </div>
-            
-            <div class="text-center mt-8">
-                <a href="{{ route('public.informasi') }}" 
-                   class="inline-block bg-orange-600 text-white px-6 py-3 rounded-lg hover:bg-orange-700 transition">
-                    Lihat Semua FAQ →
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Testimonial Section -->
-<section class="py-16 bg-gray-50">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center mb-12">Apa Kata Mereka?</h2>
-        
-        <div class="grid md:grid-cols-3 gap-8">
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-orange-600"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h4 class="font-semibold">Bapak Ahmad</h4>
-                        <p class="text-sm text-gray-500">Orang Tua Siswa</p>
-                    </div>
-                </div>
-                <p class="text-gray-600 italic">
-                    "Sistem ini sangat membantu kami memahami perkembangan anak. Transparansi penilaian membuat kami bisa fokus mendampingi anak di area yang perlu ditingkatkan."
-                </p>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-user text-orange-600"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h4 class="font-semibold">Ibu Fatimah</h4>
-                        <p class="text-sm text-gray-500">Orang Tua Siswa</p>
-                    </div>
-                </div>
-                <p class="text-gray-600 italic">
-                    "Alhamdulillah, dengan sistem ini kami bisa melihat bahwa penilaian dilakukan secara objektif dan adil untuk semua siswa."
-                </p>
-            </div>
-            
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="flex items-center mb-4">
-                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <i class="fas fa-chalkboard-teacher text-orange-600"></i>
-                    </div>
-                    <div class="ml-3">
-                        <h4 class="font-semibold">Ustadzah Sarah</h4>
-                        <p class="text-sm text-gray-500">Guru Kelas 6</p>
-                    </div>
-                </div>
-                <p class="text-gray-600 italic">
-                    "Sistem SPK memudahkan kami dalam melakukan penilaian yang komprehensif dan menghemat waktu dalam perhitungan."
-                </p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Call to Action Section -->
-<section class="py-20 bg-gradient-to-br from-orange-500 to-orange-600 text-white">
-    <div class="container mx-auto px-4 text-center">
-        <h2 class="text-4xl font-bold mb-6">
-            Mulai Pahami Sistem Penilaian Anak Anda
-        </h2>
-        <p class="text-xl mb-8 opacity-90">
-            Dapatkan informasi lengkap tentang kriteria, bobot, dan cara penilaian
-        </p>
-        
-        <div class="flex flex-wrap justify-center gap-4">
-            <a href="{{ route('public.informasi') }}" 
-               class="px-8 py-4 bg-white text-orange-600 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 font-semibold text-lg">
-                <i class="fas fa-book-open mr-2"></i>
-                Baca Panduan Lengkap
-            </a>
-            <a href="{{ route('hasil.publik') }}" 
-               class="px-8 py-4 bg-orange-700 text-white rounded-lg shadow-lg hover:shadow-xl hover:bg-orange-800 transform hover:-translate-y-1 transition-all duration-300 font-semibold text-lg">
-                <i class="fas fa-search mr-2"></i>
-                Cari Data Anak
-            </a>
-        </div>
-    </div>
-</section>
-
-@endsection
-
-@section('styles')
-<style>
-    @keyframes fade-in {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
     
-    .animate-fade-in {
-        animation: fade-in 1s ease-out;
-    }
-    
-    .card-hover {
-        transition: all 0.3s ease;
-    }
-    
-    .card-hover:hover {
-        transform: translateY(-5px);
-    }
-    
-    @keyframes pulse {
-        0%, 100% {
-            opacity: 0.2;
-        }
-        50% {
-            opacity: 0.3;
-        }
-    }
-    
-    .animate-pulse {
-        animation: pulse 3s ease-in-out infinite;
-    }
-    
-    .delay-1000 {
-        animation-delay: 1s;
-    }
-</style>
-@endsection
-
-@section('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Animate numbers
-    const animateNumbers = document.querySelectorAll('.animate-number');
-    
-    const animateValue = (element, start, end, duration) => {
-        let startTimestamp = null;
-        const step = (timestamp) => {
-            if (!startTimestamp) startTimestamp = timestamp;
-            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-            element.textContent = Math.floor(progress * (end - start) + start);
-            if (progress < 1) {
-                window.requestAnimationFrame(step);
-            } else {
-                // Add % sign for percentage
-                if (element.dataset.target == 100) {
-                    element.textContent = element.textContent + '%';
-                }
-            }
-        };
-        window.requestAnimationFrame(step);
-    };
-    
-    // Intersection Observer for animation trigger
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const element = entry.target;
-                const target = parseInt(element.dataset.target);
-                animateValue(element, 0, target, 2000);
-                observer.unobserve(element);
-            }
-        });
-    }, {
-        threshold: 0.5
-    });
-    
-    animateNumbers.forEach(element => {
-        observer.observe(element);
-    });
-    
-    // Smooth scroll for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-    
-    // Add hover effect to cards
-    const cards = document.querySelectorAll('.card-hover');
-    cards.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.boxShadow = '0 10px 30px rgba(0,0,0,0.15)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.boxShadow = '';
-        });
-    });
-});
-</script>
-@endsection
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
