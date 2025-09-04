@@ -592,11 +592,11 @@
             <div class="header-icon">
                 <i class="bi bi-trophy-fill"></i>
             </div>
-            <h1 class="header-title">Hasil Peringkat Siswa Teladan</h1>
-            <p class="header-subtitle">SDIT As Sunnah Cirebon - Tahun Ajaran {{ date('Y') }}/{{ date('Y') + 1 }}</p>
+            <h1 class="header-title">Laporan Hasil Evaluasi Siswa Teladan</h1>
+            <p class="header-subtitle">Sekolah Dasar Islam Terpadu As Sunnah Cirebon - Tahun Akademik {{ date('Y') }}/{{ date('Y') + 1 }}</p>
             @if($periodeAktif)
                 <div class="periode-badge">
-                    <i class="bi bi-calendar-check me-2"></i>{{ $periodeAktif->nama_periode }}
+                    <i class="bi bi-calendar-check me-2"></i>Periode Evaluasi: {{ $periodeAktif->nama_periode }}
                 </div>
             @endif
         </div>
@@ -606,14 +606,14 @@
             <div class="row align-items-center">
                 <div class="col-md-4">
                     <h5 class="filter-title">
-                        <i class="bi bi-funnel"></i> Filter Kelas
+                        <i class="bi bi-funnel"></i> Klasifikasi Berdasarkan Kelas
                     </h5>
                 </div>
                 <div class="col-md-8">
                     <div class="filter-buttons">
                         <button class="filter-btn {{ $kelasFilter == 'all' ? 'active' : '' }}" 
                                 onclick="filterByKelas('all')">
-                            <i class="bi bi-grid-3x3-gap me-1"></i> Semua Kelas
+                            <i class="bi bi-grid-3x3-gap me-1"></i> Seluruh Kelas
                         </button>
                         @foreach($kelasList as $kelas)
                             <button class="filter-btn {{ $kelasFilter == $kelas ? 'active' : '' }}" 
@@ -634,7 +634,7 @@
                         $top3 = $nilaiAkhir->take(3);
                         $medals = ['gold', 'silver', 'bronze'];
                         $icons = ['trophy-fill', 'award-fill', 'award'];
-                        $ranks = ['JUARA 1', 'JUARA 2', 'JUARA 3'];
+                        $ranks = ['PERINGKAT PERTAMA', 'PERINGKAT KEDUA', 'PERINGKAT KETIGA'];
                     @endphp
                     
                     @foreach($top3 as $index => $siswa)
@@ -654,7 +654,7 @@
                                 
                                 <div class="winner-details">
                                     <span class="detail-item">
-                                        <i class="bi bi-card-text me-1"></i> {{ $siswa->alternatif->nis ?? '-' }}
+                                        <i class="bi bi-card-text me-1"></i> NISN: {{ $siswa->alternatif->nis ?? '-' }}
                                     </span>
                                     <span class="detail-item">
                                         <i class="bi bi-building me-1"></i> {{ $siswa->alternatif->kelas ?? '-' }}
@@ -662,7 +662,7 @@
                                 </div>
                                 
                                 <div class="winner-score">
-                                    <span class="score-label">Total Nilai</span>
+                                    <span class="score-label">Skor Preferensi Akhir</span>
                                     <span class="score-value">{{ number_format($siswa->total ?? 0, 4) }}</span>
                                 </div>
                                 
@@ -671,7 +671,7 @@
                                     @if($kelasFilter && $kelasFilter !== 'all')
                                         Siswa Teladan Kelas {{ $kelasFilter }}
                                     @else
-                                        Siswa Teladan Sekolah
+                                        Siswa Teladan Tingkat Sekolah
                                     @endif
                                 </div>
                             </div>
@@ -690,7 +690,7 @@
                             </div>
                             <div class="stat-content">
                                 <div class="stat-value">{{ $nilaiAkhir->count() }}</div>
-                                <div class="stat-label">Total Siswa</div>
+                                <div class="stat-label">Jumlah Siswa Terevaluasi</div>
                             </div>
                         </div>
                     </div>
@@ -701,7 +701,7 @@
                             </div>
                             <div class="stat-content">
                                 <div class="stat-value">{{ number_format($nilaiAkhir->max('total') ?? 0, 4) }}</div>
-                                <div class="stat-label">Nilai Tertinggi</div>
+                                <div class="stat-label">Skor Maksimum</div>
                             </div>
                         </div>
                     </div>
@@ -712,7 +712,7 @@
                             </div>
                             <div class="stat-content">
                                 <div class="stat-value">{{ number_format($nilaiAkhir->avg('total') ?? 0, 4) }}</div>
-                                <div class="stat-label">Nilai Rata-rata</div>
+                                <div class="stat-label">Rerata Skor</div>
                             </div>
                         </div>
                     </div>
@@ -723,7 +723,7 @@
                             </div>
                             <div class="stat-content">
                                 <div class="stat-value">{{ number_format($nilaiAkhir->min('total') ?? 0, 4) }}</div>
-                                <div class="stat-label">Nilai Terendah</div>
+                                <div class="stat-label">Skor Minimum</div>
                             </div>
                         </div>
                     </div>
@@ -735,7 +735,7 @@
                 <div class="table-header">
                     <h4>
                         <i class="bi bi-list-ol"></i>
-                        Tabel Peringkat Lengkap
+                        Tabel Peringkat Komprehensif
                         @if($kelasFilter && $kelasFilter !== 'all')
                             - Kelas {{ $kelasFilter }}
                         @endif
@@ -747,12 +747,12 @@
                         <thead>
                             <tr>
                                 <th width="80" class="text-center">Peringkat</th>
-                                <th>NIS</th>
-                                <th>Nama Siswa</th>
-                                <th width="80" class="text-center">L/P</th>
+                                <th>NISN</th>
+                                <th>Nama Lengkap</th>
+                                <th width="80" class="text-center">Jenis Kelamin</th>
                                 <th width="100" class="text-center">Kelas</th>
-                                <th width="120" class="text-center">Total Nilai</th>
-                                <th width="150" class="text-center">Status</th>
+                                <th width="120" class="text-center">Skor Akhir</th>
+                                <th width="150" class="text-center">Status Pencapaian</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -775,45 +775,45 @@
                                             <span class="rank-badge default">{{ $row->peringkat_kelas }}</span>
                                         @endif
                                     </td>
-                                    <td data-label="NIS">{{ $row->alternatif->nis ?? '-' }}</td>
-                                    <td data-label="Nama Siswa">
+                                    <td data-label="NISN">{{ $row->alternatif->nis ?? '-' }}</td>
+                                    <td data-label="Nama Lengkap">
                                         <strong>{{ $row->alternatif->nama_siswa ?? '-' }}</strong>
                                         @if($row->peringkat_kelas == 1)
                                             <i class="bi bi-star-fill ms-2" style="color: var(--gold);"></i>
                                         @endif
                                     </td>
-                                    <td class="text-center" data-label="L/P">
+                                    <td class="text-center" data-label="Jenis Kelamin">
                                         @if($row->alternatif->jk == 'Lk')
                                             <span class="gender-badge male">
-                                                <i class="bi bi-gender-male"></i> L
+                                                <i class="bi bi-gender-male"></i> Laki-laki
                                             </span>
                                         @else
                                             <span class="gender-badge female">
-                                                <i class="bi bi-gender-female"></i> P
+                                                <i class="bi bi-gender-female"></i> Perempuan
                                             </span>
                                         @endif
                                     </td>
                                     <td class="text-center" data-label="Kelas">
                                         <span class="class-badge">{{ $row->alternatif->kelas ?? '-' }}</span>
                                     </td>
-                                    <td class="text-center" data-label="Total Nilai">
+                                    <td class="text-center" data-label="Skor Akhir">
                                         <span class="score-display">{{ number_format($row->total ?? 0, 4) }}</span>
                                     </td>
-                                    <td class="text-center" data-label="Status">
+                                    <td class="text-center" data-label="Status Pencapaian">
                                         @if($row->peringkat_kelas == 1)
                                             <span class="status-badge teladan">
                                                 <i class="bi bi-star-fill"></i> Siswa Teladan
                                             </span>
                                         @elseif($row->peringkat_kelas <= 3)
                                             <span class="status-badge nominasi">
-                                                <i class="bi bi-award"></i> Nominasi
+                                                <i class="bi bi-award"></i> Nominasi Teladan
                                             </span>
                                         @elseif($row->peringkat_kelas <= 10)
                                             <span class="status-badge top10">
-                                                <i class="bi bi-star"></i> 10 Besar
+                                                <i class="bi bi-star"></i> Sepuluh Besar
                                             </span>
                                         @else
-                                            <span class="status-badge partisipan">Partisipan</span>
+                                            <span class="status-badge partisipan">Peserta Evaluasi</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -826,8 +826,8 @@
             <!-- Empty State -->
             <div class="empty-state">
                 <i class="bi bi-inbox"></i>
-                <h3>Belum Ada Data Peringkat</h3>
-                <p>Data peringkat siswa teladan belum tersedia untuk periode ini.</p>
+                <h3>Data Peringkat Belum Tersedia</h3>
+                <p>Data hasil evaluasi siswa teladan untuk periode ini sedang dalam proses kompilasi.</p>
                 <a href="{{ url('/') }}" class="btn btn-primary btn-lg rounded-pill">
                     <i class="bi bi-arrow-left me-2"></i> Kembali ke Beranda
                 </a>
@@ -852,18 +852,18 @@
             pageLength: 25,
             order: [[0, 'asc']],
             language: {
-                search: "Cari:",
-                lengthMenu: "Tampilkan _MENU_ data",
-                info: "Menampilkan _START_ - _END_ dari _TOTAL_ data",
+                search: "Pencarian:",
+                lengthMenu: "Tampilkan _MENU_ data per halaman",
+                info: "Menampilkan _START_ hingga _END_ dari _TOTAL_ data",
                 paginate: {
-                    first: "Pertama",
-                    last: "Terakhir",
-                    next: "Selanjutnya",
+                    first: "Awal",
+                    last: "Akhir",
+                    next: "Berikutnya",
                     previous: "Sebelumnya"
                 },
-                zeroRecords: "Tidak ada data yang cocok",
-                infoEmpty: "Tidak ada data",
-                infoFiltered: "(disaring dari _MAX_ total data)"
+                zeroRecords: "Tidak ditemukan data yang sesuai",
+                infoEmpty: "Tidak ada data tersedia",
+                infoFiltered: "(disaring dari total _MAX_ data)"
             }
         });
         @endif

@@ -5,18 +5,18 @@
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">
                 <i class="bi bi-person-circle me-2"></i>
-                Informasi Siswa
+                Data Identitas Siswa
             </h5>
         </div>
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <p><strong>Nama:</strong> {{ $hasilPencarian['siswa']->nama_siswa }}</p>
-                    <p><strong>NISN:</strong> {{ $hasilPencarian['siswa']->nis }}</p>
+                    <p><strong>Nama Lengkap:</strong> {{ $hasilPencarian['siswa']->nama_siswa }}</p>
+                    <p><strong>Nomor Induk Siswa Nasional:</strong> {{ $hasilPencarian['siswa']->nis }}</p>
                 </div>
                 <div class="col-md-6">
                     <p><strong>Kelas:</strong> {{ $hasilPencarian['siswa']->kelas }}</p>
-                    <p><strong>Periode:</strong> {{ $hasilPencarian['periode']->nama_periode }}</p>
+                    <p><strong>Periode Evaluasi:</strong> {{ $hasilPencarian['periode']->nama_periode }}</p>
                 </div>
             </div>
         </div>
@@ -26,7 +26,7 @@
     @if($hasilPencarian['nilaiAkhir'])
     <div class="card mb-4 border-success">
         <div class="card-body text-center">
-            <h3 class="text-success mb-3">Skor Preferensi</h3>
+            <h3 class="text-success mb-3">Skor Preferensi Akhir</h3>
             <div class="display-3 text-primary">
                 {{ number_format($hasilPencarian['nilaiAkhir']->total * 100, 2) }}%
             </div>
@@ -46,7 +46,7 @@
         <div class="card-header">
             <h5 class="mb-0">
                 <i class="bi bi-list-check me-2"></i>
-                Detail Nilai per Kriteria
+                Rincian Nilai per Kriteria Evaluasi
             </h5>
         </div>
         <div class="card-body">
@@ -54,10 +54,10 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <th>Kriteria</th>
-                            <th class="text-center">Nilai</th>
-                            <th class="text-center">Bobot</th>
-                            <th class="text-center">Kontribusi</th>
+                            <th>Kriteria Penilaian</th>
+                            <th class="text-center">Nilai Original</th>
+                            <th class="text-center">Bobot Kriteria</th>
+                            <th class="text-center">Kontribusi Final</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -78,7 +78,7 @@
                                             {{ $nilaiAsli }}/4
                                         </span>
                                     @else
-                                        -
+                                        <span class="badge bg-secondary">N/A</span>
                                     @endif
                                 </td>
                                 <td class="text-center">
@@ -99,17 +99,17 @@
     @if($hasilPencarian['rataRataKelas'])
     <div class="card mt-4">
         <div class="card-body">
-            <h5>Perbandingan dengan Rata-rata Kelas</h5>
+            <h5>Perbandingan dengan Rerata Kelas</h5>
             <div class="progress" style="height: 30px;">
                 <div class="progress-bar bg-primary" role="progressbar" 
                      style="width: {{ $hasilPencarian['nilaiAkhir'] ? $hasilPencarian['nilaiAkhir']->total * 100 : 0 }}%">
-                    Siswa: {{ $hasilPencarian['nilaiAkhir'] ? number_format($hasilPencarian['nilaiAkhir']->total * 100, 1) : 0 }}%
+                    Pencapaian Siswa: {{ $hasilPencarian['nilaiAkhir'] ? number_format($hasilPencarian['nilaiAkhir']->total * 100, 1) : 0 }}%
                 </div>
             </div>
             <div class="progress mt-2" style="height: 30px;">
                 <div class="progress-bar bg-secondary" role="progressbar" 
                      style="width: {{ $hasilPencarian['rataRataKelas'] }}%">
-                    Rata-rata: {{ $hasilPencarian['rataRataKelas'] }}%
+                    Rerata Kelas: {{ $hasilPencarian['rataRataKelas'] }}%
                 </div>
             </div>
         </div>
@@ -120,7 +120,7 @@
     <div class="text-center mt-4">
         @if($hasilPencarian['rankingKelas'] == 1)
             <div class="badge bg-success p-3 fs-5">
-                <i class="bi bi-trophy-fill"></i> SISWA TELADAN KELAS {{ $hasilPencarian['siswa']->kelas }}
+                <i class="bi bi-trophy-fill"></i> PREDIKAT SISWA TELADAN KELAS {{ $hasilPencarian['siswa']->kelas }}
             </div>
         @elseif($hasilPencarian['rankingKelas'] <= 3)
             <div class="badge bg-warning text-dark p-3 fs-5">
@@ -128,11 +128,11 @@
             </div>
         @elseif($hasilPencarian['rankingKelas'] <= 10)
             <div class="badge bg-info p-3 fs-5">
-                <i class="bi bi-star-fill"></i> 10 BESAR KELAS
+                <i class="bi bi-star-fill"></i> SEPULUH BESAR KELAS
             </div>
         @else
             <div class="badge bg-secondary p-3 fs-5">
-                PARTISIPAN
+                PESERTA EVALUASI
             </div>
         @endif
     </div>

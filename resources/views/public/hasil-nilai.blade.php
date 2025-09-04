@@ -1,6 +1,6 @@
 @extends('layouts.public')
 
-@section('title', 'Hasil Pencarian Nilai')
+@section('title', 'Hasil Pencarian Nilai Siswa')
 
 @section('styles')
 <style>
@@ -315,9 +315,9 @@
             <div class="result-card">
                 <!-- Header -->
                 <div class="result-header">
-                    <h2><i class="bi bi-clipboard-data me-2"></i> Hasil Pencarian Nilai Siswa</h2>
+                    <h2><i class="bi bi-clipboard-data me-2"></i> Laporan Hasil Evaluasi Akademik Siswa</h2>
                     <div class="timestamp">
-                        <i class="bi bi-clock"></i> Waktu akses: {{ $hasilPencarian['waktuAkses'] }}
+                        <i class="bi bi-clock"></i> Waktu Akses Sistem: {{ $hasilPencarian['waktuAkses'] }}
                     </div>
                 </div>
                 
@@ -325,11 +325,11 @@
                 <div class="student-info">
                     <div class="info-grid">
                         <div class="info-item">
-                            <span class="info-label">Nama Siswa</span>
+                            <span class="info-label">Nama Lengkap Siswa</span>
                             <span class="info-value">{{ $hasilPencarian['siswa']->nama_siswa }}</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">NISN</span>
+                            <span class="info-label">Nomor Induk Siswa Nasional</span>
                             <span class="info-value">{{ $hasilPencarian['siswa']->nis }}</span>
                         </div>
                         <div class="info-item">
@@ -341,7 +341,7 @@
                             <span class="info-value">{{ $hasilPencarian['siswa']->jk == 'Lk' ? 'Laki-laki' : 'Perempuan' }}</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Periode</span>
+                            <span class="info-label">Periode Evaluasi</span>
                             <span class="info-value">{{ $hasilPencarian['periode']->nama_periode }}</span>
                         </div>
                     </div>
@@ -349,16 +349,16 @@
                 
                 <!-- Score Table -->
                 <div class="p-4">
-                    <h4 class="mb-3 fw-bold">Rincian Nilai per Kriteria</h4>
+                    <h4 class="mb-3 fw-bold">Rincian Nilai Berdasarkan Kriteria Evaluasi</h4>
                     <div class="table-responsive">
                         <table class="score-table">
                             <thead>
                                 <tr>
-                                    <th width="35%">Kriteria</th>
-                                    <th width="15%" class="text-center">Nilai Asli</th>
-                                    <th width="15%" class="text-center">Nilai Utilitas</th>
-                                    <th width="15%" class="text-center">Bobot</th>
-                                    <th width="20%" class="text-center">Kontribusi Skor</th>
+                                    <th width="35%">Kriteria Penilaian</th>
+                                    <th width="15%" class="text-center">Nilai Original</th>
+                                    <th width="15%" class="text-center">Nilai Ternormalisasi</th>
+                                    <th width="15%" class="text-center">Bobot Kriteria</th>
+                                    <th width="20%" class="text-center">Kontribusi Skor Final</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -381,7 +381,7 @@
                                         </td>
                                         <td class="text-center">
                                             <span class="nilai-badge {{ $badgeClass }}">
-                                                {{ $nilaiAsli ?: '-' }}
+                                                {{ $nilaiAsli ?: 'N/A' }}
                                             </span>
                                         </td>
                                         <td class="text-center">
@@ -403,26 +403,26 @@
                 <!-- Final Score -->
                 @if($hasilPencarian['nilaiAkhir'])
                     <div class="final-score">
-                        <h3 class="mb-4 fw-bold">Skor Preferensi & Peringkat</h3>
+                        <h3 class="mb-4 fw-bold">Hasil Akhir Evaluasi dan Peringkat Akademik</h3>
                         
                         <div class="score-display">
                             <div class="score-item">
-                                <div class="score-item-label">Total Skor Preferensi</div>
+                                <div class="score-item-label">Total Skor Preferensi Akhir</div>
                                 <div class="score-item-value">{{ number_format($hasilPencarian['nilaiAkhir']->total, 4) }}</div>
                             </div>
                             
                             @if($hasilPencarian['rankingKelas'])
                                 <div class="score-item">
-                                    <div class="score-item-label">Peringkat di Kelas {{ $hasilPencarian['siswa']->kelas }}</div>
+                                    <div class="score-item-label">Peringkat Kelas {{ $hasilPencarian['siswa']->kelas }}</div>
                                     <div class="score-item-value">{{ $hasilPencarian['rankingKelas'] }}</div>
-                                    <small class="text-muted">dari {{ $hasilPencarian['totalSiswaKelas'] }} siswa</small>
+                                    <small class="text-muted">dari {{ $hasilPencarian['totalSiswaKelas'] }} siswa terevaluasi</small>
                                 </div>
                             @endif
                         </div>
                         
                         @if($hasilPencarian['rankingKelas'] == 1)
                             <div class="rank-badge">
-                                <i class="bi bi-trophy-fill"></i> Siswa Teladan Kelas {{ $hasilPencarian['siswa']->kelas }}
+                                <i class="bi bi-trophy-fill"></i> Predikat Siswa Teladan Kelas {{ $hasilPencarian['siswa']->kelas }}
                             </div>
                         @elseif($hasilPencarian['rankingKelas'] <= 3)
                             <div class="rank-badge">
@@ -430,25 +430,27 @@
                             </div>
                         @elseif($hasilPencarian['rankingKelas'] <= 10)
                             <div class="rank-badge">
-                                <i class="bi bi-star-fill"></i> 10 Besar Kelas
+                                <i class="bi bi-star-fill"></i> Sepuluh Besar Kelas
                             </div>
                         @endif
                     </div>
                 @else
                     <div class="empty-state">
                         <i class="bi bi-exclamation-circle"></i>
-                        <h3>Nilai Belum Tersedia</h3>
-                        <p>Nilai untuk periode ini belum diproses. Silakan hubungi wali kelas untuk informasi lebih lanjut.</p>
+                        <h3>Data Nilai Belum Tersedia</h3>
+                        <p>Data nilai untuk periode evaluasi ini sedang dalam proses kompilasi. 
+                           Silakan menghubungi wali kelas untuk informasi lebih lanjut mengenai status penilaian.</p>
                     </div>
                 @endif
                 
                 <!-- Notes -->
                 <div class="notes-section">
-                    <h4><i class="bi bi-info-circle me-2"></i>Cara Membaca Hasil</h4>
-                    <p><strong>Nilai Asli:</strong> Nilai mentah sesuai skala masing-masing kriteria (1-4)</p>
-                    <p><strong>Nilai Utilitas:</strong> Nilai yang sudah dinormalisasi ke skala 0-1</p>
-                    <p><strong>Kontribusi Skor:</strong> Hasil perkalian nilai utilitas dengan bobot kriteria</p>
-                    <p><strong>Skor Preferensi:</strong> Penjumlahan seluruh kontribusi skor dari semua kriteria</p>
+                    <h4><i class="bi bi-info-circle me-2"></i>Panduan Interpretasi Hasil</h4>
+                    <p><strong>Nilai Original:</strong> Nilai mentah sesuai rubrik penilaian masing-masing kriteria (skala 1-4)</p>
+                    <p><strong>Nilai Ternormalisasi:</strong> Nilai yang telah dinormalisasi ke dalam skala uniform 0-1 menggunakan metode SMART</p>
+                    <p><strong>Bobot Kriteria:</strong> Tingkat kepentingan relatif kriteria hasil perhitungan metode ROC</p>
+                    <p><strong>Kontribusi Skor Final:</strong> Hasil perkalian nilai ternormalisasi dengan bobot kriteria</p>
+                    <p><strong>Skor Preferensi Akhir:</strong> Akumulasi seluruh kontribusi skor dari keenam kriteria evaluasi</p>
                 </div>
                 
                 <!-- Action Buttons -->
@@ -459,17 +461,17 @@
                             <input type="hidden" name="siswa_id" value="{{ $hasilPencarian['siswa']->id }}">
                             <input type="hidden" name="periode_id" value="{{ $hasilPencarian['periode']->id }}">
                             <button type="submit" class="btn-action btn-success">
-                                <i class="bi bi-file-earmark-pdf"></i> Unduh PDF
+                                <i class="bi bi-file-earmark-pdf"></i> Unduh Dokumen PDF
                             </button>
                         </form>
                     @endif
                     
                     <button onclick="window.print()" class="btn-action btn-secondary">
-                        <i class="bi bi-printer"></i> Cetak Halaman
+                        <i class="bi bi-printer"></i> Cetak Dokumen
                     </button>
                     
                     <a href="{{ route('informasi') }}" class="btn-action btn-primary">
-                        <i class="bi bi-arrow-left"></i> Kembali ke Form
+                        <i class="bi bi-arrow-left"></i> Kembali ke Formulir
                     </a>
                 </div>
             </div>
@@ -479,8 +481,8 @@
         <div class="result-container">
             <div class="empty-state">
                 <i class="bi bi-search"></i>
-                <h3>Tidak Ada Hasil Pencarian</h3>
-                <p>Silakan kembali ke halaman informasi untuk melakukan pencarian nilai.</p>
+                <h3>Data Tidak Ditemukan</h3>
+                <p>Silakan kembali ke halaman informasi untuk melakukan pencarian data nilai siswa.</p>
                 <a href="{{ route('informasi') }}" class="btn-action btn-primary">
                     <i class="bi bi-arrow-left"></i> Kembali ke Halaman Informasi
                 </a>

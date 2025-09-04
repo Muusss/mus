@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Laporan Nilai - {{ $siswa->nama_siswa }}</title>
+    <title>Laporan Hasil Evaluasi - {{ $siswa->nama_siswa }}</title>
     <style>
         * {
             margin: 0;
@@ -217,21 +217,21 @@
 <body>
     <!-- Header -->
     <div class="header">
-        <h1>LAPORAN HASIL PENILAIAN SISWA TELADAN</h1>
-        <h2>{{ $sekolah->nama }}</h2>
+        <h1>LAPORAN HASIL EVALUASI SISWA TELADAN</h1>
+        <h2>SEKOLAH DASAR ISLAM TERPADU AS SUNNAH CIREBON</h2>
         <p>{{ $sekolah->alamat }}</p>
-        <p>Tahun Ajaran {{ $sekolah->tahun_ajaran }} - Semester {{ $sekolah->semester }}</p>
+        <p>Tahun Akademik {{ $sekolah->tahun_ajaran }} - Semester {{ $sekolah->semester }}</p>
     </div>
     
     <!-- Info Siswa -->
     <div class="info-section">
         <div class="info-grid">
             <div class="info-row">
-                <div class="info-label">Nama Siswa</div>
+                <div class="info-label">Nama Lengkap Siswa</div>
                 <div class="info-value">: <strong>{{ $siswa->nama_siswa }}</strong></div>
             </div>
             <div class="info-row">
-                <div class="info-label">NISN</div>
+                <div class="info-label">Nomor Induk Siswa Nasional</div>
                 <div class="info-value">: {{ $siswa->nis }}</div>
             </div>
             <div class="info-row">
@@ -243,22 +243,22 @@
                 <div class="info-value">: {{ $siswa->jk == 'Lk' ? 'Laki-laki' : 'Perempuan' }}</div>
             </div>
             <div class="info-row">
-                <div class="info-label">Periode Penilaian</div>
+                <div class="info-label">Periode Evaluasi</div>
                 <div class="info-value">: {{ $periode->nama_periode }}</div>
             </div>
         </div>
     </div>
     
     <!-- Tabel Nilai per Kriteria -->
-    <h3 class="section-title">Detail Penilaian per Kriteria</h3>
+    <h3 class="section-title">Rincian Evaluasi per Kriteria</h3>
     <table class="table">
         <thead>
             <tr>
                 <th width="10%">Kode</th>
-                <th width="30%">Kriteria</th>
-                <th width="20%">Sub Kriteria</th>
-                <th width="15%" class="text-center">Nilai Asli</th>
-                <th width="15%" class="text-center">Nilai Normal</th>
+                <th width="30%">Kriteria Evaluasi</th>
+                <th width="20%">Kategori</th>
+                <th width="15%" class="text-center">Nilai Original</th>
+                <th width="15%" class="text-center">Nilai Ternormalisasi</th>
                 <th width="10%" class="text-center">Bobot</th>
             </tr>
         </thead>
@@ -312,27 +312,27 @@
     
     <!-- Keterangan -->
     <div class="notes">
-        <h4>Keterangan Penilaian:</h4>
-        <p><strong>Nilai Asli:</strong> Nilai mentah dengan skala 1-4 sesuai rubrik masing-masing kriteria</p>
-        <p><strong>Nilai Normal:</strong> Nilai yang sudah dinormalisasi ke skala 0-1 menggunakan metode SMART</p>
-        <p><strong>Bobot:</strong> Tingkat kepentingan kriteria yang dihitung menggunakan metode ROC</p>
-        <p><strong>Skor Preferensi:</strong> Total nilai akhir dari perkalian nilai normal dengan bobot</p>
+        <h4>Keterangan Metodologi Penilaian:</h4>
+        <p><strong>Nilai Original:</strong> Nilai mentah dengan skala 1-4 berdasarkan rubrik penilaian masing-masing kriteria</p>
+        <p><strong>Nilai Ternormalisasi:</strong> Nilai yang telah dinormalisasi ke skala uniform 0-1 menggunakan metode SMART</p>
+        <p><strong>Bobot:</strong> Tingkat kepentingan relatif kriteria yang dihitung menggunakan metode ROC</p>
+        <p><strong>Skor Preferensi:</strong> Akumulasi nilai akhir dari perkalian nilai ternormalisasi dengan bobot kriteria</p>
     </div>
     
     <!-- Interpretasi Hasil -->
-    <h3 class="section-title">Interpretasi Hasil</h3>
+    <h3 class="section-title">Interpretasi Hasil Evaluasi</h3>
     <table class="table">
         <tr>
-            <td width="30%"><strong>Status</strong></td>
+            <td width="30%"><strong>Status Pencapaian</strong></td>
             <td>
                 @if($ranking == 1)
-                    <span class="badge badge-success">SISWA TELADAN KELAS {{ $siswa->kelas }}</span>
+                    <span class="badge badge-success">PREDIKAT SISWA TELADAN KELAS {{ $siswa->kelas }}</span>
                 @elseif($ranking <= 3)
                     <span class="badge badge-warning">NOMINASI SISWA TELADAN</span>
                 @elseif($ranking <= 10)
-                    <span class="badge badge-info">10 BESAR KELAS</span>
+                    <span class="badge badge-info">SEPULUH BESAR KELAS</span>
                 @else
-                    <span class="badge">PARTISIPAN</span>
+                    <span class="badge">PESERTA EVALUASI</span>
                 @endif
             </td>
         </tr>
@@ -351,14 +351,14 @@
             </td>
         </tr>
         <tr>
-            <td><strong>Rekomendasi</strong></td>
+            <td><strong>Rekomendasi Pengembangan</strong></td>
             <td>
                 @if($ranking <= 3)
-                    Pertahankan prestasi dan menjadi teladan bagi siswa lain
+                    Siswa disarankan untuk mempertahankan prestasi yang telah dicapai dan menjadi teladan bagi siswa lainnya dalam berbagai aspek kehidupan sekolah.
                 @elseif($ranking <= 10)
-                    Tingkatkan lagi prestasi untuk mencapai peringkat lebih baik
+                    Siswa memiliki potensi yang baik dan disarankan untuk meningkatkan pencapaian di beberapa kriteria untuk mencapai peringkat yang lebih optimal.
                 @else
-                    Perlu peningkatan di beberapa aspek penilaian
+                    Siswa perlu mendapat perhatian dan bimbingan lebih intensif dalam beberapa aspek penilaian untuk meningkatkan prestasi akademik dan non-akademik.
                 @endif
             </td>
         </tr>
@@ -382,7 +382,7 @@
         </div>
         <div class="signature-box">
             <p>&nbsp;</p>
-            <p>Orang Tua/Wali</p>
+            <p>Orang Tua/Wali Murid</p>
             <div class="signature-line"></div>
             <p><strong>(...........................)</strong></p>
         </div>
@@ -392,7 +392,7 @@
     <div class="footer">
         <p class="text-center" style="font-size: 10pt; color: #666;">
             Dokumen ini dicetak pada {{ now()->format('d F Y H:i:s') }}<br>
-            Sistem Pendukung Keputusan Siswa Teladan - SDIT As Sunnah Cirebon
+            Sistem Pendukung Keputusan Evaluasi Siswa Teladan - SDIT As Sunnah Cirebon
         </p>
     </div>
 </body>

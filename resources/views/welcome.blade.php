@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SPK Siswa Teladan - SDIT As Sunnah Cirebon</title>
+    <title>Sistem Pendukung Keputusan Siswa Teladan - SDIT As Sunnah Cirebon</title>
     
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -438,7 +438,7 @@
         </a>
         <a href="{{ route('hasil.publik') }}" class="nav-btn">
             <i class="bi bi-trophy"></i>
-            <span>Hasil Peringkat</span>
+            <span>Hasil Evaluasi</span>
         </a>
         @if (Route::has('login'))
             @auth
@@ -449,7 +449,7 @@
             @else
                 <a href="{{ route('login') }}" class="nav-btn">
                     <i class="bi bi-box-arrow-in-right"></i>
-                    <span>Login</span>
+                    <span>Akses Sistem</span>
                 </a>
             @endauth
         @endif
@@ -460,18 +460,21 @@
         <div class="content-box">
             <!-- Logo -->
             <div class="logo glow">
-                <img src="{{ asset('img/logo-yac.png') }}" alt="Logo YAC">
+                <img src="{{ asset('img/logo-yac.png') }}" alt="Logo Yayasan As Sunnah Cirebon">
             </div>
             
             <!-- Title -->
-            <h1 class="title">SPK PENILAIAN SISWA TELADAN</h1>
-            <h2 class="school-name">SDIT AS SUNNAH CIREBON</h2>
+            <h1 class="title">SISTEM PENDUKUNG KEPUTUSAN</h1>
+            <h2 class="subtitle">Evaluasi dan Pemilihan Siswa Teladan</h2>
+            <h2 class="school-name">SEKOLAH DASAR ISLAM TERPADU AS SUNNAH CIREBON</h2>
             
             <!-- Description -->
             <p class="description">
-                Sistem penilaian siswa teladan menggunakan metode ROC (Rank Order Centroid) 
-                dan SMART (Simple Multi Attribute Rating Technique) untuk menentukan siswa 
-                berprestasi berdasarkan kriteria akademik, akhlak, dan keaktifan.
+                Implementasi sistem pendukung keputusan berbasis teknologi informasi untuk evaluasi siswa teladan 
+                menggunakan metode ilmiah Rank Order Centroid (ROC) dalam penentuan bobot kriteria 
+                dan Simple Multi Attribute Rating Technique (SMART) untuk normalisasi nilai. 
+                Sistem ini dirancang untuk menghasilkan penilaian yang objektif, transparan, dan akuntabel 
+                berdasarkan kriteria akademik, spiritual, dan pengembangan karakter.
             </p>
             
             <!-- Quick Actions -->
@@ -481,15 +484,15 @@
                         <i class="bi bi-book"></i>
                     </div>
                     <div class="action-title">Panduan Sistem</div>
-                    <div class="action-desc">Pelajari cara kerja sistem penilaian</div>
+                    <div class="action-desc">Informasi lengkap mengenai metodologi dan kriteria penilaian</div>
                 </a>
                 
                 <a href="{{ route('hasil.publik') }}" class="action-card">
                     <div class="action-icon">
                         <i class="bi bi-trophy"></i>
                     </div>
-                    <div class="action-title">Lihat Peringkat</div>
-                    <div class="action-desc">Hasil peringkat siswa teladan</div>
+                    <div class="action-title">Laporan Peringkat</div>
+                    <div class="action-desc">Hasil evaluasi dan peringkat siswa teladan periode berjalan</div>
                 </a>
             </div>
             
@@ -497,22 +500,22 @@
             <div class="features">
                 <div class="feature">
                     <i class="bi bi-calculator"></i>
-                    <h4>ROC + SMART</h4>
-                    <p>Metode akurat</p>
+                    <h4>Metodologi Ilmiah</h4>
+                    <p>ROC + SMART</p>
                 </div>
                 <div class="feature">
                     <i class="bi bi-graph-up"></i>
                     <h4>6 Kriteria</h4>
-                    <p>Penilaian komprehensif</p>
+                    <p>Evaluasi Komprehensif</p>
                 </div>
                 <div class="feature">
                     <i class="bi bi-shield-check"></i>
                     <h4>Transparan</h4>
-                    <p>Objektif & akuntabel</p>
+                    <p>Objektif & Akuntabel</p>
                 </div>
                 <div class="feature">
                     <i class="bi bi-people"></i>
-                    <h4>4 Kelas</h4>
+                    <h4>4 Rombel</h4>
                     <p>Kelas 6A-6D</p>
                 </div>
             </div>
@@ -521,7 +524,7 @@
     
     <!-- Footer -->
     <div class="footer">
-        <p>&copy; {{ date('Y') }} SDIT As Sunnah Cirebon | Developed with Laravel {{ Illuminate\Foundation\Application::VERSION }}</p>
+        <p>&copy; {{ date('Y') }} Sekolah Dasar Islam Terpadu As Sunnah Cirebon | Sistem Berbasis Laravel {{ Illuminate\Foundation\Application::VERSION }}</p>
     </div>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

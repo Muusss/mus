@@ -292,11 +292,11 @@
     .kriteria-content {
         max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
+        transition: max-height 0.5s ease;
     }
     
     .kriteria-item.active .kriteria-content {
-        max-height: 600px;
+        max-height: 2000px;
     }
     
     .kriteria-content-inner {
@@ -349,6 +349,54 @@
         color: var(--accent-green);
         font-size: 0.9rem;
     }
+    
+    /* Subkriteria Table */
+    .subkriteria-table {
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        margin: 20px 0;
+    }
+    
+    .subkriteria-table table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .subkriteria-table th {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+        color: white;
+        padding: 15px;
+        text-align: left;
+        font-weight: 600;
+    }
+    
+    .subkriteria-table td {
+        padding: 15px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .subkriteria-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .subkriteria-table tr:hover {
+        background: #f8f9fa;
+    }
+    
+    .score-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+    
+    .score-1 { background: #ffebee; color: #c62828; }
+    .score-2 { background: #fff3e0; color: #e65100; }
+    .score-3 { background: #e8f5e9; color: #2e7d32; }
+    .score-4 { background: #e3f2fd; color: #1565c0; }
     
     /* Progress Visual */
     .progress-visual {
@@ -751,6 +799,15 @@
             width: 100%;
             justify-content: center;
         }
+        
+        .subkriteria-table {
+            font-size: 0.85rem;
+        }
+        
+        .subkriteria-table th,
+        .subkriteria-table td {
+            padding: 10px;
+        }
     }
     
     /* Loading State */
@@ -821,10 +878,11 @@
                     <i class="bi bi-shield-check me-2"></i>
                     Transparansi • Objektif • Akuntabel
                 </div>
-                <h1 class="hero-title">Sistem Penilaian Siswa Teladan yang Transparan & Adil</h1>
+                <h1 class="hero-title">Sistem Penilaian Siswa Teladan Berbasis Keputusan Multikriteria</h1>
                 <p class="hero-subtitle">
-                    SPK (Sistem Pendukung Keputusan) adalah teknologi pintar yang membantu sekolah memilih siswa teladan 
-                    secara objektif. Tidak ada lagi penilaian 'katanya' atau 'kira-kira' – semua berdasarkan data terukur!
+                    Sistem Pendukung Keputusan (SPK) merupakan implementasi teknologi informasi yang dirancang untuk 
+                    membantu proses pemilihan siswa teladan secara objektif dan terukur. Sistem ini mengintegrasikan 
+                    pendekatan ilmiah dalam evaluasi prestasi siswa berdasarkan data empiris yang terverifikasi.
                 </p>
             </div>
         </div>
@@ -837,10 +895,11 @@
                 <div class="benefit-icon">
                     <i class="bi bi-graph-up-arrow"></i>
                 </div>
-                <h3 class="benefit-title">📈 Objektif & Terukur</h3>
+                <h3 class="benefit-title">Objektif dan Terukur</h3>
                 <p class="benefit-desc">
-                    Setiap nilai punya dasar yang jelas. Bebas dari unsur subjektivitas. 
-                    Penilaian berdasarkan data real yang dapat diverifikasi.
+                    Setiap aspek penilaian didasarkan pada indikator yang jelas dan terverifikasi. 
+                    Sistem ini mengeliminasi unsur subjektivitas melalui standardisasi rubrik penilaian 
+                    yang konsisten untuk seluruh siswa.
                 </p>
             </div>
             
@@ -848,10 +907,11 @@
                 <div class="benefit-icon">
                     <i class="bi bi-eye"></i>
                 </div>
-                <h3 class="benefit-title">👁️ Transparan untuk Semua</h3>
+                <h3 class="benefit-title">Transparansi Akademik</h3>
                 <p class="benefit-desc">
-                    Bapak/Ibu bisa lihat detail penilaian anak. Kriteria terbuka untuk dipahami. 
-                    Akses mudah kapan saja, dimana saja.
+                    Wali siswa memiliki akses penuh terhadap detail penilaian anaknya. 
+                    Kriteria dan metodologi penilaian terbuka untuk dipelajari, 
+                    memastikan akuntabilitas proses evaluasi.
                 </p>
             </div>
             
@@ -859,10 +919,11 @@
                 <div class="benefit-icon">
                     <i class="bi bi-lightning-charge"></i>
                 </div>
-                <h3 class="benefit-title">⚡ Cepat & Akurat</h3>
+                <h3 class="benefit-title">Efisiensi Komputasi</h3>
                 <p class="benefit-desc">
-                    Hasil langsung terupdate setiap ada perubahan nilai. 
-                    Perhitungan otomatis tanpa kesalahan manual.
+                    Hasil penilaian diperbarui secara real-time dengan perhitungan 
+                    matematis otomatis yang mengeliminasi kemungkinan kesalahan manual 
+                    dalam proses kalkulasi.
                 </p>
             </div>
         </div>
@@ -871,7 +932,7 @@
         <div class="method-box">
             <h4>
                 <i class="bi bi-lightbulb-fill"></i>
-                Fun Fact: Kami pakai kombinasi 2 metode canggih!
+                Metodologi Ilmiah: Integrasi ROC dan SMART
             </h4>
             <div class="row mt-3">
                 <div class="col-md-6">
@@ -879,7 +940,11 @@
                         <span class="method-badge">ROC</span>
                         <div>
                             <strong>Rank Order Centroid</strong>
-                            <p class="mb-0 text-muted">Menentukan bobot kepentingan setiap kriteria secara matematis berdasarkan prioritas sekolah</p>
+                            <p class="mb-0 text-muted">
+                                Metode pembobotan kriteria yang menggunakan pendekatan matematis untuk 
+                                menentukan tingkat kepentingan relatif setiap kriteria berdasarkan 
+                                prioritas institusional yang telah ditetapkan oleh manajemen sekolah.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -887,14 +952,18 @@
                     <div class="d-flex align-items-start gap-3">
                         <span class="method-badge">SMART</span>
                         <div>
-                            <strong>Simple Multi Attribute Rating</strong>
-                            <p class="mb-0 text-muted">Menghitung skor akhir dengan normalisasi nilai ke skala 0-1 untuk keadilan</p>
+                            <strong>Simple Multi Attribute Rating Technique</strong>
+                            <p class="mb-0 text-muted">
+                                Teknik evaluasi multiatribut yang melakukan normalisasi nilai ke dalam 
+                                skala uniform 0-1, memastikan komparabilitas antar kriteria dengan 
+                                satuan pengukuran yang berbeda.
+                            </p>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="mt-3 text-center">
-                <strong>Hasilnya? Penilaian yang super adil! 🎯</strong>
+                <strong>Hasil: Sistem penilaian yang adil, objektif, dan berbasis bukti empiris</strong>
             </div>
         </div>
         
@@ -904,10 +973,11 @@
                 <div class="section-icon">
                     <i class="bi bi-clipboard-check"></i>
                 </div>
-                <h2 class="section-title">6 Kriteria Penilaian Siswa Teladan</h2>
+                <h2 class="section-title">Enam Kriteria Penilaian Komprehensif</h2>
                 <p class="section-subtitle">
-                    Kami menilai 6 aspek penting untuk menentukan siswa teladan. 
-                    Klik setiap kriteria untuk detail lengkapnya:
+                    Sistem evaluasi ini menggunakan enam kriteria fundamental yang mencakup aspek 
+                    akademik, spiritual, dan pengembangan karakter. Klik setiap kriteria untuk 
+                    melihat rubrik penilaian detail.
                 </p>
             </div>
             
@@ -922,7 +992,7 @@
                                     <span class="kriteria-code">C1</span>
                                     Nilai Raport Umum
                                 </h3>
-                                <span class="kriteria-bobot">Bobot: 30%</span>
+                                <span class="kriteria-bobot">Bobot: 40.83%</span>
                             </div>
                         </div>
                         <i class="bi bi-chevron-down kriteria-toggle"></i>
@@ -931,27 +1001,80 @@
                         <div class="kriteria-content-inner">
                             <div class="kriteria-detail">
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-question-circle"></i> Mengapa Penting?</h4>
-                                    <p>Prestasi akademik menunjukkan kesungguhan belajar dan pemahaman materi pelajaran. Ini adalah fondasi utama pendidikan.</p>
+                                    <h4><i class="bi bi-question-circle"></i> Signifikansi Kriteria</h4>
+                                    <p>
+                                        Nilai Raport Umum merupakan kriteria dengan bobot tertinggi, 
+                                        mencerminkan filosofi institusional bahwa prestasi akademik 
+                                        adalah fondasi utama pendidikan formal. Kriteria ini menilai 
+                                        kemampuan kognitif siswa dalam menguasai mata pelajaran umum.
+                                    </p>
                                 </div>
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-calculator"></i> Cara Mengukur</h4>
+                                    <h4><i class="bi bi-book"></i> Cakupan Mata Pelajaran</h4>
                                     <ul>
-                                        <li><i class="bi bi-check-circle"></i> Rata-rata nilai semua mapel umum</li>
-                                        <li><i class="bi bi-check-circle"></i> Skala penilaian 0-100</li>
-                                        <li><i class="bi bi-check-circle"></i> Update setiap akhir semester</li>
+                                        <li><i class="bi bi-check-circle"></i> Matematika</li>
+                                        <li><i class="bi bi-check-circle"></i> Ilmu Pengetahuan Alam</li>
+                                        <li><i class="bi bi-check-circle"></i> Ilmu Pengetahuan Sosial</li>
+                                        <li><i class="bi bi-check-circle"></i> Bahasa Indonesia</li>
+                                        <li><i class="bi bi-check-circle"></i> Bahasa Inggris</li>
+                                        <li><i class="bi bi-check-circle"></i> Pendidikan Kewarganegaraan</li>
                                     </ul>
                                 </div>
                             </div>
-                            <div class="progress-visual">
-                                <strong>Contoh Visual Nilai:</strong>
-                                <div class="progress-bar-custom">
-                                    <div class="progress-fill" style="width: 85%;">85/100</div>
-                                </div>
-                                <div class="progress-label">
-                                    <span>Anak Bapak/Ibu: 85</span>
-                                    <span>Rata-rata kelas: 78</span>
-                                </div>
+                            
+                            <div class="subkriteria-table">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Rentang Nilai</th>
+                                            <th>Kategori</th>
+                                            <th>Skor</th>
+                                            <th>Deskripsi Pencapaian</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>&lt; 80</strong></td>
+                                            <td>Perlu Peningkatan</td>
+                                            <td><span class="score-badge score-1">1</span></td>
+                                            <td>
+                                                Siswa memerlukan bimbingan intensif dan perbaikan signifikan 
+                                                dalam proses pembelajaran. Kesulitan dalam memahami konsep dasar 
+                                                mata pelajaran membutuhkan perhatian khusus dari guru.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>80-85</strong></td>
+                                            <td>Cukup Baik</td>
+                                            <td><span class="score-badge score-2">2</span></td>
+                                            <td>
+                                                Pencapaian akademik pada tingkat cukup baik. Siswa telah memenuhi 
+                                                standar minimal kompetensi, namun perlu mengembangkan kemampuan 
+                                                analisis dan aplikasi pengetahuan dalam konteks yang lebih kompleks.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>86-90</strong></td>
+                                            <td>Baik</td>
+                                            <td><span class="score-badge score-3">3</span></td>
+                                            <td>
+                                                Prestasi akademik yang baik dan konsisten. Siswa menunjukkan 
+                                                penguasaan materi yang solid, kemampuan berpikir kritis yang 
+                                                berkembang, dan aktif dalam diskusi kelas.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>&gt; 90</strong></td>
+                                            <td>Sangat Baik</td>
+                                            <td><span class="score-badge score-4">4</span></td>
+                                            <td>
+                                                Prestasi akademik yang unggul. Siswa mampu melakukan analisis 
+                                                mendalam, sintesis informasi dari berbagai sumber, dan menghasilkan 
+                                                pemikiran orisinal. Berpotensi menjadi pemimpin akademik.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -967,7 +1090,7 @@
                                     <span class="kriteria-code">C2</span>
                                     Nilai Raport Diniyah
                                 </h3>
-                                <span class="kriteria-bobot">Bobot: 25%</span>
+                                <span class="kriteria-bobot">Bobot: 24.17%</span>
                             </div>
                         </div>
                         <i class="bi bi-chevron-down kriteria-toggle"></i>
@@ -976,18 +1099,79 @@
                         <div class="kriteria-content-inner">
                             <div class="kriteria-detail">
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-question-circle"></i> Mengapa Penting?</h4>
-                                    <p>Membentuk karakter islami yang kuat sesuai visi sekolah. Menjadi bekal akhirat dan dunia.</p>
+                                    <h4><i class="bi bi-question-circle"></i> Signifikansi Kriteria</h4>
+                                    <p>
+                                        Menduduki posisi kedua dalam hierarki pembobotan, mencerminkan 
+                                        identitas SDIT As Sunnah sebagai sekolah Islam terpadu yang 
+                                        menempatkan pendidikan agama sebagai pilar penting dalam 
+                                        pembentukan karakter siswa.
+                                    </p>
                                 </div>
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-book"></i> Mata Pelajaran</h4>
+                                    <h4><i class="bi bi-book"></i> Mata Pelajaran Diniyah</h4>
                                     <ul>
-                                        <li><i class="bi bi-check-circle"></i> Al-Qur'an & Tajwid</li>
+                                        <li><i class="bi bi-check-circle"></i> Al-Qur'an dan Tajwid</li>
                                         <li><i class="bi bi-check-circle"></i> Hadits</li>
                                         <li><i class="bi bi-check-circle"></i> Fiqih</li>
                                         <li><i class="bi bi-check-circle"></i> Aqidah Akhlak</li>
+                                        <li><i class="bi bi-check-circle"></i> Sejarah Islam</li>
                                     </ul>
                                 </div>
+                            </div>
+                            
+                            <div class="subkriteria-table">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Rentang Nilai</th>
+                                            <th>Kategori</th>
+                                            <th>Skor</th>
+                                            <th>Deskripsi Pencapaian</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>&lt; 85</strong></td>
+                                            <td>Perlu Pendalaman</td>
+                                            <td><span class="score-badge score-1">1</span></td>
+                                            <td>
+                                                Pemahaman agama yang masih dasar dan memerlukan pendalaman intensif. 
+                                                Kesulitan dalam membaca Al-Qur'an dengan tajwid yang benar, 
+                                                pemahaman hadits terbatas, dan penguasaan fiqih ibadah belum memadai.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>85-90</strong></td>
+                                            <td>Cukup</td>
+                                            <td><span class="score-badge score-2">2</span></td>
+                                            <td>
+                                                Pemahaman diniyah pada tingkat cukup yang memenuhi standar minimal. 
+                                                Dapat membaca Al-Qur'an dengan tajwid cukup baik, memahami hadits pokok, 
+                                                dan menguasai fiqih ibadah dasar.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>91-95</strong></td>
+                                            <td>Baik</td>
+                                            <td><span class="score-badge score-3">3</span></td>
+                                            <td>
+                                                Penguasaan materi diniyah yang solid. Mampu menjelaskan konsep keislaman 
+                                                dengan baik, mengaitkan pembelajaran dengan realitas kehidupan, 
+                                                dan menunjukkan adab Islami dalam pergaulan sehari-hari.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>&gt; 95</strong></td>
+                                            <td>Sangat Baik</td>
+                                            <td><span class="score-badge score-4">4</span></td>
+                                            <td>
+                                                Pemahaman diniyah yang mendalam dan luar biasa. Mampu melakukan 
+                                                analisis komparatif antar madzhab, memahami konteks historis 
+                                                hukum Islam, dan menjadi rujukan dalam masalah keagamaan.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -1001,9 +1185,9 @@
                             <div class="kriteria-info">
                                 <h3>
                                     <span class="kriteria-code">C3</span>
-                                    Akhlak & Sikap
+                                    Akhlak
                                 </h3>
-                                <span class="kriteria-bobot">Bobot: 20%</span>
+                                <span class="kriteria-bobot">Bobot: 15.83%</span>
                             </div>
                         </div>
                         <i class="bi bi-chevron-down kriteria-toggle"></i>
@@ -1012,18 +1196,74 @@
                         <div class="kriteria-content-inner">
                             <div class="kriteria-detail">
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-question-circle"></i> Mengapa Penting?</h4>
-                                    <p>Siswa teladan bukan hanya pintar, tapi juga berakhlak mulia. Cerminan keberhasilan pendidikan karakter.</p>
+                                    <h4><i class="bi bi-question-circle"></i> Signifikansi Kriteria</h4>
+                                    <p>
+                                        Komponen vital yang mencerminkan aspek afektif dan psikomotorik 
+                                        siswa dalam kehidupan sehari-hari. Penilaian memerlukan observasi 
+                                        kontinyu dan komprehensif dari guru mata pelajaran, wali kelas, 
+                                        guru BK, dan masukan teman sebaya.
+                                    </p>
                                 </div>
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-star"></i> Indikator Penilaian</h4>
+                                    <h4><i class="bi bi-star"></i> Lima Aspek Fundamental</h4>
                                     <ul>
-                                        <li><i class="bi bi-check-circle"></i> Sopan santun</li>
-                                        <li><i class="bi bi-check-circle"></i> Tanggung jawab</li>
+                                        <li><i class="bi bi-check-circle"></i> Sopan Santun</li>
+                                        <li><i class="bi bi-check-circle"></i> Tanggung Jawab</li>
                                         <li><i class="bi bi-check-circle"></i> Kerjasama</li>
                                         <li><i class="bi bi-check-circle"></i> Kejujuran</li>
+                                        <li><i class="bi bi-check-circle"></i> Kepedulian Sosial</li>
                                     </ul>
                                 </div>
+                            </div>
+                            
+                            <div class="subkriteria-table">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Kategori</th>
+                                            <th>Skor</th>
+                                            <th>Indikator Perilaku</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Kurang Baik</strong></td>
+                                            <td><span class="score-badge score-1">1</span></td>
+                                            <td>
+                                                Sering melanggar tata tertib sekolah, menunjukkan sikap tidak sopan, 
+                                                memiliki catatan ketidakjujuran seperti menyontek atau berbohong, 
+                                                dan kurang peduli terhadap lingkungan. Memerlukan pembinaan karakter intensif.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Cukup Baik</strong></td>
+                                            <td><span class="score-badge score-2">2</span></td>
+                                            <td>
+                                                Sesekali melakukan pelanggaran ringan, namun menunjukkan kesadaran 
+                                                akan kesalahan dan bersedia memperbaiki diri. Sopan santun cukup baik 
+                                                meskipun belum konsisten, tanggung jawab mulai berkembang.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Baik</strong></td>
+                                            <td><span class="score-badge score-3">3</span></td>
+                                            <td>
+                                                Konsisten mematuhi aturan sekolah, menunjukkan sopan santun yang baik, 
+                                                bertanggung jawab terhadap tugas, dapat bekerjasama dalam tim, 
+                                                dan menunjukkan kejujuran. Menjadi contoh positif bagi teman-teman.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Sangat Baik</strong></td>
+                                            <td><span class="score-badge score-4">4</span></td>
+                                            <td>
+                                                Menjadi teladan dan agen perubahan positif. Menunjukkan inisiatif membantu, 
+                                                integritas tinggi bahkan tanpa pengawasan, mampu menyelesaikan konflik 
+                                                dengan bijaksana, dan aktif dalam kegiatan sosial kemanusiaan.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -1039,7 +1279,7 @@
                                     <span class="kriteria-code">C4</span>
                                     Hafalan Al-Qur'an
                                 </h3>
-                                <span class="kriteria-bobot">Bobot: 10%</span>
+                                <span class="kriteria-bobot">Bobot: 10.28%</span>
                             </div>
                         </div>
                         <i class="bi bi-chevron-down kriteria-toggle"></i>
@@ -1048,18 +1288,71 @@
                         <div class="kriteria-content-inner">
                             <div class="kriteria-detail">
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-trophy"></i> Level Pencapaian</h4>
-                                    <ul>
-                                        <li><i class="bi bi-star"></i> 1/2 Juz: Skor 25</li>
-                                        <li><i class="bi bi-star"></i> 1 Juz: Skor 50</li>
-                                        <li><i class="bi bi-star"></i> 2 Juz: Skor 75</li>
-                                        <li><i class="bi bi-star"></i> >2 Juz: Skor 100</li>
-                                    </ul>
+                                    <h4><i class="bi bi-question-circle"></i> Signifikansi Kriteria</h4>
+                                    <p>
+                                        Mencerminkan komitmen SDIT As Sunnah dalam mewujudkan generasi Qur'ani. 
+                                        Program tahfidz merupakan bagian integral dari kurikulum untuk membentuk 
+                                        kedekatan emosional dan spiritual siswa dengan kitab suci.
+                                    </p>
                                 </div>
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-check2-all"></i> Metode Penilaian</h4>
-                                    <p>Ujian lisan dengan tahsin yang baik. Penilaian oleh tim tahfidz sekolah.</p>
+                                    <h4><i class="bi bi-check2-all"></i> Metode Evaluasi</h4>
+                                    <p>
+                                        Penilaian melalui ujian lisan berkala oleh tim tahfidz bersertifikat. 
+                                        Evaluasi mencakup kelancaran, tajwid, dan tahsin (keindahan bacaan) 
+                                        menggunakan sistem tasmi' (menyimak) tanpa mushaf.
+                                    </p>
                                 </div>
+                            </div>
+                            
+                            <div class="subkriteria-table">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Capaian Hafalan</th>
+                                            <th>Skor</th>
+                                            <th>Deskripsi Pencapaian</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>½ Juz</strong></td>
+                                            <td><span class="score-badge score-1">1</span></td>
+                                            <td>
+                                                Tahap fondasi hafalan (sekitar 10 halaman), umumnya Juz 30 bagian pertama. 
+                                                Siswa dalam tahap membangun teknik menghafal efektif dan membiasakan 
+                                                lidah dengan bacaan Arab yang fasih.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>1 Juz</strong></td>
+                                            <td><span class="score-badge score-2">2</span></td>
+                                            <td>
+                                                Menyelesaikan hafalan Juz 30 penuh. Menunjukkan komitmen serius terhadap 
+                                                program tahfidz, memiliki rutinitas menghafal terbentuk, mampu muraja'ah, 
+                                                dan peningkatan kualitas bacaan.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>2 Juz</strong></td>
+                                            <td><span class="score-badge score-3">3</span></td>
+                                            <td>
+                                                Pencapaian signifikan (Juz 30 dan 29). Disiplin tinggi dalam menjaga hafalan, 
+                                                teknik menghafal efektif, mampu menghubungkan ayat dalam konteks luas. 
+                                                Sering menjadi imam shalat atau memimpin tadarus.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>&gt; 2 Juz</strong></td>
+                                            <td><span class="score-badge score-4">4</span></td>
+                                            <td>
+                                                Pencapaian istimewa untuk tingkat SD. Hafalan sempurna dengan pemahaman 
+                                                asbabun nuzul, mampu menjelaskan kandungan ayat, menerapkan nilai Al-Qur'an. 
+                                                Menjadi motivator program tahfidz dan mewakili sekolah dalam kompetisi.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -1075,7 +1368,7 @@
                                     <span class="kriteria-code">C5</span>
                                     Kehadiran
                                 </h3>
-                                <span class="kriteria-bobot">Bobot: 10%</span>
+                                <span class="kriteria-bobot">Bobot: 6.11%</span>
                             </div>
                         </div>
                         <i class="bi bi-chevron-down kriteria-toggle"></i>
@@ -1084,18 +1377,78 @@
                         <div class="kriteria-content-inner">
                             <div class="kriteria-detail">
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-calculator"></i> Cara Hitung</h4>
-                                    <p><code>Kehadiran = (Hari Masuk / Total Hari Efektif) × 100%</code></p>
+                                    <h4><i class="bi bi-question-circle"></i> Signifikansi Kriteria</h4>
+                                    <p>
+                                        Indikator fundamental kedisiplinan dan komitmen siswa terhadap proses 
+                                        pendidikan. Kehadiran adalah prasyarat mutlak untuk pencapaian akademik 
+                                        dan non-akademik, manifestasi dari motivasi belajar intrinsik.
+                                    </p>
                                 </div>
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-list-check"></i> Kategori</h4>
-                                    <ul>
-                                        <li><i class="bi bi-check-circle"></i> 96-100%: Sangat Baik</li>
-                                        <li><i class="bi bi-check-circle"></i> 91-95%: Baik</li>
-                                        <li><i class="bi bi-check-circle"></i> 86-90%: Cukup</li>
-                                        <li><i class="bi bi-check-circle"></i> <85%: Perlu Perhatian</li>
-                                    </ul>
+                                    <h4><i class="bi bi-calculator"></i> Formula Perhitungan</h4>
+                                    <p>
+                                        <code>Kehadiran = (Jumlah Hari Masuk ÷ Total Hari Efektif) × 100%</code>
+                                    </p>
+                                    <p class="mt-2">
+                                        Sistem pencatatan menggunakan kombinasi metode manual dan digital, 
+                                        mencatat kategori ketidakhadiran (sakit, izin, alpa) dan durasi keterlambatan.
+                                    </p>
                                 </div>
+                            </div>
+                            
+                            <div class="subkriteria-table">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Persentase</th>
+                                            <th>Kategori</th>
+                                            <th>Skor</th>
+                                            <th>Analisis Kedisiplinan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>&lt; 60%</strong></td>
+                                            <td>Kritis</td>
+                                            <td><span class="score-badge score-1">1</span></td>
+                                            <td>
+                                                Masalah serius dalam kedisiplinan. Kehilangan lebih dari 40% waktu 
+                                                pembelajaran berdampak signifikan pada pencapaian. Memerlukan home visit, 
+                                                konseling intensif, dan kerjasama dengan orang tua.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>60-75%</strong></td>
+                                            <td>Mengkhawatirkan</td>
+                                            <td><span class="score-badge score-2">2</span></td>
+                                            <td>
+                                                Tingkat absensi mengkhawatirkan namun dapat diperbaiki. Kehilangan 
+                                                seperempat hingga setengah waktu pembelajaran. Perlu kontrak kehadiran 
+                                                dengan orang tua dan program remedial.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>76-90%</strong></td>
+                                            <td>Baik</td>
+                                            <td><span class="score-badge score-3">3</span></td>
+                                            <td>
+                                                Kedisiplinan memenuhi standar sekolah. Ketidakhadiran dalam batas wajar 
+                                                dengan keterangan valid. Menunjukkan tanggung jawab dengan berusaha 
+                                                mengejar materi yang tertinggal.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>&gt; 90%</strong></td>
+                                            <td>Sangat Baik</td>
+                                            <td><span class="score-badge score-4">4</span></td>
+                                            <td>
+                                                Kedisiplinan sangat baik dan komitmen tinggi. Hampir tidak pernah absen, 
+                                                selalu hadir tepat waktu, proaktif menanyakan tugas saat terpaksa tidak hadir. 
+                                                Berkorelasi positif dengan prestasi akademik.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -1111,7 +1464,7 @@
                                     <span class="kriteria-code">C6</span>
                                     Ekstrakurikuler
                                 </h3>
-                                <span class="kriteria-bobot">Bobot: 5%</span>
+                                <span class="kriteria-bobot">Bobot: 2.78%</span>
                             </div>
                         </div>
                         <i class="bi bi-chevron-down kriteria-toggle"></i>
@@ -1120,17 +1473,73 @@
                         <div class="kriteria-content-inner">
                             <div class="kriteria-detail">
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-award"></i> Penilaian Berdasarkan</h4>
-                                    <ul>
-                                        <li><i class="bi bi-check-circle"></i> Keaktifan mengikuti kegiatan</li>
-                                        <li><i class="bi bi-check-circle"></i> Prestasi/juara yang diraih</li>
-                                        <li><i class="bi bi-check-circle"></i> Kontribusi dalam tim</li>
-                                    </ul>
+                                    <h4><i class="bi bi-question-circle"></i> Signifikansi Kriteria</h4>
+                                    <p>
+                                        Pengembangan karakter holistik melalui eksplorasi bakat, minat, 
+                                        dan soft skills di luar pembelajaran regular. Bobot relatif kecil 
+                                        mengindikasikan sifat komplementer terhadap prestasi akademik.
+                                    </p>
                                 </div>
                                 <div class="detail-box">
-                                    <h4><i class="bi bi-flag"></i> Kegiatan Tersedia</h4>
-                                    <p>Pramuka, Seni, Olahraga, Tahfidz, Robotik, dan lainnya</p>
+                                    <h4><i class="bi bi-flag"></i> Kategori Kegiatan</h4>
+                                    <ul>
+                                        <li><i class="bi bi-check-circle"></i> Keagamaan (Tahfidz, Kaligrafi, Marawis)</li>
+                                        <li><i class="bi bi-check-circle"></i> Olahraga (Futsal, Basket, Pencak Silat)</li>
+                                        <li><i class="bi bi-check-circle"></i> Seni Budaya (Paduan Suara, Tari, Teater)</li>
+                                        <li><i class="bi bi-check-circle"></i> Sains Teknologi (Robotik, Sains Club)</li>
+                                        <li><i class="bi bi-check-circle"></i> Kepramukaan (Wajib)</li>
+                                    </ul>
                                 </div>
+                            </div>
+                            
+                            <div class="subkriteria-table">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Status Partisipasi</th>
+                                            <th>Skor</th>
+                                            <th>Indikator Perkembangan</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Tidak Mengikuti</strong></td>
+                                            <td><span class="score-badge score-1">1</span></td>
+                                            <td>
+                                                Tidak terlibat dalam kegiatan ekstrakurikuler di luar Pramuka wajib, 
+                                                atau tidak mengikuti Pramuka sama sekali. Kehilangan kesempatan 
+                                                pengembangan keterampilan sosial dan kepemimpinan.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Tidak Berkembang</strong></td>
+                                            <td><span class="score-badge score-2">2</span></td>
+                                            <td>
+                                                Partisipasi pasif dengan kehadiran di bawah 75%. Tidak menunjukkan 
+                                                perkembangan skill signifikan, hadir karena kewajiban tanpa motivasi internal. 
+                                                Perlu evaluasi kesesuaian minat.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Berkembang</strong></td>
+                                            <td><span class="score-badge score-3">3</span></td>
+                                            <td>
+                                                Partisipasi aktif dengan kehadiran di atas 75%. Progress terukur dalam 
+                                                keterampilan, kontribusi konsisten dalam tim, berani tampil dalam pentas 
+                                                internal, menunjukkan sportivitas dan kerjasama yang baik.
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Sangat Berkembang</strong></td>
+                                            <td><span class="score-badge score-4">4</span></td>
+                                            <td>
+                                                Dedikasi luar biasa dengan kehadiran hampir sempurna (>90%). Motor penggerak 
+                                                dalam kelompok, meraih prestasi tingkat antar sekolah atau lebih tinggi. 
+                                                Berhasil mengintegrasikan pembelajaran ekstrakurikuler ke kehidupan sehari-hari.
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -1145,7 +1554,7 @@
                     <i class="bi bi-graph-up"></i>
                 </div>
                 <h2 class="section-title">Visualisasi Data Penilaian</h2>
-                <p class="section-subtitle">Lihat gambaran umum prestasi siswa dalam bentuk grafik</p>
+                <p class="section-subtitle">Representasi grafis prestasi siswa berdasarkan data aktual</p>
             </div>
             
             <div class="row">
@@ -1153,7 +1562,7 @@
                     <div class="chart-container">
                         <h4 class="chart-title">
                             <i class="bi bi-bar-chart"></i>
-                            Top 10 Siswa Teladan
+                            Peringkat 10 Besar Siswa Teladan
                         </h4>
                         <div class="chart-bars">
                             @php
@@ -1173,7 +1582,7 @@
                                             <div class="progress-bar" role="progressbar" 
                                                  style="width: {{ $student['score'] }}%; background: linear-gradient(90deg, var(--primary-color), var(--primary-light));"
                                                  aria-valuenow="{{ $student['score'] }}" aria-valuemin="0" aria-valuemax="100">
-                                                {{ $student['score'] }}
+                                                {{ $student['score'] }}%
                                             </div>
                                         </div>
                                     </div>
@@ -1187,12 +1596,12 @@
                     <div class="chart-container">
                         <h4 class="chart-title">
                             <i class="bi bi-pie-chart"></i>
-                            Distribusi Nilai per Kriteria
+                            Distribusi Bobot Kriteria
                         </h4>
                         <div class="text-center">
                             <canvas id="pieChart" width="300" height="300"></canvas>
                             <p class="text-muted mt-3">
-                                Grafik menunjukkan kontribusi setiap kriteria terhadap nilai akhir
+                                Visualisasi proporsi kontribusi setiap kriteria terhadap nilai akhir
                             </p>
                         </div>
                     </div>
@@ -1206,9 +1615,9 @@
                 <div class="section-icon">
                     <i class="bi bi-search"></i>
                 </div>
-                <h2 class="section-title">Cek Nilai Anak Anda</h2>
+                <h2 class="section-title">Akses Informasi Nilai Siswa</h2>
                 <p class="section-subtitle">
-                    Wali siswa dapat melihat rincian nilai untuk setiap kriteria penilaian
+                    Wali siswa dapat mengakses rincian komprehensif nilai untuk setiap kriteria penilaian
                 </p>
             </div>
             
@@ -1266,7 +1675,7 @@
                 
                 <div class="action-buttons">
                     <button type="button" class="action-btn primary">
-                        <i class="bi bi-file-earmark-pdf"></i> Download PDF
+                        <i class="bi bi-file-earmark-pdf"></i> Unduh PDF
                     </button>
                     <button type="button" class="action-btn secondary">
                         <i class="bi bi-printer"></i> Cetak Laporan
@@ -1279,8 +1688,9 @@
             
             <div class="alert alert-info mt-4">
                 <i class="bi bi-shield-lock me-2"></i>
-                <strong>Privasi Data:</strong> Informasi nilai bersifat rahasia dan hanya dapat diakses oleh wali siswa yang bersangkutan. 
-                Data ini tidak untuk disebarluaskan atau dibandingkan dengan siswa lain di luar kepentingan evaluasi pribadi.
+                <strong>Kebijakan Privasi Data:</strong> Informasi nilai bersifat rahasia dan hanya dapat diakses 
+                oleh wali siswa yang bersangkutan sesuai dengan regulasi perlindungan data pribadi. 
+                Data ini tidak untuk disebarluaskan atau dibandingkan dengan siswa lain di luar kepentingan evaluasi akademik.
             </div>
         </div>
         
@@ -1290,74 +1700,80 @@
                 <div class="section-icon">
                     <i class="bi bi-question-circle"></i>
                 </div>
-                <h2 class="section-title">Panduan & Pertanyaan Umum</h2>
-                <p class="section-subtitle">Temukan jawaban untuk pertanyaan yang sering diajukan</p>
+                <h2 class="section-title">Panduan dan Pertanyaan Umum</h2>
+                <p class="section-subtitle">Informasi komprehensif mengenai sistem penilaian</p>
             </div>
             
             <div class="faq-grid">
                 <div class="faq-item">
                     <div class="faq-question">
                         <i class="bi bi-patch-question"></i>
-                        Apa itu bobot kriteria?
+                        Apa yang dimaksud dengan bobot kriteria?
                     </div>
                     <div class="faq-answer">
-                        Bobot adalah tingkat kepentingan setiap kriteria. Misal, nilai akademik (30%) 
-                        lebih berpengaruh dibanding ekstrakurikuler (5%) dalam menentukan siswa teladan.
+                        Bobot kriteria merupakan nilai kepentingan relatif setiap kriteria dalam sistem evaluasi. 
+                        Sebagai contoh, nilai raport umum dengan bobot 40.83% memiliki pengaruh lebih signifikan 
+                        dibandingkan ekstrakurikuler (2.78%) dalam penentuan siswa teladan.
                     </div>
                 </div>
                 
                 <div class="faq-item">
                     <div class="faq-question">
                         <i class="bi bi-patch-question"></i>
-                        Bagaimana cara ROC-SMART bekerja?
+                        Bagaimana mekanisme kerja metode ROC-SMART?
                     </div>
                     <div class="faq-answer">
-                        ROC menentukan bobot berdasarkan prioritas, SMART menormalisasi nilai ke skala 0-1. 
-                        Hasilnya adalah skor preferensi yang adil untuk semua siswa.
+                        ROC (Rank Order Centroid) menentukan bobot kriteria berdasarkan urutan prioritas institusional, 
+                        sementara SMART (Simple Multi Attribute Rating Technique) menormalisasi nilai heterogen 
+                        ke dalam skala uniform 0-1, menghasilkan skor preferensi yang adil dan komparatif.
                     </div>
                 </div>
                 
                 <div class="faq-item">
                     <div class="faq-question">
                         <i class="bi bi-patch-question"></i>
-                        Kapan data nilai diperbarui?
+                        Kapan periode pembaruan data nilai?
                     </div>
                     <div class="faq-answer">
-                        Setiap akhir bulan untuk nilai harian dan akhir semester untuk nilai raport. 
-                        Pembaruan dilakukan oleh wali kelas masing-masing.
+                        Pembaruan data dilakukan secara berkala: nilai harian diperbarui setiap akhir bulan, 
+                        sementara nilai raport diperbarui setiap akhir semester. Pembaruan dilakukan oleh 
+                        wali kelas masing-masing melalui sistem informasi sekolah.
                     </div>
                 </div>
                 
                 <div class="faq-item">
                     <div class="faq-question">
                         <i class="bi bi-patch-question"></i>
-                        Bagaimana jika ada kesalahan data?
+                        Prosedur koreksi data yang keliru?
                     </div>
                     <div class="faq-answer">
-                        Segera hubungi wali kelas untuk verifikasi dan koreksi data. 
-                        Perubahan akan langsung terlihat setelah diperbarui.
+                        Apabila terdapat kesalahan data, wali siswa dapat mengajukan verifikasi kepada wali kelas 
+                        dengan menyertakan bukti pendukung. Perubahan yang telah diverifikasi akan langsung 
+                        terintegrasi dalam sistem secara real-time.
                     </div>
                 </div>
                 
                 <div class="faq-item">
                     <div class="faq-question">
                         <i class="bi bi-patch-question"></i>
-                        Mengapa skor anak saya berubah?
+                        Mengapa skor siswa dapat berubah?
                     </div>
                     <div class="faq-answer">
-                        Skor dapat berubah karena: (1) perkembangan nilai siswa, (2) perubahan nilai siswa lain 
-                        yang mempengaruhi normalisasi, atau (3) penyesuaian bobot kriteria.
+                        Perubahan skor dapat disebabkan oleh: (1) perkembangan nilai individual siswa, 
+                        (2) perubahan nilai siswa lain yang mempengaruhi proses normalisasi, 
+                        atau (3) penyesuaian bobot kriteria berdasarkan kebijakan sekolah.
                     </div>
                 </div>
                 
                 <div class="faq-item">
                     <div class="faq-question">
                         <i class="bi bi-patch-question"></i>
-                        Bisakah melihat nilai siswa lain?
+                        Apakah nilai siswa lain dapat diakses?
                     </div>
                     <div class="faq-answer">
-                        Tidak. Setiap wali hanya dapat melihat nilai anak sendiri. 
-                        Namun peringkat umum dapat dilihat tanpa detail nilai.
+                        Sesuai dengan prinsip kerahasiaan akademik, setiap wali hanya memiliki akses 
+                        terhadap nilai anaknya sendiri. Informasi peringkat umum dapat diakses 
+                        tanpa menampilkan detail nilai individual siswa lain.
                     </div>
                 </div>
             </div>
@@ -1367,14 +1783,14 @@
     <!-- Floating Action Button -->
     <div class="fab" onclick="window.location.href='{{ route('cek.nilai') }}'">
         <i class="bi bi-search"></i>
-        <span class="fab-tooltip">Cek Nilai Anak Saya</span>
+        <span class="fab-tooltip">Akses Nilai Siswa</span>
     </div>
     
     <!-- Tour Overlay (Hidden by default) -->
     <div class="tour-overlay" id="tourOverlay"></div>
     <div class="tour-tooltip" id="tourTooltip" style="display: none;">
-        <h4>Selamat Datang!</h4>
-        <p>Mari kami tunjukkan cara menggunakan sistem penilaian siswa teladan.</p>
+        <h4>Selamat Datang</h4>
+        <p>Kami akan memandu Anda dalam menggunakan sistem penilaian siswa teladan.</p>
         <div class="tour-buttons">
             <button class="tour-btn skip" onclick="skipTour()">Lewati</button>
             <button class="tour-btn next" onclick="nextTourStep()">Lanjut</button>
@@ -1431,10 +1847,10 @@
     // Tour Functions
     let tourStep = 0;
     const tourSteps = [
-        { element: '.search-box', text: 'Masukkan NISN atau nama anak Anda di sini' },
-        { element: '.filter-group', text: 'Filter hasil berdasarkan kelas dan periode' },
-        { element: '.view-toggle', text: 'Pilih mode tampilan yang Anda inginkan' },
-        { element: '.action-buttons', text: 'Download atau cetak laporan nilai' }
+        { element: '.search-box', text: 'Masukkan NISN atau nama siswa pada kolom pencarian' },
+        { element: '.filter-group', text: 'Gunakan filter untuk mempersempit hasil pencarian' },
+        { element: '.view-toggle', text: 'Pilih mode tampilan sesuai kebutuhan' },
+        { element: '.action-buttons', text: 'Unduh atau cetak laporan penilaian' }
     ];
     
     function startTour() {
@@ -1478,7 +1894,7 @@
         document.getElementById('tourOverlay').style.display = 'none';
         document.getElementById('tourTooltip').style.display = 'none';
         localStorage.setItem('tourCompleted', 'true');
-        showToast('Anda dapat memulai tur kembali dari menu bantuan', 'info');
+        showToast('Tur dapat diakses kembali melalui menu bantuan', 'info');
     }
     
     // Simple Pie Chart Drawing
@@ -1492,12 +1908,12 @@
         const radius = 100;
         
         const data = [
-            { label: 'Nilai Umum', value: 30, color: '#ff6b35' },
-            { label: 'Nilai Diniyah', value: 25, color: '#ff8c5a' },
-            { label: 'Akhlak', value: 20, color: '#ffa374' },
-            { label: 'Hafalan', value: 10, color: '#ffb891' },
-            { label: 'Kehadiran', value: 10, color: '#ffcdb0' },
-            { label: 'Ekskul', value: 5, color: '#ffe2cf' }
+            { label: 'Nilai Umum', value: 40.83, color: '#ff6b35' },
+            { label: 'Nilai Diniyah', value: 24.17, color: '#ff8c5a' },
+            { label: 'Akhlak', value: 15.83, color: '#ffa374' },
+            { label: 'Hafalan', value: 10.28, color: '#ffb891' },
+            { label: 'Kehadiran', value: 6.11, color: '#ffcdb0' },
+            { label: 'Ekskul', value: 2.78, color: '#ffe2cf' }
         ];
         
         let currentAngle = -Math.PI / 2;
